@@ -47,27 +47,38 @@ var B0=typeof BANK0!='undefined'?BANK0:BANK;
 B0.push.apply(B0,NEW);
 B0.forEach(function(q){if(!q.b)for(var i=0;i<pairs.length;i++)if(q.q.indexOf(pairs[i][0])>=0){q.b=+pairs[i][1];break}});
 if(typeof rebuild=='function')rebuild();
-var scope={b:0};
+var scope={b:0,ch:0};
+var CHUONG=[['Chương I – Nguyên tử, bảng tuần hoàn',2,4],['Chương II – Phân tử, liên kết hóa học',5,7],['Chương III – Tốc độ',8,11],['Chương IV – Âm thanh',12,14],['Chương V – Ánh sáng',15,17],['Chương VI – Từ',18,20],['Chương VII – Trao đổi chất và chuyển hóa năng lượng ở sinh vật',21,32],['Chương VIII – Cảm ứng ở sinh vật',33,35],['Chương IX – Sinh trưởng và phát triển ở sinh vật',36,38],['Chương X – Sinh sản ở sinh vật',39,42]];
 GAMES.squid={ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,d:'Chơi đơn. Chọn đúng để bước tiếp, chọn sai là sụp hố! Qua 8–10 bước để về đích nhận cúp.'};
 function lp(b){return BANK.filter(function(q){return q.b==b}).map(function(q){return q.l>3?Object.assign({},q,{l:3}):q})}
+function scopePool(){
+ if(scope.ch){var r=CHUONG[scope.ch-1];return BANK.filter(function(q){return q.b>=r[1]&&q.b<=r[2]}).map(function(q){return q.l>3?Object.assign({},q,{l:3}):q})}
+ return scope.b?lp(scope.b):null;
+}
 function sel2(id,pairs,v){return'<select id="'+id+'" style="max-width:100%">'+pairs.map(function(x){return'<option value="'+x[0]+'"'+(x[0]==v?' selected':'')+'>'+esc(x[1])+'</option>'}).join('')+'</select>'}
 function snd(f){if(window.KH7SND&&KH7SND[f])KH7SND[f](arguments[1])}
-function bopts(){var cnt={};BANK.forEach(function(q){if(q.b)cnt[q.b]=(cnt[q.b]||0)+1});return[['0','Tất cả câu hỏi (ngẫu nhiên)']].concat(BAI.map(function(n,i){var c=cnt[i+1]||0;return[String(i+1),'Bài '+(i+1)+' – '+n+' ('+c+' câu'+(c<5?', đang bổ sung':'')+')']}))}
+function bopts(){
+ var cnt={};BANK.forEach(function(q){if(q.b)cnt[q.b]=(cnt[q.b]||0)+1});
+ var L=[['0','Tất cả câu hỏi (ngẫu nhiên)']];
+ CHUONG.forEach(function(r,i){var c=0;for(var b=r[1];b<=r[2];b++)c+=cnt[b]||0;L.push(['c'+(i+1),r[0]+' ('+c+' câu)'])});
+ BAI.forEach(function(n,i){var c=cnt[i+1]||0;L.push([String(i+1),'Bài '+(i+1)+' – '+n+' ('+c+' câu'+(c<5?', đang bổ sung':'')+')'])});
+ return L;
+}
 /* --- Menu: thêm lựa chọn phạm vi câu hỏi theo bài --- */
 var _menu=menu;
 menu=function(){
  _menu();
  var h=[].slice.call(app.querySelectorAll('h2')).filter(function(x){return x.textContent.indexOf('người chơi')>0})[0];
- if(h)h.insertAdjacentHTML('beforebegin','<h2>Luyện tập theo bài</h2><p>Mỗi câu có 30 giây. Chọn bài để chỉ luyện câu hỏi của bài đó.</p>'+sel2('p_b',bopts(),scope.b));
+ if(h)h.insertAdjacentHTML('beforebegin','<h2>Luyện tập theo bài hoặc chương</h2><p>Mỗi câu có 30 giây. Chọn một bài hoặc một chương để chỉ luyện câu hỏi trong phạm vi đó.</p>'+sel2('p_b',bopts(),scope.ch?'c'+scope.ch:scope.b));
 };
 var _oc=app.onchange;
-app.onchange=function(e){if(e.target.id=='p_b'){scope.b=+e.target.value;return}return _oc&&_oc.call(app,e)};
+app.onchange=function(e){if(e.target.id=='p_b'){var v=String(e.target.value);if(v.charAt(0)=='c'){scope.ch=+v.slice(1);scope.b=0}else{scope.b=+v;scope.ch=0}return}return _oc&&_oc.call(app,e)};
 /* --- Bắt đầu ván: theo bài (30 giây/câu, 5–10 câu) hoặc Vượt cầu --- */
 var _start=start;
 start=function(){
  if(game=='squid'){if(mode!='solo'||sel.length!=1)return alert('Trò này chơi một người: hãy chọn chế độ Chơi đơn.');return sqStart()}
- if(!scope.b)return _start();
- var all=BANK.slice(),pool=lp(scope.b),g=GAMES[game];
+ if(!scope.b&&!scope.ch)return _start();
+ var all=BANK.slice(),pool=scopePool(),g=GAMES[game];
  var typed=pool.filter(function(q){return g.pick.indexOf(q.t)>=0});
  var pick=typed.length>=5?g.pick:['mc','tf','num'];
  var n=Math.min(10,pool.filter(function(q){return pick.indexOf(q.t)>=0}).length);
@@ -79,7 +90,7 @@ start=function(){
 /* --- Vượt cầu sinh tồn --- */
 var Q=null,qt=null;
 function sqStart(){
- var pool=(scope.b?lp(scope.b):BANK).filter(function(q){return(q.t=='mc'||q.t=='tf')&&q.l<4});
+ var pool=(scopePool()||BANK).filter(function(q){return(q.t=='mc'||q.t=='tf')&&q.l<4});
  if(pool.length<2)return alert('Chưa đủ câu trắc nghiệm cho trò chơi này.');
  var n=Math.min(pool.length,8+Math.floor(Math.random()*3));
  Q={qs:shuf(pool).slice(0,n).sort(function(a,b){return a.l-b.l}),i:0,p:roster[sel[0]],lock:false};
@@ -141,10 +152,13 @@ var st=document.createElement('style');
 st.textContent='.track{display:flex;gap:4px;margin:14px 0}.tile{flex:1;min-width:0;height:46px;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;background:var(--card);font-size:22px}.tile.done{background:var(--ok);opacity:.55}.tile.cur{border-color:var(--gold)}.tile.hole{background:#000;border-color:var(--bad)}.av{display:inline-block}.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.glass{font:inherit;font-weight:700;color:var(--ink);padding:18px 12px;border-radius:14px;border:3px solid var(--cyan);background:linear-gradient(135deg,rgba(120,220,255,.35),rgba(255,255,255,.12));cursor:pointer}.glass.ok{background:var(--ok);border-color:var(--ok);color:#fff}.glass.bad{background:var(--bad);border-color:var(--bad);color:#fff}.win{text-align:center}.cup{font-size:clamp(90px,28vw,150px);line-height:1}.wintxt{font-size:clamp(64px,22vw,120px);font-weight:800;color:var(--gold);line-height:1;text-shadow:0 0 24px var(--gold)}.spark{font-size:30px;margin:8px 0}@media(prefers-reduced-motion:no-preference){.av.hop{animation:hop .6s}.av.fall{animation:fall 1.4s ease-in forwards}.cup{animation:cup 1.1s ease-out}.wintxt{animation:glow 1.2s ease-in-out infinite alternate}.spark{animation:cup 1.6s}@keyframes hop{40%{transform:translateY(-18px) scale(1.2)}}@keyframes fall{to{transform:translateY(150px) rotate(540deg) scale(.2);opacity:0}}@keyframes cup{from{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.2)}}@keyframes glow{to{text-shadow:0 0 52px var(--gold);transform:scale(1.06)}}}@media(prefers-reduced-motion:reduce){.hole .av{opacity:.3}}';
 document.head.appendChild(st);
 window.KH7DBG={Q:function(){return Q},BAI:BAI};
+window.KH7G={scope:scope,pool:scopePool,CHUONG:CHUONG,BAI:BAI};
 /* Nạp các đợt câu hỏi bổ sung: cauhoi2.js, cauhoi3.js, ... (dừng khi không còn file) */
 window.KH7Q={MC:MC,TF:TF,NUM:NUM,add:function(a){B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()},replaceAll:function(a){B0.splice(0,B0.length);B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()}};
 var kq=2;
 function nx(){var s=document.createElement('script');s.src='cauhoi'+kq+'.js';s.onload=function(){kq++;nx()};s.onerror=function(){};document.body.appendChild(s)}
 /* Nếu có cauhoi-tong.js (xuất từ trang quản lý) thì nó thay thế toàn bộ ngân hàng gốc; các file cauhoi4.js trở đi vẫn được thêm lên trên. */
 var ts=document.createElement('script');ts.src='cauhoi-tong.js';ts.onload=function(){kq=4;nx()};ts.onerror=function(){nx()};document.body.appendChild(ts);
+/* Trò Nhảy bao bố (2 đội) nằm trong baobo.js */
+var bg=document.createElement('script');bg.src='baobo.js';document.body.appendChild(bg);
 })();

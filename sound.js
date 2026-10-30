@@ -70,9 +70,11 @@ answer=function(v){
 };
 var nb=0;
 function step(){var t=AC.currentTime;tone(660,t,0.1,'triangle',0.25);tone(990,t+0.08,0.16,'triangle',0.25)}
+function buzz(){var t=AC.currentTime;tone(130,t,0.28,'sawtooth',0.22,90);tone(98,t,0.28,'square',0.1)}
+function sad(){var t=AC.currentTime;[392,370,349].forEach(function(f,i){tone(f,t+i*0.28,0.3,'sawtooth',0.14)});tone(311,t+0.84,0.9,'sawtooth',0.14,260)}
 function win(){var t=AC.currentTime;[523,659,784,1047,1319,1568].forEach(function(f,i){tone(f,t+i*0.1,0.4,'triangle',0.2)});clap()}
 function g(f){return function(a){if(on&&ac())f(a)}}
-window.KH7SND={beat:g(beat),step:g(step),win:g(win),crash:g(crash),clap:g(clap)};
+window.KH7SND={beat:g(beat),step:g(step),win:g(win),crash:g(crash),clap:g(clap),buzz:g(buzz),sad:g(sad)};
 var btn=document.createElement('button');
 btn.setAttribute('aria-label','Bật hoặc tắt âm thanh');
 btn.style.cssText='margin-left:auto;font-size:22px;background:none;border:2px solid var(--line);border-radius:50%;width:44px;height:44px;cursor:pointer;color:inherit';

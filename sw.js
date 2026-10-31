@@ -1,5 +1,5 @@
 // Đổi số phiên bản này mỗi khi sửa index.html để máy tải bản mới
-const V='khtn7-v20',FILES=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png','sound.js','bai.js','cauhoi2.js','cauhoi3.js','baobo.js'];
+const V='khtn7-v21',FILES=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png','sound.js','bai.js','cauhoi2.js','cauhoi3.js','baobo.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

@@ -4,6 +4,14 @@ var G=window.KH7G;if(!G)return;
 var N=10,TIME=30,S=null,tmr=null;
 GAMES.sack={ico:'🦘',name:'Nhảy bao bố',pick:['mc','tf','num'],n:N,time:TIME,d:'2 đội Xanh và Đỏ thi đấu cùng lúc, mỗi đội 10 câu. Trả lời đúng thì nhảy một bước, sai thì đứng yên. Chơi theo bài hoặc chương.'};
 var NAME={b:'ĐỘI XANH',r:'ĐỘI ĐỎ'},LV=['Dễ','Vừa','Khó','Nâng cao'];
+function setVh(){document.documentElement.style.setProperty('--vh',window.innerHeight+'px')}
+function compact(){return window.matchMedia&&window.matchMedia('(max-height:540px) and (orientation:landscape)').matches}
+function fit(el){
+ if(!el)return;el.classList.remove('sm','xs');
+ if(!compact())return;
+ if(el.scrollHeight>el.clientHeight+1){el.classList.add('sm');if(el.scrollHeight>el.clientHeight+1)el.classList.add('xs')}
+}
+function sndIcon(){var b=document.querySelector('[aria-label="Bật hoặc tắt âm thanh"]');return b?b.textContent:'🔊'}
 function snd(f,a){if(window.KH7SND&&KH7SND[f])KH7SND[f](a)}
 /* ---------- Nhân vật trong bao bố (SVG) ---------- */
 function face(k,mood){
@@ -61,9 +69,11 @@ function lane(k){
 function sackStart(){
  stop();app.style.maxWidth='1320px';
  var T=split();
- if(!T){app.style.maxWidth='';return alert('Phạm vi này chưa đủ '+N+' câu hỏi. Hãy chọn một chương hoặc tất cả câu hỏi.')}
+ if(!T){app.style.maxWidth='';document.body.classList.remove('sk-on');return alert('Phạm vi này chưa đủ '+N+' câu hỏi. Hãy chọn một chương hoặc tất cả câu hỏi.')}
+ document.body.classList.add('sk-on');setVh();
  S={b:mk('b',T[0]),r:mk('r',T[1]),over:false};
- app.innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(scopeName())+'</span><button class="btn ghost" data-act="menu">Thoát</button></div>'
+ app.innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(scopeName())+'</span><button class="btn ghost sk-snd" data-act="sksnd" aria-label="Bật hoặc tắt âm thanh">'+sndIcon()+'</button><button class="btn ghost" data-act="menu">Thoát</button></div>'
+  +'<div class="sk-rot">📱 Xoay ngang điện thoại để xem cả hai đội trên một màn hình, không phải cuộn.</div>'
   +'<div class="sk"><section class="sk-p sk-pb" id="pn_b"></section><div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div><section class="sk-p sk-pr" id="pn_r"></section></div>';
  showQ(S.b);showQ(S.r);
  tmr=setInterval(tick,100);
@@ -79,6 +89,7 @@ function showQ(t){
  if(t.i>=N){t.done=true;el.innerHTML=head(t)+'<div class="sk-wait">'+(t.ok==N?'🎉 Đúng cả 10 câu!<br>Xuất sắc!':'Đã xong 10 câu!')+'<br><small>Đang chờ đội kia…</small></div>';return check()}
  var q=t.qs[t.i];t.lock=false;t.t0=Date.now();
  el.innerHTML=head(t)+'<div class="sk-bar"><i id="bar_'+t.k+'"></i></div><div class="sk-q"><small>'+esc(q.c)+' – '+LV[q.l-1]+'</small><p>'+esc(q.q)+'</p></div><div class="sk-a">'+body(t,q)+'</div><div class="sk-fb" id="fb_'+t.k+'" role="status"></div>';
+ fit(el);
 }
 function ansT(q){return q.t=='mc'?'ABCD'[q.a]+'. '+q.o[q.a]:q.t=='tf'?(q.a?'ĐÚNG':'SAI'):String(q.a)}
 /* ---------- Nhân vật phản ứng ---------- */
@@ -105,6 +116,7 @@ function pick(t,v){
  el.querySelectorAll('.opt').forEach(function(b){var i=+b.dataset.v,right=q.t=='mc'?i==q.a:(i==1)==q.a;if(right)b.classList.add('ok');else if(v!==null&&String(b.dataset.v)==String(v))b.classList.add('bad');b.disabled=true});
  var fb=document.getElementById('fb_'+t.k);
  fb.textContent=ok?'✅ Đúng rồi! Nhảy 1 bước!':(v===null?'⏰ Hết giờ! ':'❌ Sai rồi! ')+'Đáp án: '+ansT(q)+(q.e?' – '+q.e:'');
+ fit(el);
  if(ok){t.ok++;hop(t);snd('step')}else{wrong(t);snd('buzz')}
  var sp=el.querySelector('.sk-h span');if(sp)sp.textContent='Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok;
  setTimeout(function(){if(!S||S.over)return;t.i++;showQ(t)},ok?1100:1800);
@@ -139,11 +151,13 @@ function finish(){
  d.innerHTML=(w?cf:'')+'<div class="sk-card"><h1>'+ti+'</h1><div class="sk-two">'+(w?big(w,'joy')+big(l,'cry'):big(a,'happy')+big(b,'happy'))+'</div><p>'+(why||'Cùng số câu đúng và thời gian trả lời gần như bằng nhau.')+'</p><button class="btn big" data-act="start">Chơi lại</button> <button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
  document.body.appendChild(d);
 }
-function stop(){clearInterval(tmr);S=null;var e=document.getElementById('skend');if(e)e.remove();app.style.maxWidth=''}
+function stop(){document.body.classList.remove('sk-on');clearInterval(tmr);S=null;var e=document.getElementById('skend');if(e)e.remove();app.style.maxWidth=''}
 /* ---------- Nối vào ứng dụng ---------- */
 var _oc=app.onclick;
+window.addEventListener('resize',function(){if(S){setVh();fit(document.getElementById('pn_b'));fit(document.getElementById('pn_r'))}});
 app.onclick=function(e){
  var b=e.target.closest&&e.target.closest('button');
+ if(b&&b.dataset.act=='sksnd'){var hb=document.querySelector('header [aria-label="Bật hoặc tắt âm thanh"]');if(hb){hb.click();b.textContent=hb.textContent}return}
  if(b&&b.dataset.act=='sk'&&!b.disabled){
   var t=S&&S[b.dataset.t];if(!t)return;
   if(b.dataset.v=='num'){var inp=document.getElementById('skn_'+t.k);if(inp&&inp.value.trim())pick(t,inp.value)}else pick(t,b.dataset.v);
@@ -192,6 +206,21 @@ st.textContent=''
 +'@keyframes skshake{0%,100%{transform:none}20%{transform:translateX(-9px) rotate(-7deg)}40%{transform:translateX(9px) rotate(7deg)}60%{transform:translateX(-6px) rotate(-4deg)}80%{transform:translateX(6px) rotate(4deg)}}'
 +'@keyframes skparty{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-26px) rotate(5deg)}}'
 +'@keyframes skfl{from{opacity:1}to{opacity:0;top:-80px}}@keyframes skcf{to{transform:translateY(112vh) rotate(360deg)}}}'
-+'@media(max-width:760px){.sk{grid-template-columns:1fr}.sk-stage{order:-1}.sk-p{min-height:0}.sk-lane{--lh:300px;--ch:86px;--cw:70px;--fh:28px}.sk-top span{order:3;flex-basis:100%}}';
++'@media(max-width:760px){.sk{grid-template-columns:1fr}.sk-stage{order:-1}.sk-p{min-height:0}.sk-lane{--lh:300px;--ch:86px;--cw:70px;--fh:28px}.sk-top span{order:3;flex-basis:100%}}'
++'.sk-rot{display:none;background:#FFF3C4;color:#5a4300;border-radius:12px;padding:6px 10px;margin:0 0 8px;font-weight:700;font-size:14px}.sk-snd{margin:0!important;padding:2px 10px!important}'
++'@media(max-width:760px) and (orientation:portrait){.sk-rot{display:block}}'
++'@media(max-height:540px) and (orientation:landscape){'
++'body.sk-on header{display:none}body.sk-on{min-height:0}body.sk-on #app{padding:4px 8px 6px;max-width:none}'
++'.sk-top{flex-wrap:nowrap;margin:0 0 4px;font-size:14px;gap:8px;height:34px;align-items:center}.sk-top b{white-space:nowrap}.sk-top span{order:0;flex:1 1 auto;flex-basis:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.sk-top .btn{padding:2px 12px;font-size:13px;box-shadow:none;margin:0}'
++'.sk{grid-template-columns:minmax(0,1fr) minmax(150px,.62fr) minmax(0,1fr);gap:6px;height:calc(var(--vh,100vh) - 52px)}.sk-stage{order:0;border-width:2px;border-radius:12px}.sk-lanes{padding:4px;gap:4px}'
++'.sk-lane{--lh:calc(var(--vh,100vh) - 64px);--ch:74px;--cw:62px;--fh:20px;border-width:3px;border-radius:10px}.sk-fin{font-size:9px}.sk-steps i::after{font-size:9px;top:1px}.sk-tag{font-size:10px;top:-15px;padding:2px 6px}.sk-fl{font-size:11px;top:-26px}'
++'.sk-p{min-height:0;height:100%;padding:5px;gap:4px;border-width:2px;border-radius:12px}.sk-h{padding:2px 8px;font-size:12px;border-radius:8px}.sk-bar{height:6px}'
++'.sk-q{padding:4px 8px;border-radius:8px}.sk-q small{font-size:10px}.sk-q p{font-size:13px;line-height:1.25;margin:0}'
++'.sk-a{gap:4px}.sk-a .opt{padding:3px 8px;font-size:12px;gap:6px;border-width:2px;border-radius:12px;line-height:1.2}.sk-a .opt b{min-width:20px;height:20px;font-size:11px}.sk-a .row{gap:4px;margin:0}.sk-a input{padding:4px 8px;font-size:13px}.sk-a .btn{padding:3px 12px;font-size:13px}'
++'.sk-fb{font-size:11px;min-height:0;line-height:1.25}.sk-wait{font-size:15px}'
++'.sk-p.sm .sk-q p{font-size:12px}.sk-p.sm .sk-a .opt{font-size:11px;padding:2px 6px}.sk-p.sm .sk-fb{font-size:10px}'
++'.sk-p.xs .sk-q p{font-size:11px}.sk-p.xs .sk-a .opt{font-size:10px;padding:1px 6px}.sk-p.xs .sk-a .opt b{min-width:16px;height:16px;font-size:9px}.sk-p.xs .sk-fb{font-size:9px}'
++'.sk-card{padding:8px 12px}.sk-card h1{font-size:18px;margin:0 0 4px}.sk-who .chr{width:70px;height:88px}.sk-two{gap:16px}.sk-card p{margin:4px 0;font-size:12px}.sk-card .btn.big{font-size:15px;padding:6px 20px;margin-top:6px}'
++'}';
 document.head.appendChild(st);
 })();

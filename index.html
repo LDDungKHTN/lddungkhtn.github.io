@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Đấu trường KHTN","url":"https://lddungkhtn.github.io/","applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"vi","audience":{"@type":"EducationalAudience","educationalRole":"student"},"offers":{"@type":"Offer","price":"0","priceCurrency":"VND"},"description":"Ứng dụng ôn tập môn Khoa học tự nhiên lớp 6, 7, 8, 9 bằng các trò chơi truyền hình."}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=27">
 </head><body>
 <div class="sky" aria-hidden="true"><i></i><i></i></div>
 <header class="top">
@@ -29,12 +29,13 @@
 <li><strong>Ôn tập theo bài và theo chương:</strong> câu hỏi phân loại theo từng bài trong sách giáo khoa, gồm trắc nghiệm nhiều lựa chọn, đúng/sai và đáp án là một con số.</li>
 <li><strong>Chế độ chơi sinh động:</strong> chơi đơn, đối kháng hai bạn, tiếp sức ba bạn hoặc chia lớp thành hai đội.</li>
 <li><strong>Giải thích chi tiết:</strong> có đáp án và lời giải thích sau mỗi câu, ôn lại riêng những câu làm sai.</li>
+<li><strong>Phòng chơi trực tuyến:</strong> thầy cô hoặc một bạn tạo phòng, cả lớp vào bằng mã phòng, đường link hoặc mã QR trên điện thoại của mình, thi cùng lúc và xem bảng xếp hạng trực tiếp.</li>
 <li><strong>Cấp độ và huy hiệu:</strong> tích điểm kinh nghiệm, lên cấp và sưu tầm huy hiệu để có thêm động lực học.</li>
 </ul>
 <h3>Dành cho học sinh và giáo viên</h3>
 <ul><li>Học sinh ôn bài sau giờ học, luyện trước kì kiểm tra hoặc thi đua cùng bạn bè.</li>
 <li>Giáo viên chia lớp thành hai đội và chiếu màn hình lên máy chiếu để tổ chức tiết ôn tập sôi nổi.</li>
-<li>Chạy trên điện thoại (cả màn hình dọc và ngang), máy tính bảng và máy tính; có thể cài lên màn hình chính và dùng khi mất mạng.</li></ul>
+<li>Chạy trên điện thoại (cả màn hình dọc và ngang), máy tính bảng và máy tính; có thể thêm vào màn hình chính để mở nhanh (cần kết nối Internet).</li></ul>
 <h3>Hướng dẫn nhanh</h3>
 <p>Chọn lớp, nhập tên và chọn biểu tượng đại diện, sau đó bấm <em>“Vào sân khấu”</em>, chọn phạm vi bài hoặc chương, chọn chế độ và trò chơi rồi bắt đầu.</p>
 <p>Muốn ôn lại lí thuyết trước khi chơi? Hãy xem <a href="kien-thuc.html">Góc kiến thức</a>. Lần đầu dùng ứng dụng? Xem <a href="huong-dan-choi.html">Hướng dẫn chơi</a>.</p>
@@ -45,6 +46,6 @@
 <script>
 window.onerror=function(m,u,l){var d=document.createElement('div');d.className='errbar';d.textContent='Lỗi: '+m+' (dòng '+l+')';d.onclick=function(){d.remove()};document.body.appendChild(d)};
 </script>
-<script src="sound.js"></script><script src="app.js"></script><script src="sack.js"></script>
-<script>if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});</script>
+<script src="sound.js?v=27"></script><script src="app.js?v=27"></script><script src="sack.js?v=27"></script><script src="room.js?v=27"></script>
+<script>/* Bản trực tuyến: gỡ bộ nhớ app cũ (service worker) nếu máy còn giữ */if('serviceWorker' in navigator&&navigator.serviceWorker.getRegistrations)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){});if(window.caches&&caches.keys)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})}).catch(function(){});</script>
 </body></html>

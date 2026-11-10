@@ -22,7 +22,7 @@ var GAMES={
  mil:{ico:'💰',name:'Ai là triệu phú',pick:['mc'],n:10,time:30,d:'10 câu từ dễ đến khó, tiền thưởng tăng dần, có quyền trợ giúp 50:50 và Đổi câu hỏi.'},
  flash:{ico:'⚡',name:'Nhanh như chớp',pick:['tf','mc'],n:10,time:10,d:'Đúng/sai và trắc nghiệm, mỗi câu 10 giây, trả lời càng nhanh điểm càng cao.'},
  num:{ico:'🔢',name:'Giải mã con số',pick:['num'],n:8,time:40,d:'Tính nhanh và nhập đáp án là một con số.'},
- squid:{ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,solo:1,d:'Chơi đơn. Chọn đúng tấm kính để bước tiếp, chọn sai là sụp hố! Qua 8–10 bước để nhận cúp.'},
+ squid:{ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,solo:1,d:'Chơi đơn. Nhảy qua các phiến đá chênh vênh trên vực sâu. Chọn sai là đá sụp! Qua 8–10 tầng để nhận cúp.'},
  sack:{ico:'🦘',name:'Nhảy bao bố',team:1,d:'Hai đội Xanh – Đỏ thi cùng lúc, mỗi đội 10 câu trắc nghiệm, đúng/sai. Trả lời bằng chạm hoặc bằng động tác tay qua camera.'}};
 var MODES={solo:{ico:'🎯',name:'Chơi đơn',k:1,d:'Một mình thử thách và leo bảng vàng.'},vs:{ico:'⚔️',name:'Đối kháng',k:2,d:'Hai bạn thay phiên trả lời, ai nhiều điểm hơn thắng.'},relay:{ico:'🏃',name:'Tiếp sức',k:3,d:'Ba bạn chuyền gậy từng câu, đúng liên tiếp được thưởng chuỗi.'}};
 var LADDER=[100,200,300,500,1000,2000,4000,8000,15000,30000];
@@ -45,6 +45,17 @@ function numVal(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');return 
 function ansText(q){return q.t=='mc'?'ABCD'[q.a]+'. '+q.o[q.a]:q.t=='tf'?(q.a?'ĐÚNG':'SAI'):fmt(q.a)}
 function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★★★★'.slice(0,Math.min(l,4))+'<i>'+'★★★★'.slice(0,4-Math.min(l,4))+'</i></span>'}
 function setScreen(n){document.body.setAttribute('data-scr',n);document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
+
+/* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
+var APPV=27;
+function netGate(){
+ var off=navigator.onLine===false,o=document.getElementById('offline');
+ if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
+  o.innerHTML='<div class="offbox"><div class="offic">📡</div><h2>Cần kết nối Internet</h2><p>Đấu trường KHTN chỉ chơi được khi có mạng. Hãy bật Wi-Fi hoặc dữ liệu di động, trò chơi sẽ tự mở lại.</p><button class="btn" data-act="netretry">Thử lại</button></div>';
+  document.body.appendChild(o)}
+ else if(!off&&o)o.remove();
+}
+window.addEventListener('online',netGate);window.addEventListener('offline',netGate);
 
 /* ================= KHO CÂU HỎI ================= */
 var BANK={},LOADING={};
@@ -71,7 +82,7 @@ function loadGrade(g,cb){
  var fs=GR[g].files.slice();
  (function next(){
   if(!fs.length){var l=LOADING[g];LOADING[g]=null;l.forEach(function(f){f&&f()});return}
-  var s=document.createElement('script');s.src=fs.shift();s.onload=next;s.onerror=next;document.body.appendChild(s);
+  var s=document.createElement('script');s.src=fs.shift()+'?v='+APPV;s.onload=next;s.onerror=next;document.body.appendChild(s);
  })();
 }
 function bank(){return BANK[st.g]||[]}
@@ -121,7 +132,8 @@ function gradeScreen(){
  stopAll();setScreen('grade');header();
  var card=function(g){var c=GR[g],n=BANK[g]&&!LOADING[g]?BANK[g].length:0;
   return '<button class="door g'+g+(st.g==g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+g+'</span><span class="dl"><b>Lớp '+g+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+' bài':c.bai.length+' bài')+'</em></span></button>'};
- app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập Khoa học tự nhiên</div><h1 class="title">ĐẤU TRƯỜNG<span>KHTN</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn lớp của bạn để bước lên sân khấu!</p></section><div class="doors">'+[6,7,8,9].map(card).join('')+'</div>';
+ app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập Khoa học tự nhiên</div><h1 class="title">ĐẤU TRƯỜNG<span>KHTN</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn lớp của bạn để bước lên sân khấu!</p></section><div class="doors">'+[6,7,8,9].map(card).join('')+'</div>'
+ +'<section class="panel joinbox"><h3>🌐 Có mã phòng chơi?</h3><div class="row"><input id="jcode" maxlength="5" placeholder="Nhập mã phòng (5 kí tự)" aria-label="Mã phòng" autocomplete="off" autocapitalize="characters"><button class="btn" data-act="rmjoin">Vào phòng</button></div><p class="muted small">Thầy cô hoặc bạn tạo phòng sẽ đọc mã, chiếu mã QR hoặc gửi đường link cho bạn.</p></section>';
  [6,7,8,9].forEach(function(g){if(!BANK[g]&&!LOADING[g])loadGrade(g,function(){if(document.body.getAttribute('data-scr')=='grade')gradeScreen()})});
 }
 function openGrade(g){
@@ -144,6 +156,7 @@ function home(){
  +'<div class="chips">'+(r.map(function(p,i){return '<span class="chip">'+p.e+' '+esc(p.n)+' '+lvChip(p.n)+'<button class="x" data-act="del" data-v="'+i+'" aria-label="Xoá '+esc(p.n)+'">×</button></span>'}).join('')||'<em class="muted">Chưa có ai ghi danh. Trò Nhảy bao bố và Ôn tập không cần ghi danh.</em>')+'</div></section>'
  +'<div class="cta"><button class="btn big" data-act="menu">Vào sân khấu ▶</button></div>'
  +'<div class="tiles">'
+ +'<button class="tile hot" data-act="room"><span>🌐</span><b>Phòng chơi trực tuyến</b><small>Tạo phòng, mời cả lớp vào bằng mã hoặc QR trên điện thoại, thi cùng lúc.</small></button>'
  +'<button class="tile" data-act="review"><span>📚</span><b>Ôn tập & luyện tập</b><small>Theo bài, theo chương, có câu nâng cao và lời giải thích.</small></button>'
  +'<button class="tile" data-act="prof"><span>🏅</span><b>Cấp độ & huy hiệu</b><small>Tích điểm kinh nghiệm, lên cấp, sưu tầm huy hiệu.</small></button>'
  +'<button class="tile" data-act="lb"><span>🏆</span><b>Bảng vàng</b><small>Điểm cao nhất trên máy này.</small></button>'
@@ -404,11 +417,21 @@ function sqOpts(q){
 function sqRow(k){
  var o=Q.opts[k-1],cur=k==Q.i+1,past=k<=Q.i;
  return '<div class="sq-row'+(cur?' cur':past?' past':' next')+'">'+o.map(function(x,j){
-  var cls='tile'+(past?(x.ok?' done':' gone'):'')+(cur&&x.t.length>30?' lg':'')+(cur&&x.t.length>55?' xl':'');
-  return '<button class="'+cls+'" data-act="sq" data-v="'+j+'"'+(cur?' aria-label="Nhảy lên viên gạch: '+esc(x.t)+'"':' disabled tabindex="-1" aria-hidden="true"')+'><span>'+(cur?esc(x.t):past&&x.ok?'✓':'?')+'</span></button>'}).join('')+'</div>';
+  var cls='stone'+(past?(x.ok?' done':' gone'):'')+(cur&&x.t.length>30?' lg':'')+(cur&&x.t.length>55?' xl':'');
+  /* mỗi phiến đá rung lệch nhịp và có hình dạng hơi khác nhau */
+  var d=((k*7+j*13)%10)/10,sh=(k*3+j*5)%4;
+  return '<button class="'+cls+' st'+sh+'" style="--d:-'+d+'s" data-act="sq" data-v="'+j+'"'+(cur?' aria-label="Nhảy lên phiến đá: '+esc(x.t)+'"':' disabled tabindex="-1" aria-hidden="true"')+'><span>'+(cur?esc(x.t):past&&x.ok?'✓':'?')+'</span></button>'}).join('')+'</div>';
+}
+/* Co chữ trong phiến đá cho vừa, không bị cắt */
+function sqFitText(){
+ $$('#sqt .sq-row.cur .stone').forEach(function(b){
+  var s=b.firstChild;if(!s)return;s.style.fontSize='';
+  var fs=parseFloat(getComputedStyle(s).fontSize),room=b.clientHeight-8,w=b.clientWidth-10;
+  while(fs>9&&(s.offsetHeight>room||s.scrollWidth>w)){fs-=0.5;s.style.fontSize=fs+'px'}
+ });
 }
 function sqScene(){
- var n=Q.qs.length,h='<div class="sq-view" id="sqv"><div class="sq-pit" aria-hidden="true"></div><div class="sq-track" id="sqt">';
+ var n=Q.qs.length,h='<div class="sq-view" id="sqv"><div class="sq-sky" aria-hidden="true"></div><div class="sq-cliff l" aria-hidden="true"></div><div class="sq-cliff r" aria-hidden="true"></div><div class="sq-pit" aria-hidden="true"></div><div class="sq-mist" aria-hidden="true"></div><div class="sq-track" id="sqt">';
  h+='<div class="sq-row plat-row"><div class="plat start">🚩 XUẤT PHÁT</div></div>';
  for(var k=1;k<=n;k++)h+=sqRow(k);
  h+='<div class="sq-row plat-row"><div class="plat fin">🏆 ĐÍCH</div></div>';
@@ -422,7 +445,7 @@ function sqSize(){
 }
 function sqShift(r,anim){var t=$('#sqt');if(!t)return;t.style.transition=anim?'transform .65s cubic-bezier(.4,0,.2,1)':'none';t.style.transform='translateY('+Math.max(0,r-1)*Q.H+'px)'}
 function sqRowEl(k){return $$('#sqt .sq-row')[k]}
-function sqStand(){var row=sqRowEl(Q.i);if(!row)return null;return row.querySelector('.plat')||row.querySelector('.tile.done')}
+function sqStand(){var row=sqRowEl(Q.i);if(!row)return null;return row.querySelector('.plat')||row.querySelector('.stone.done')}
 function sqAvTo(el,anim){
  var a=$('#sqav');if(!a||!el)return;
  a.style.transition=anim?'left .5s cubic-bezier(.3,.7,.4,1),top .5s cubic-bezier(.3,.7,.4,1)':'none';
@@ -434,9 +457,9 @@ function sqAsk(){
  var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+Q.p.e+' '+esc(Q.p.n)+'</span></div>'
  +'<div class="sq-wrap"><div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'</div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
- +'<p class="sq-hint">👇 Chạm vào viên gạch mang đáp án đúng để nhảy lên. Chọn sai, gạch vỡ và rơi xuống hố!</p><div id="fb" class="fb" role="status"></div></div>'+sqScene()+'</div>';
+ +'<p class="sq-hint">👇 Chạm vào phiến đá mang đáp án đúng để nhảy lên. Chọn sai, đá sụp và rơi xuống vực!</p><div id="fb" class="fb" role="status"></div></div>'+sqScene()+'</div>';
  document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
- fitPlay();sqSize();sqShift(Q.i,false);sqAvTo(sqStand(),false);
+ fitPlay();sqSize();sqFitText();sqShift(Q.i,false);sqAvTo(sqStand(),false);
  requestAnimationFrame(function(){requestAnimationFrame(function(){sqShift(Q.i+1,true)})});
  clearInterval(qt);setRing(30,30);qt=setInterval(sqTick,100);
 }
@@ -448,7 +471,7 @@ function sqTick(){
 }
 function sqPick(i){
  if(!Q||Q.lock)return;Q.lock=true;clearInterval(qt);
- var me=Q,q=Q.qs[Q.i],row=sqRowEl(Q.i+1),tiles=row?[].slice.call(row.querySelectorAll('.tile')):[],o=Q.o[i];
+ var me=Q,q=Q.qs[Q.i],row=sqRowEl(Q.i+1),tiles=row?[].slice.call(row.querySelectorAll('.stone')):[],o=Q.o[i];
  tiles.forEach(function(b){b.disabled=true});row.classList.remove('cur');
  var av=$('#sqav'),right='';Q.o.forEach(function(x){if(x.ok)right=x.t});
  if(i>=0){sqAvTo(tiles[i],true);snd('tap')}
@@ -463,19 +486,19 @@ function sqPick(i){
     else sqAsk();
    },500);
   }else{
-   if(i>=0)tiles[i].classList.add('crack');else{var s=sqStand();if(s&&s.classList.contains('tile'))s.classList.add('crack')}
+   if(i>=0)tiles[i].classList.add('crack');else{var s=sqStand();if(s&&s.classList.contains('stone'))s.classList.add('crack')}
    tiles.forEach(function(b,j){if(Q.o[j].ok)b.classList.add('reveal')});
    if(av)av.classList.add('fall');snd('crash');
-   var fb2=$('#fb');fb2.className='fb bad';fb2.innerHTML=(i<0?'⏰ Hết giờ! ':'')+'💥 Gạch vỡ, rơi xuống hố! Đáp án đúng: <b>'+esc(right)+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':'');
+   var fb2=$('#fb');fb2.className='fb bad';fb2.innerHTML=(i<0?'⏰ Hết giờ! ':'')+'🪨 Đá sụp, rơi xuống vực! Đáp án đúng: <b>'+esc(right)+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':'');
    setTimeout(function(){if(Q===me)sqLose()},q.e?3600:2600);
   }
  },i>=0?560:0);
 }
-window.addEventListener('resize',function(){if(Q&&$('#sqv')){document.documentElement.style.setProperty('--vh',window.innerHeight+'px');sqSize();sqShift(Q.i+(Q.lock?0:1),false);var a=$('#sqav');if(a&&!a.classList.contains('fall'))sqAvTo(sqStand(),false)}});
+window.addEventListener('resize',function(){if(Q&&$('#sqv')){document.documentElement.style.setProperty('--vh',window.innerHeight+'px');sqSize();sqFitText();sqShift(Q.i+(Q.lock?0:1),false);var a=$('#sqav');if(a&&!a.classList.contains('fall'))sqAvTo(sqStand(),false)}});
 function sqEnd(win){
  setScreen('result');
  var res=award(Q.p.n,{xp:Q.xp+(win?50:0),streak:Q.best,badges:win?['bridge']:[]});
- app.innerHTML=(win?confetti(30):'')+'<section class="hero center result'+(win?' win':'')+'">'+(win?'<div class="cup">🏆</div><div class="wintxt">WIN</div><p>'+Q.p.e+' '+esc(Q.p.n)+' đã vượt qua '+Q.qs.length+' bước và về đích!</p>':'<div class="trophy">💥</div><h1 class="title sm">Bạn đã rơi xuống hố!</h1><p>Vượt qua '+Q.i+'/'+Q.qs.length+' bước. Thử lại nhé!</p>')+'</section>'
+ app.innerHTML=(win?confetti(30):'')+'<section class="hero center result'+(win?' win':'')+'">'+(win?'<div class="cup">🏆</div><div class="wintxt">WIN</div><p>'+Q.p.e+' '+esc(Q.p.n)+' đã vượt qua '+Q.qs.length+' bước và về đích!</p>':'<div class="trophy">💥</div><h1 class="title sm">Bạn đã rơi xuống vực!</h1><p>Vượt qua '+Q.i+'/'+Q.qs.length+' bước. Thử lại nhé!</p>')+'</section>'
  +'<div class="rewards">'+rewardHTML(Q.p.n,Q.p.e,res)+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
  if(win)snd('win');else snd('sad');celebrate([res]);Q=null;
 }
@@ -487,6 +510,7 @@ document.addEventListener('click',function(e){
  var b=e.target.closest?e.target.closest('[data-act]'):null;if(!b||b.disabled)return;
  var a=b.getAttribute('data-act'),v=b.getAttribute('data-v');
  if(a=='snd'){if(window.SND)SND.toggle();return}
+ if(a=='netretry'){if(navigator.onLine!==false)location.reload();return}
  if(window.DTKSACK&&DTKSACK.click(a,v,b))return;
  switch(a){
  case 'grade':if(document.body.classList.contains('playing')&&!confirm('Thoát ván chơi để đổi lớp?'))return;S=null;Q=null;gradeScreen();break;
@@ -530,9 +554,13 @@ document.addEventListener('keydown',function(e){
 });
 
 /* Giao tiếp với trò Nhảy bao bố (sack.js) */
-window.DTKAPI={skCam:function(){return st.skcam},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
+window.DTKAPI={st:st,GR:GR,AV:AV,LADDER:LADDER,roster:roster,setRoster:setRoster,scopeSelect:scopeSelect,scopeInfo:scopeInfo,bank:bank,award:award,rewardHTML:rewardHTML,celebrate:celebrate,snd:snd,numVal:numVal,fmt:fmt,ring:ring,setRing:setRing,qClass:qClass,home:home,gradeScreen:gradeScreen,header:header,stopAll:stopAll,loadGrade:loadGrade,
+ setG:function(g){if(GR[g]){st.g=+g;save('dtk_grade',st.g);header()}},
+ skCam:function(){return st.skcam},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
 
 /* ================= KHỞI ĐỘNG ================= */
-header();
-if(st.g&&GR[st.g]&&!GR[st.g].soon)openGrade(st.g);else gradeScreen();
+header();netGate();
+/* Mở bằng đường link mời vào phòng (?phong=MÃ) thì room.js sẽ mở màn vào phòng */
+if(/[?&]phong=/.test(location.search)){app.innerHTML='<p class="loading">Đang mở phòng chơi…</p>'}
+else if(st.g&&GR[st.g]&&!GR[st.g].soon)openGrade(st.g);else gradeScreen();
 })();

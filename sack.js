@@ -277,5 +277,5 @@ function camStop(){
  CAM.on=false;cancelAnimationFrame(CAM.raf);
  Object.keys(CAM.src).forEach(function(k){CAM.src[k].stream.getTracks().forEach(function(t){t.stop()})});CAM.src={};
 }
-window.DTKSACK={start:start,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
+window.DTKSACK={face:face,start:start,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

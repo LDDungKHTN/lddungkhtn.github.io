@@ -9,9 +9,10 @@ function snd(f,a){if(window.SND&&SND[f])SND[f](a)}
 function setVh(){document.documentElement.style.setProperty('--vh',window.innerHeight+'px')}
 function compact(){return window.matchMedia&&window.matchMedia('(max-height:540px) and (orientation:landscape)').matches}
 function fit(el){
- if(!el)return;el.classList.remove('sm','xs');
+ if(!el)return;el.classList.remove('sm','xs','xxs');var p=el.parentNode;if(p)p.classList.remove('xxs');
  if(!compact())return;
- if(el.scrollHeight>el.clientHeight+1){el.classList.add('sm');if(el.scrollHeight>el.clientHeight+1)el.classList.add('xs')}
+ var over=function(){return el.scrollHeight>el.clientHeight+1};
+ if(over()){el.classList.add('sm');if(over()){el.classList.add('xs');if(over()){el.classList.add('xxs');if(p)p.classList.add('xxs')}}}
 }
 /* ---------- Nhân vật trong bao bố (SVG) ---------- */
 function face(k,mood){
@@ -49,7 +50,8 @@ function face(k,mood){
 }
 /* ---------- Chia đề cho hai đội ---------- */
 function split(){
- var P=A.pool();
+ /* Chỉ dùng câu trắc nghiệm nhiều lựa chọn và đúng/sai (trả lời được bằng động tác) */
+ var P=A.pool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<N)return null;
  var byL=function(a){return a.slice().sort(function(x,y){return x.l-y.l})},X,Y;
  if(P.length>=2*N){
@@ -68,23 +70,31 @@ function lane(k){
 function start(){
  stop();
  var T=split();
- if(!T)return alert('Phạm vi này chưa đủ '+N+' câu hỏi. Hãy chọn một chương hoặc tất cả các bài.');
- A.setScreen('sack');document.body.classList.add('sk-on');setVh();
- S={b:mk('b',T[0]),r:mk('r',T[1]),over:false};
- document.getElementById('app').innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(A.scopeName())+'</span><button class="btn ghost sm sk-snd" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button><button class="btn ghost sm" data-act="skquit">Thoát</button></div>'
+ if(!T)return alert('Phạm vi này chưa đủ '+N+' câu trắc nghiệm và đúng/sai. Hãy chọn một chương hoặc tất cả các bài.');
+ var cam=!!(A.skCam&&A.skCam());
+ A.setScreen('sack');document.body.classList.add('sk-on');document.body.classList.toggle('sk-camon',cam);setVh();
+ S={b:mk('b',T[0]),r:mk('r',T[1]),over:false,cam:cam};
+ var pane=function(k){return '<section class="sk-p sk-p'+k+'" id="pn_'+k+'">'+(cam?camFrame(k):'')+'<div class="sk-body" id="pb_'+k+'"></div></section>'};
+ document.getElementById('app').innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(A.scopeName())+(cam?' · 📷 trả lời bằng động tác':'')+'</span><button class="btn ghost sm sk-snd" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button><button class="btn ghost sm" data-act="skquit">Thoát</button></div>'
   +'<div class="sk-rot">📱 Xoay ngang điện thoại để xem cả hai đội trên một màn hình, không phải cuộn.</div>'
-  +'<div class="sk"><section class="sk-p sk-pb" id="pn_b"></section><div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div><section class="sk-p sk-pr" id="pn_r"></section></div>';
+  +(cam?'<div class="sk-legend">Giữ động tác 1 giây để chốt: <b>A</b> ✋ giơ tay trái · <b>B</b> giơ tay phải ✋ · <b>C</b> 🙌 giơ hai tay · <b>D</b> 🤸 dang ngang hai tay · <b>Đúng</b> 🙌 · <b>Sai</b> 🤸</div>':'')
+  +'<div class="sk">'+pane('b')+'<div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div>'+pane('r')+'</div>';
  showQ(S.b);showQ(S.r);
+ if(cam)camStart();
  tmr=setInterval(tick,100);
 }
 function head(t){return '<div class="sk-h"><b>'+NAME[t.k]+'</b><span>Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok+'</span></div>'}
+/* Nhãn động tác: dạng đầy đủ và dạng gọn (khi màn hình chật) */
+var GMC=[['✋ Tay trái','✋T'],['Tay phải ✋','P✋'],['🙌 Hai tay','🙌'],['🤸 Dang ngang','🤸']];
 function body(t,q){
- if(q.t=='mc')return q.o.map(function(o,i){return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="'+i+'"><b>'+'ABCD'[i]+'</b><span>'+esc(o)+'</span></button>'}).join('');
- if(q.t=='tf')return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="1"><b>Đ</b><span>Đúng</span></button><button class="opt" data-act="sk" data-t="'+t.k+'" data-v="0"><b>S</b><span>Sai</span></button>';
+ var g=function(s){return S&&S.cam?'<i class="ges"><em class="gf">'+s[0]+'</em><em class="gc">'+s[1]+'</em></i>':''};
+ if(q.t=='mc')return q.o.map(function(o,i){return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="'+i+'"><b>'+'ABCD'[i]+'</b><span>'+esc(o)+'</span>'+g(GMC[i])+'</button>'}).join('');
+ if(q.t=='tf')return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="1"><b>Đ</b><span>Đúng</span>'+g(GMC[2])+'</button><button class="opt" data-act="sk" data-t="'+t.k+'" data-v="0"><b>S</b><span>Sai</span>'+g(GMC[3])+'</button>';
  return '<div class="row"><input id="skn_'+t.k+'" inputmode="decimal" autocomplete="off" placeholder="Nhập một con số" aria-label="Đáp án"><button class="btn" data-act="sk" data-t="'+t.k+'" data-v="num">Chốt</button></div>';
 }
 function showQ(t){
- var el=$('pn_'+t.k);if(!el||!S)return;
+ var el=$('pb_'+t.k);if(!el||!S)return;
+ t.armed=false;t.calm=0;t.hv=null;
  if(t.i>=N){t.done=true;el.innerHTML=head(t)+'<div class="sk-wait">'+(t.ok==N?'🎉 Đúng cả 10 câu!<br>Xuất sắc!':'Đã xong 10 câu!')+'<br><small>Đang chờ đội kia…</small></div>';return check()}
  var q=t.qs[t.i];t.lock=false;t.t0=Date.now();
  el.innerHTML=head(t)+'<div class="sk-bar"><i id="bar_'+t.k+'"></i></div><div class="sk-q"><small>'+esc(q.c)+' – '+LV[q.l-1]+'</small><p>'+esc(q.q)+'</p></div><div class="sk-a">'+body(t,q)+'</div><div class="sk-fb" id="fb_'+t.k+'" role="status"></div>';
@@ -106,12 +116,14 @@ function wrong(t){setMood(t,'sad');cls(t,'shake');clearTimeout(t.mt);t.mt=setTim
 function pick(t,v){
  if(!S||S.over||t.lock||t.done)return;t.lock=true;
  var q=t.qs[t.i],ok=A.judge(q,v);t.ms+=Math.min(TIME*1000,Date.now()-t.t0);
- var el=$('pn_'+t.k);
+ var el=$('pb_'+t.k);
  [].forEach.call(el.querySelectorAll('.opt'),function(b){var i=+b.getAttribute('data-v'),right=q.t=='mc'?i==q.a:(i==1)==q.a;if(right)b.classList.add('ok');else if(v!==null&&String(b.getAttribute('data-v'))==String(v))b.classList.add('bad');b.disabled=true});
  var inp=$('skn_'+t.k);if(inp)inp.disabled=true;
  $('fb_'+t.k).textContent=ok?'✅ Đúng rồi! Nhảy 1 bước!':(v===null?'⏰ Hết giờ! ':'❌ Sai rồi! ')+'Đáp án: '+A.ansText(q)+(q.e?' – '+q.e:'');
  fit(el);
- if(ok){t.ok++;hop(t);snd('step')}else{wrong(t);snd('buzz')}
+ if(ok){t.ok++;hop(t);snd('happy')}else{wrong(t);snd('sad')}
+ /* Khung của đội: xanh khi đúng, đỏ khi sai */
+ var pn=$('pn_'+t.k);if(pn){pn.classList.remove('flash-ok','flash-bad');void pn.offsetWidth;pn.classList.add(ok?'flash-ok':'flash-bad');clearTimeout(t.ft);t.ft=setTimeout(function(){pn.classList.remove('flash-ok','flash-bad')},ok?1500:2300)}
  var sp=el.querySelector('.sk-h span');if(sp)sp.textContent='Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok;
  var me=S;setTimeout(function(){if(S!==me||S.over)return;t.i++;showQ(t)},ok?1100:(q.e?2600:1800));
 }
@@ -143,7 +155,7 @@ function finish(){
  d.innerHTML=(w?A.confetti(26):'')+'<div class="sk-card"><h1>'+ti+'</h1><div class="sk-two">'+(w?big(w,'joy')+big(l,'cry'):big(a,'happy')+big(b,'happy'))+'</div><p>'+(why||'Cùng số câu đúng và thời gian trả lời gần như bằng nhau.')+'</p><button class="btn big" data-act="start">↻ Chơi lại</button> <button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
  document.body.appendChild(d);
 }
-function stop(){document.body.classList.remove('sk-on');clearInterval(tmr);if(S)S.over=true;S=null;var e=$('skend');if(e)e.remove()}
+function stop(){camStop();document.body.classList.remove('sk-on','sk-camon');clearInterval(tmr);if(S)S.over=true;S=null;var e=$('skend');if(e)e.remove()}
 /* Nhận các nút bấm thuộc trò này; trả về true nếu đã xử lý */
 function click(a,v,b){
  if(a=='skquit'){if(confirm('Thoát trò Nhảy bao bố?')){stop();A.menu()}return true}
@@ -152,7 +164,118 @@ function click(a,v,b){
  if(v=='num'){var inp=$('skn_'+t.k);if(inp&&inp.value.trim())pick(t,inp.value)}else pick(t,v);
  return true;
 }
-window.addEventListener('resize',function(){if(S){setVh();fit($('pn_b'));fit($('pn_r'))}});
+window.addEventListener('resize',function(){if(S){setVh();fit($('pb_b'));fit($('pb_r'))}});
 document.addEventListener('keydown',function(e){if(e.key=='Enter'&&S&&e.target.id&&e.target.id.indexOf('skn_')==0){var t=S[e.target.id.slice(4)];if(t&&e.target.value.trim())pick(t,e.target.value)}});
-window.DTKSACK={start:start,stop:stop,click:click,S:function(){return S},pick:pick};
+/* ================= TRẢ LỜI BẰNG ĐỘNG TÁC QUA CAMERA =================
+   Dùng MediaPipe Pose Landmarker (chạy trên máy, không gửi hình ảnh đi đâu).
+   Mặc định 1 camera chia đôi: Đội Xanh đứng bên trái màn hình, Đội Đỏ bên phải.
+   Máy có từ 2 camera thì mỗi đội có thể chọn camera riêng. */
+var MPV='0.10.14',MPCDN='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+MPV,
+ MPMODEL='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+ HOLD=1000,CAM={on:false,src:{},raf:0,last:0,devs:[]},MPLIB=null,PL={};
+var GNAME={L:'✋ Tay trái',R:'Tay phải ✋',BOTH:'🙌 Hai tay',SIDE:'🤸 Dang ngang'};
+function camFrame(k){return '<div class="sk-cam" id="cam_'+k+'"><div class="sk-cin"><video playsinline muted autoplay></video><canvas></canvas></div><span class="sk-ctag">'+(k=='b'?'Đội Xanh':'Đội Đỏ')+'</span><span class="sk-cges" id="ges_'+k+'"></span><div class="sk-cst" id="cst_'+k+'">📷 Đang mở camera…</div><select class="sk-csel" id="csel_'+k+'" aria-label="Chọn camera" hidden></select></div>'}
+function camMsg(k,m){var e=$('cst_'+k);if(e){e.textContent=m||'';e.hidden=!m}}
+function vis(p){return !!p&&(p.visibility==null||p.visibility>0.35)}
+/* Nhận dạng động tác từ các điểm mốc cơ thể (toạ độ ảnh 0–1, trục y hướng xuống).
+   11/12: vai trái/phải, 13/14: khuỷu tay, 15/16: cổ tay (trái/phải của chính học sinh). */
+function classify(lm){
+ if(!lm)return null;var ls=lm[11],rs=lm[12],le=lm[13],re=lm[14],lw=lm[15],rw=lm[16];
+ if(!vis(ls)||!vis(rs))return null;
+ var sw=Math.sqrt((ls.x-rs.x)*(ls.x-rs.x)+(ls.y-rs.y)*(ls.y-rs.y));if(sw<0.03)return null;
+ function up(w,s){return vis(w)&&w.y<s.y-0.55*sw}
+ function side(w,e,s){return vis(w)&&Math.abs(w.y-s.y)<0.6*sw&&Math.abs(w.x-s.x)>1.1*sw&&(!vis(e)||Math.abs(e.y-s.y)<0.7*sw)}
+ var uL=up(lw,ls),uR=up(rw,rs),sL=side(lw,le,ls),sR=side(rw,re,rs);
+ if(uL&&uR)return 'BOTH';if(sL&&sR)return 'SIDE';if(uL&&!sR)return 'L';if(uR&&!sL)return 'R';return null;
+}
+function gestVal(q,g){if(!g)return null;if(q.t=='tf')return g=='BOTH'?'1':g=='SIDE'?'0':null;return {L:'0',R:'1',BOTH:'2',SIDE:'3'}[g]}
+function loadLib(){if(MPLIB)return MPLIB;var imp=new Function('u','return import(u)');MPLIB=imp(MPCDN+'/vision_bundle.mjs').then(function(m){return m.FilesetResolver.forVisionTasks(MPCDN+'/wasm').then(function(fs){return{m:m,fs:fs}})});MPLIB.catch(function(){MPLIB=null});return MPLIB}
+function makePL(n){
+ return loadLib().then(function(L){
+  var o=function(d){return{baseOptions:{modelAssetPath:MPMODEL,delegate:d},runningMode:'VIDEO',numPoses:n,minPoseDetectionConfidence:0.5,minTrackingConfidence:0.5}};
+  return L.m.PoseLandmarker.createFromOptions(L.fs,o('GPU')).catch(function(){return L.m.PoseLandmarker.createFromOptions(L.fs,o('CPU'))});
+ });
+}
+function getStream(id){var c={audio:false,video:{width:{ideal:1280},height:{ideal:720}}};if(id)c.video.deviceId={exact:id};else c.video.facingMode='user';return navigator.mediaDevices.getUserMedia(c)}
+function attach(k,stream,shared){var f=$('cam_'+k);if(!f)return;f.classList.toggle('half',!!shared);f.classList.toggle('right',!!shared&&k=='r');var v=f.querySelector('video');v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){})}
+/* Mỗi nguồn: {id, stream, video, teams:['b','r'] hoặc ['b'], pl} */
+function camStart(){
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){['b','r'].forEach(function(k){camMsg(k,'Trình duyệt này không hỗ trợ camera. Hãy chạm để chọn đáp án.')});return}
+ CAM.on=true;CAM.src={};
+ getStream(null).then(function(stream){
+  if(!CAM.on){stream.getTracks().forEach(function(t){t.stop()});return}
+  CAM.src.shared={stream:stream,teams:['b','r']};attach('b',stream,true);attach('r',stream,true);
+  camMsg('b','⏳ Đang tải bộ nhận dạng động tác…');camMsg('r','⏳ Đang tải bộ nhận dạng động tác…');
+  navigator.mediaDevices.enumerateDevices().then(function(ds){CAM.devs=ds.filter(function(d){return d.kind=='videoinput'});if(CAM.devs.length>1)['b','r'].forEach(fillSel)}).catch(function(){});
+  return makePL(2).then(function(pl){PL.shared=pl;if(!CAM.on)return;camMsg('b','');camMsg('r','');CAM.raf=requestAnimationFrame(loop)});
+ }).catch(function(e){
+  var m=e&&e.name=='NotAllowedError'?'Chưa được phép dùng camera. Hãy cho phép quyền camera rồi chơi lại, hoặc chạm để chọn đáp án.':'Không mở được camera hoặc bộ nhận dạng (cần mạng ở lần đầu). Hãy chạm để chọn đáp án.';
+  ['b','r'].forEach(function(k){camMsg(k,m)});
+ });
+}
+function fillSel(k){
+ var s=$('csel_'+k);if(!s)return;
+ s.innerHTML='<option value="">Camera chung (chia đôi)</option>'+CAM.devs.map(function(d,i){return '<option value="'+d.deviceId+'">'+A.esc(d.label||('Camera '+(i+1)))+'</option>'}).join('');
+ s.hidden=false;s.onchange=function(){useOwn(k,s.value)};
+}
+/* Cho một đội dùng camera riêng (hoặc quay lại dùng chung) */
+function useOwn(k,id){
+ var old=CAM.src[k];if(old){old.stream.getTracks().forEach(function(t){t.stop()});delete CAM.src[k]}
+ var sh=CAM.src.shared;
+ if(!id){if(sh){if(sh.teams.indexOf(k)<0)sh.teams.push(k);attach(k,sh.stream,true)}return}
+ if(sh){sh.teams=sh.teams.filter(function(x){return x!=k})}
+ camMsg(k,'📷 Đang mở camera…');
+ getStream(id).then(function(st){
+  CAM.src[k]={stream:st,teams:[k]};attach(k,st,false);
+  return PL[k]?PL[k]:makePL(1).then(function(pl){PL[k]=pl;return pl});
+ }).then(function(){camMsg(k,'')}).catch(function(){camMsg(k,'Không mở được camera này.');useOwn(k,'')});
+}
+function loop(){
+ if(!CAM.on)return;CAM.raf=requestAnimationFrame(loop);
+ var now=performance.now();if(now-CAM.last<70)return;CAM.last=now;
+ var seen={};
+ Object.keys(CAM.src).forEach(function(key){
+  var s=CAM.src[key],pl=key=='shared'?PL.shared:PL[key];if(!pl||!s.teams.length)return;
+  var v=$('cam_'+s.teams[0]).querySelector('video');if(!v||v.readyState<2||!v.videoWidth)return;
+  var res;try{res=pl.detectForVideo(v,now)}catch(e){return}
+  var poses=res&&res.landmarks||[];
+  s.teams.forEach(function(k){
+   var lm=null;
+   if(key=='shared'){var best=0;poses.forEach(function(p){var mx=1-(p[11].x+p[12].x)/2,w=Math.abs(p[11].x-p[12].x);if((k=='b'?mx<0.5:mx>=0.5)&&w>best){best=w;lm=p}})}
+   else lm=poses[0]||null;
+   seen[k]=1;draw(k,v,lm);onGesture(k,classify(lm),now);
+  });
+ });
+ ['b','r'].forEach(function(k){if(!seen[k])onGesture(k,null,now)});
+}
+function draw(k,v,lm){
+ var c=$('cam_'+k);if(!c)return;c=c.querySelector('canvas');
+ if(c.width!=v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight}
+ var x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);if(!lm)return;
+ var col=k=='b'?'#4C9AFF':'#FF6F6F',P=function(i){return[lm[i].x*c.width,lm[i].y*c.height]};
+ x.lineWidth=Math.max(4,c.width/120);x.strokeStyle=col;x.lineCap='round';
+ [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24]].forEach(function(s){if(!vis(lm[s[0]])||!vis(lm[s[1]]))return;var a=P(s[0]),b=P(s[1]);x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()});
+ [15,16].forEach(function(i){if(!vis(lm[i]))return;var a=P(i);x.fillStyle='#FFD23F';x.beginPath();x.arc(a[0],a[1],c.width/50,0,7);x.fill()});
+}
+/* Giữ cùng một động tác đủ HOLD ms thì chốt đáp án. Sau mỗi câu phải hạ tay xuống trước khi trả lời câu mới. */
+function onGesture(k,g,now){
+ var t=S&&S[k],gs=$('ges_'+k);if(gs)gs.textContent=g?GNAME[g]:'';
+ if(!t||S.over||t.lock||t.done){if(t)t.hv=null;return}
+ var el=$('pb_'+k);if(!el)return;
+ if(!t.armed){
+  if(!g){if(!t.calm)t.calm=now;if(now-t.calm>300)t.armed=true}else t.calm=0;
+  return;
+ }
+ var q=t.qs[t.i],v=gestVal(q,g);
+ [].forEach.call(el.querySelectorAll('.opt'),function(b){var on=v!=null&&b.getAttribute('data-v')==v;b.classList.toggle('hold',on);if(!on)b.style.removeProperty('--hp')});
+ if(v==null){t.hv=null;return}
+ if(t.hv!==v){t.hv=v;t.hs=now}
+ var pr=Math.min(1,(now-t.hs)/HOLD),b=el.querySelector('.opt[data-v="'+v+'"]');if(b)b.style.setProperty('--hp',Math.round(pr*100)+'%');
+ if(pr>=1){t.hv=null;pick(t,v)}
+}
+function camStop(){
+ CAM.on=false;cancelAnimationFrame(CAM.raf);
+ Object.keys(CAM.src).forEach(function(k){CAM.src[k].stream.getTracks().forEach(function(t){t.stop()})});CAM.src={};
+}
+window.DTKSACK={start:start,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

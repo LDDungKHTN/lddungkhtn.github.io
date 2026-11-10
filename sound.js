@@ -59,10 +59,12 @@ function step(){var t=AC.currentTime;tone(660,t,0.1,'triangle',0.25);tone(990,t+
 function buzz(){var t=AC.currentTime;tone(130,t,0.28,'sawtooth',0.22,90);tone(98,t,0.28,'square',0.1)}
 function sad(){var t=AC.currentTime;[392,370,349].forEach(function(f,i){tone(f,t+i*0.28,0.3,'sawtooth',0.14)});tone(311,t+0.84,0.9,'sawtooth',0.14,260)}
 function win(){var t=AC.currentTime;[523,659,784,1047,1319,1568].forEach(function(f,i){tone(f,t+i*0.1,0.4,'triangle',0.2)});clap()}
+/* Nhạc vui ngắn khi đội trả lời đúng */
+function happy(){var t=AC.currentTime;[[523,0],[659,.12],[784,.24],[659,.36],[784,.48],[1047,.6]].forEach(function(n){tone(n[0],t+n[1],.22,'square',.07);tone(n[0]*2,t+n[1],.12,'triangle',.06)});tone(1047,t+.72,.5,'triangle',.18);tone(1319,t+.72,.5,'triangle',.12)}
 function tap(){var t=AC.currentTime;tone(880,t,0.08,'triangle',0.18)}
 function badge(){var t=AC.currentTime;[784,988,1175,1568].forEach(function(f,i){tone(f,t+i*0.07,0.5,'sine',0.16)})}
 function g(f){return function(a){try{if(on&&ac())f(a)}catch(e){}}}
-window.SND={beat:g(beat),ok:g(clap),bad:g(crash),crash:g(crash),clap:g(clap),step:g(step),win:g(win),buzz:g(buzz),sad:g(sad),tap:g(tap),badge:g(badge),
+window.SND={beat:g(beat),ok:g(clap),bad:g(crash),crash:g(crash),clap:g(clap),step:g(step),win:g(win),buzz:g(buzz),sad:g(sad),happy:g(happy),tap:g(tap),badge:g(badge),
  isOn:function(){return on},
  toggle:function(){on=!on;try{localStorage.setItem('kh7_snd2',on?'on':'off')}catch(e){}show();if(on&&ac())tap();return on}};
 var btn=document.getElementById('sndBtn');

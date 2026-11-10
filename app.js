@@ -47,7 +47,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){document.body.setAttribute('data-scr',n);document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=27;
+var APPV=28;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -89,7 +89,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skcam:!!load('dtk_skcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){return load(K('roster'),[])}
@@ -194,6 +194,7 @@ function menu(){
  +(g.team?'<section class="panel"><h3>③ Cách trả lời</h3><div class="modes two">'
   +'<button class="mode'+(st.skcam?'':' on')+'" data-act="skcam" data-v="0"><b>👆 Chạm màn hình</b><small>Mỗi đội bấm vào đáp án ở khung của đội mình.</small></button>'
   +'<button class="mode'+(st.skcam?' on':'')+'" data-act="skcam" data-v="1"><b>📷 Động tác qua camera</b><small>Đứng trước camera: Đội Xanh bên trái, Đội Đỏ bên phải. A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang. Đúng: giơ hai tay · Sai: dang ngang.</small></button></div>'
+  +(st.skcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Camera trước: học sinh nhìn thấy mình trên màn hình như soi gương. Camera sau: hướng điện thoại hoặc máy tính bảng về phía học sinh (màn hình quay về thầy cô). Có thể đổi trong trận bằng nút 🔄.</p>':'')
   +(st.skcam?'<p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng động tác và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.solo&&id!='solo';return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
  +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+p.e+' '+esc(p.n)+'</button>'}).join('')+'</div>'
@@ -525,6 +526,7 @@ document.addEventListener('click',function(e){
  case 'mode':st.mode=v;st.sel=st.sel.slice(0,MODES[v].k);menu();break;
  case 'game':st.game=v;snd('tap');menu();break;
  case 'skcam':st.skcam=v=='1';save('dtk_skcam',st.skcam);menu();break;
+ case 'skface':st.skface=v=='environment'?'environment':'user';save('dtk_skface',st.skface);menu();break;
  case 'pick':var i=+v,k=MODES[st.mode].k;if(st.sel.indexOf(i)>=0)st.sel=st.sel.filter(function(x){return x!=i});else if(k==1)st.sel=[i];else if(st.sel.length<k)st.sel.push(i);menu();break;
  case 'start':start();break;
  case 'quit':quit();break;
@@ -556,7 +558,7 @@ document.addEventListener('keydown',function(e){
 /* Giao tiếp với trò Nhảy bao bố (sack.js) */
 window.DTKAPI={st:st,GR:GR,AV:AV,LADDER:LADDER,roster:roster,setRoster:setRoster,scopeSelect:scopeSelect,scopeInfo:scopeInfo,bank:bank,award:award,rewardHTML:rewardHTML,celebrate:celebrate,snd:snd,numVal:numVal,fmt:fmt,ring:ring,setRing:setRing,qClass:qClass,home:home,gradeScreen:gradeScreen,header:header,stopAll:stopAll,loadGrade:loadGrade,
  setG:function(g){if(GR[g]){st.g=+g;save('dtk_grade',st.g);header()}},
- skCam:function(){return st.skcam},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
+ skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
 
 /* ================= KHỞI ĐỘNG ================= */
 header();netGate();

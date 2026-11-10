@@ -403,6 +403,7 @@ body.playing .seo,body.playing .site-footer,body.sk-on .seo,body.sk-on .site-foo
 .sk-p.flash-ok .sk-cam{border-color:#22C672}.sk-p.flash-bad .sk-cam{border-color:#F2484E}
 .sk-cin{position:absolute;top:0;bottom:0;left:0;width:100%;transform:scaleX(-1)}
 /* Ảnh soi gương: Đội Xanh xem nửa trái màn hình (nửa phải ảnh gốc), Đội Đỏ xem nửa phải */
+body.sk-nomirror .sk-cin{transform:none}
 .sk-cam.half .sk-cin{width:200%;left:0}
 .sk-cam.half.right .sk-cin{left:-100%}
 .sk-cin video,.sk-cin canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}

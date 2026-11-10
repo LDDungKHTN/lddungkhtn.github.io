@@ -75,7 +75,7 @@ function start(){
  A.setScreen('sack');document.body.classList.add('sk-on');document.body.classList.toggle('sk-camon',cam);setVh();
  S={b:mk('b',T[0]),r:mk('r',T[1]),over:false,cam:cam};
  var pane=function(k){return '<section class="sk-p sk-p'+k+'" id="pn_'+k+'">'+(cam?camFrame(k):'')+'<div class="sk-body" id="pb_'+k+'"></div></section>'};
- document.getElementById('app').innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(A.scopeName())+(cam?' · 📷 trả lời bằng động tác':'')+'</span><button class="btn ghost sm sk-snd" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button><button class="btn ghost sm" data-act="skquit">Thoát</button></div>'
+ document.getElementById('app').innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(A.scopeName())+(cam?' · 📷 trả lời bằng động tác':'')+'</span>'+(cam?'<button class="btn ghost sm" data-act="skflip" aria-label="Đổi camera trước hoặc sau">🔄 '+(camFace()=='user'?'Camera trước':'Camera sau')+'</button>':'')+'<button class="btn ghost sm sk-snd" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button><button class="btn ghost sm" data-act="skquit">Thoát</button></div>'
   +'<div class="sk-rot">📱 Xoay ngang điện thoại để xem cả hai đội trên một màn hình, không phải cuộn.</div>'
   +(cam?'<div class="sk-legend">Giữ động tác 1 giây để chốt: <b>A</b> ✋ giơ tay trái · <b>B</b> giơ tay phải ✋ · <b>C</b> 🙌 giơ hai tay · <b>D</b> 🤸 dang ngang hai tay · <b>Đúng</b> 🙌 · <b>Sai</b> 🤸</div>':'')
   +'<div class="sk">'+pane('b')+'<div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div>'+pane('r')+'</div>';
@@ -158,6 +158,12 @@ function finish(){
 function stop(){camStop();document.body.classList.remove('sk-on','sk-camon');clearInterval(tmr);if(S)S.over=true;S=null;var e=$('skend');if(e)e.remove()}
 /* Nhận các nút bấm thuộc trò này; trả về true nếu đã xử lý */
 function click(a,v,b){
+ if(a=='skflip'){
+  if(!S||!S.cam)return true;
+  A.setSkFace(camFace()=='user'?'environment':'user');
+  b.textContent='🔄 '+(camFace()=='user'?'Camera trước':'Camera sau');
+  camStop();['b','r'].forEach(function(k){var s=$('csel_'+k);if(s)s.value=''});camStart();return true;
+ }
  if(a=='skquit'){if(confirm('Thoát trò Nhảy bao bố?')){stop();A.menu()}return true}
  if(a!='sk')return false;
  var t=S&&S[b.getAttribute('data-t')];if(!t)return true;
@@ -196,18 +202,21 @@ function makePL(n){
   return L.m.PoseLandmarker.createFromOptions(L.fs,o('GPU')).catch(function(){return L.m.PoseLandmarker.createFromOptions(L.fs,o('CPU'))});
  });
 }
-function getStream(id){var c={audio:false,video:{width:{ideal:1280},height:{ideal:720}}};if(id)c.video.deviceId={exact:id};else c.video.facingMode='user';return navigator.mediaDevices.getUserMedia(c)}
+/* Camera trước ('user') hay camera sau ('environment'). Camera trước hiển thị kiểu soi gương; camera sau hiển thị như ảnh thật. */
+function camFace(){return A.skFace?A.skFace():'user'}
+function getStream(id){var c={audio:false,video:{width:{ideal:1280},height:{ideal:720}}};if(id)c.video.deviceId={exact:id};else c.video.facingMode={ideal:camFace()};return navigator.mediaDevices.getUserMedia(c)}
 function attach(k,stream,shared){var f=$('cam_'+k);if(!f)return;f.classList.toggle('half',!!shared);f.classList.toggle('right',!!shared&&k=='r');var v=f.querySelector('video');v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){})}
 /* Mỗi nguồn: {id, stream, video, teams:['b','r'] hoặc ['b'], pl} */
 function camStart(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){['b','r'].forEach(function(k){camMsg(k,'Trình duyệt này không hỗ trợ camera. Hãy chạm để chọn đáp án.')});return}
- CAM.on=true;CAM.src={};
+ CAM.on=true;CAM.src={};CAM.mirror=camFace()=='user';document.body.classList.toggle('sk-nomirror',!CAM.mirror);
+ ['b','r'].forEach(function(k){camMsg(k,'📷 Đang mở camera '+(CAM.mirror?'trước':'sau')+'…')});
  getStream(null).then(function(stream){
   if(!CAM.on){stream.getTracks().forEach(function(t){t.stop()});return}
   CAM.src.shared={stream:stream,teams:['b','r']};attach('b',stream,true);attach('r',stream,true);
   camMsg('b','⏳ Đang tải bộ nhận dạng động tác…');camMsg('r','⏳ Đang tải bộ nhận dạng động tác…');
   navigator.mediaDevices.enumerateDevices().then(function(ds){CAM.devs=ds.filter(function(d){return d.kind=='videoinput'});if(CAM.devs.length>1)['b','r'].forEach(fillSel)}).catch(function(){});
-  return makePL(2).then(function(pl){PL.shared=pl;if(!CAM.on)return;camMsg('b','');camMsg('r','');CAM.raf=requestAnimationFrame(loop)});
+  return (PL.shared?Promise.resolve(PL.shared):makePL(2)).then(function(pl){PL.shared=pl;if(!CAM.on)return;camMsg('b','');camMsg('r','');CAM.raf=requestAnimationFrame(loop)});
  }).catch(function(e){
   var m=e&&e.name=='NotAllowedError'?'Chưa được phép dùng camera. Hãy cho phép quyền camera rồi chơi lại, hoặc chạm để chọn đáp án.':'Không mở được camera hoặc bộ nhận dạng (cần mạng ở lần đầu). Hãy chạm để chọn đáp án.';
   ['b','r'].forEach(function(k){camMsg(k,m)});
@@ -241,7 +250,7 @@ function loop(){
   var poses=res&&res.landmarks||[];
   s.teams.forEach(function(k){
    var lm=null;
-   if(key=='shared'){var best=0;poses.forEach(function(p){var mx=1-(p[11].x+p[12].x)/2,w=Math.abs(p[11].x-p[12].x);if((k=='b'?mx<0.5:mx>=0.5)&&w>best){best=w;lm=p}})}
+   if(key=='shared'){var best=0;poses.forEach(function(p){var cx=(p[11].x+p[12].x)/2,mx=CAM.mirror?1-cx:cx,w=Math.abs(p[11].x-p[12].x);if((k=='b'?mx<0.5:mx>=0.5)&&w>best){best=w;lm=p}})}
    else lm=poses[0]||null;
    seen[k]=1;draw(k,v,lm);onGesture(k,classify(lm),now);
   });

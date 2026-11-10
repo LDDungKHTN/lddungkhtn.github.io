@@ -1,0 +1,158 @@
+/* Nhảy bao bố: 2 đội Xanh và Đỏ thi đấu cùng lúc trên một màn hình, mỗi đội 10 câu.
+   Đúng thì nhân vật nhảy 1 bước, sai thì đứng yên. Dùng các hàm chung trong app.js qua window.DTKAPI. */
+(function(){
+var A=window.DTKAPI;if(!A)return;
+var N=10,TIME=30,S=null,tmr=null,esc=A.esc,shuf=A.shuf;
+var NAME={b:'ĐỘI XANH',r:'ĐỘI ĐỎ'},LV=A.LVN;
+function $(id){return document.getElementById(id)}
+function snd(f,a){if(window.SND&&SND[f])SND[f](a)}
+function setVh(){document.documentElement.style.setProperty('--vh',window.innerHeight+'px')}
+function compact(){return window.matchMedia&&window.matchMedia('(max-height:540px) and (orientation:landscape)').matches}
+function fit(el){
+ if(!el)return;el.classList.remove('sm','xs');
+ if(!compact())return;
+ if(el.scrollHeight>el.clientHeight+1){el.classList.add('sm');if(el.scrollHeight>el.clientHeight+1)el.classList.add('xs')}
+}
+/* ---------- Nhân vật trong bao bố (SVG) ---------- */
+function face(k,mood){
+ var C=k=='b'?{s:'#4C9AFF',d:'#1F5FCC'}:{s:'#FF6F6F',d:'#C62F35'},skin='#FFD9B8',ink='#2B1B12';
+ var joy=mood=='joy',arms=joy
+  ?'<path d="M34 80 L14 44 M86 80 L106 44" stroke="'+skin+'" stroke-width="9" stroke-linecap="round"/><circle cx="14" cy="42" r="7.5" fill="'+skin+'"/><circle cx="106" cy="42" r="7.5" fill="'+skin+'"/>'
+  :'<ellipse cx="29" cy="94" rx="8" ry="9" fill="'+skin+'"/><ellipse cx="91" cy="94" rx="8" ry="9" fill="'+skin+'"/>';
+ var eyes,mouth,extra='';
+ if(mood=='happy'||joy){
+  eyes='<path d="M42 45 Q49 36 56 45 M64 45 Q71 36 78 45" stroke="'+ink+'" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  mouth='<path d="M45 54 Q60 80 75 54 Z" fill="#8B1E2D"/><path d="M51 66 Q60 73 69 66 Q60 61 51 66Z" fill="#FF8FA0"/>';
+  extra='<circle cx="40" cy="57" r="5" fill="#FF9BA8" opacity=".75"/><circle cx="80" cy="57" r="5" fill="#FF9BA8" opacity=".75"/>';
+  if(joy)extra+='<path d="M100 10 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z M12 14 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z" fill="#FFD43B"/>';
+ }else if(mood=='sad'){
+  eyes='<circle cx="49" cy="47" r="3.8" fill="'+ink+'"/><circle cx="71" cy="47" r="3.8" fill="'+ink+'"/><path d="M42 36 L56 41 M78 36 L64 41" stroke="'+ink+'" stroke-width="3.5" stroke-linecap="round"/>';
+  mouth='<path d="M48 64 Q60 53 72 64" stroke="'+ink+'" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+  extra='<path d="M44 53 q-5 9 0 12 q5 -3 0 -12z" fill="#6EC6FF"/>';
+ }else if(mood=='cry'){
+  eyes='<path d="M42 40 L55 46 L42 52 M78 40 L65 46 L78 52" stroke="'+ink+'" stroke-width="3.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  mouth='<path d="M45 68 Q60 52 75 68 Q60 62 45 68Z" fill="#8B1E2D"/>';
+  extra='<path d="M46 54 q-7 14 -3 24 M74 54 q7 14 3 24" stroke="#6EC6FF" stroke-width="5" fill="none" stroke-linecap="round"/>';
+ }else{
+  eyes='<circle cx="49" cy="45" r="4.2" fill="'+ink+'"/><circle cx="71" cy="45" r="4.2" fill="'+ink+'"/><circle cx="50.5" cy="43.5" r="1.4" fill="#fff"/><circle cx="72.5" cy="43.5" r="1.4" fill="#fff"/>';
+  mouth='<path d="M48 57 Q60 65 72 57" stroke="'+ink+'" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+ }
+ return '<svg viewBox="0 0 120 150" class="chr" aria-hidden="true">'
+  +'<path d="M22 92 Q60 82 98 92 L108 138 Q60 152 12 138 Z" fill="#D8B27C" stroke="#97723F" stroke-width="3"/>'
+  +'<path d="M28 106 H92 M24 120 H96" stroke="#B58C55" stroke-width="2.5" stroke-dasharray="5 4"/>'
+  +'<rect x="38" y="68" width="44" height="30" rx="12" fill="'+C.s+'"/>'
+  +'<rect x="24" y="86" width="72" height="10" rx="5" fill="'+C.d+'"/>'
+  +arms
+  +'<circle cx="60" cy="44" r="29" fill="'+skin+'"/>'
+  +'<path d="M31 36 Q60 12 89 36 L89 30 Q60 4 31 30Z" fill="'+C.d+'"/><rect x="31" y="30" width="58" height="8" rx="4" fill="'+C.s+'"/>'
+  +eyes+mouth+extra+'</svg>';
+}
+/* ---------- Chia đề cho hai đội ---------- */
+function split(){
+ var P=A.pool();
+ if(P.length<N)return null;
+ var byL=function(a){return a.slice().sort(function(x,y){return x.l-y.l})},X,Y;
+ if(P.length>=2*N){
+  var s=byL(shuf(P)),pick=[];
+  for(var i=0;i<2*N;i++)pick.push(s[Math.floor(i*s.length/(2*N))]);
+  X=[];Y=[];pick.forEach(function(q,i){(i%2?Y:X).push(q)});
+ }else{var set=shuf(P).slice(0,N);X=set.slice();Y=set.slice()}
+ return[byL(shuf(X)).map(A.prep),byL(shuf(Y)).map(A.prep)];
+}
+function mk(k,qs){return{k:k,qs:qs,i:0,ok:0,ms:0,lock:false,t0:0,done:false,mt:null}}
+/* ---------- Giao diện ---------- */
+function lane(k){
+ var st='';for(var i=1;i<=N;i++)st+='<i data-n="'+i+'"></i>';
+ return '<div class="sk-lane sk-l'+k+'" id="ln'+k+'" style="--p:0"><div class="sk-fin">🏁 ĐÍCH 🏁</div><div class="sk-steps">'+st+'</div><div class="sk-mv"><span class="sk-tag">'+NAME[k].replace('ĐỘI ','')+'</span><div class="sk-hp" id="hp'+k+'">'+face(k,'idle')+'</div></div></div>';
+}
+function start(){
+ stop();
+ var T=split();
+ if(!T)return alert('Phạm vi này chưa đủ '+N+' câu hỏi. Hãy chọn một chương hoặc tất cả các bài.');
+ A.setScreen('sack');document.body.classList.add('sk-on');setVh();
+ S={b:mk('b',T[0]),r:mk('r',T[1]),over:false};
+ document.getElementById('app').innerHTML='<div class="sk-top"><b>🦘 Nhảy bao bố</b><span>'+esc(A.scopeName())+'</span><button class="btn ghost sm sk-snd" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button><button class="btn ghost sm" data-act="skquit">Thoát</button></div>'
+  +'<div class="sk-rot">📱 Xoay ngang điện thoại để xem cả hai đội trên một màn hình, không phải cuộn.</div>'
+  +'<div class="sk"><section class="sk-p sk-pb" id="pn_b"></section><div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div><section class="sk-p sk-pr" id="pn_r"></section></div>';
+ showQ(S.b);showQ(S.r);
+ tmr=setInterval(tick,100);
+}
+function head(t){return '<div class="sk-h"><b>'+NAME[t.k]+'</b><span>Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok+'</span></div>'}
+function body(t,q){
+ if(q.t=='mc')return q.o.map(function(o,i){return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="'+i+'"><b>'+'ABCD'[i]+'</b><span>'+esc(o)+'</span></button>'}).join('');
+ if(q.t=='tf')return '<button class="opt" data-act="sk" data-t="'+t.k+'" data-v="1"><b>Đ</b><span>Đúng</span></button><button class="opt" data-act="sk" data-t="'+t.k+'" data-v="0"><b>S</b><span>Sai</span></button>';
+ return '<div class="row"><input id="skn_'+t.k+'" inputmode="decimal" autocomplete="off" placeholder="Nhập một con số" aria-label="Đáp án"><button class="btn" data-act="sk" data-t="'+t.k+'" data-v="num">Chốt</button></div>';
+}
+function showQ(t){
+ var el=$('pn_'+t.k);if(!el||!S)return;
+ if(t.i>=N){t.done=true;el.innerHTML=head(t)+'<div class="sk-wait">'+(t.ok==N?'🎉 Đúng cả 10 câu!<br>Xuất sắc!':'Đã xong 10 câu!')+'<br><small>Đang chờ đội kia…</small></div>';return check()}
+ var q=t.qs[t.i];t.lock=false;t.t0=Date.now();
+ el.innerHTML=head(t)+'<div class="sk-bar"><i id="bar_'+t.k+'"></i></div><div class="sk-q"><small>'+esc(q.c)+' – '+LV[q.l-1]+'</small><p>'+esc(q.q)+'</p></div><div class="sk-a">'+body(t,q)+'</div><div class="sk-fb" id="fb_'+t.k+'" role="status"></div>';
+ fit(el);
+}
+/* ---------- Nhân vật phản ứng ---------- */
+function setMood(t,m){var hp=$('hp'+t.k);if(hp)hp.innerHTML=face(t.k,m)}
+function cls(t,c){var hp=$('hp'+t.k);if(!hp)return;hp.classList.remove('hop','shake','party');void hp.offsetWidth;if(c)hp.classList.add(c)}
+function hop(t){
+ var ln=$('ln'+t.k);if(!ln)return;
+ ln.style.setProperty('--p',t.ok);
+ setMood(t,t.ok>=N?'joy':'happy');cls(t,'hop');
+ var f=document.createElement('span');f.className='sk-fl';f.textContent='+1 🎉';ln.querySelector('.sk-mv').appendChild(f);setTimeout(function(){f.remove()},1000);
+ clearTimeout(t.mt);
+ if(t.ok>=N)t.mt=setTimeout(function(){cls(t,'party')},600);else t.mt=setTimeout(function(){setMood(t,'idle')},1100);
+}
+function wrong(t){setMood(t,'sad');cls(t,'shake');clearTimeout(t.mt);t.mt=setTimeout(function(){if(S&&!S.over){setMood(t,'idle');cls(t,'')}},1500)}
+/* ---------- Trả lời ---------- */
+function pick(t,v){
+ if(!S||S.over||t.lock||t.done)return;t.lock=true;
+ var q=t.qs[t.i],ok=A.judge(q,v);t.ms+=Math.min(TIME*1000,Date.now()-t.t0);
+ var el=$('pn_'+t.k);
+ [].forEach.call(el.querySelectorAll('.opt'),function(b){var i=+b.getAttribute('data-v'),right=q.t=='mc'?i==q.a:(i==1)==q.a;if(right)b.classList.add('ok');else if(v!==null&&String(b.getAttribute('data-v'))==String(v))b.classList.add('bad');b.disabled=true});
+ var inp=$('skn_'+t.k);if(inp)inp.disabled=true;
+ $('fb_'+t.k).textContent=ok?'✅ Đúng rồi! Nhảy 1 bước!':(v===null?'⏰ Hết giờ! ':'❌ Sai rồi! ')+'Đáp án: '+A.ansText(q)+(q.e?' – '+q.e:'');
+ fit(el);
+ if(ok){t.ok++;hop(t);snd('step')}else{wrong(t);snd('buzz')}
+ var sp=el.querySelector('.sk-h span');if(sp)sp.textContent='Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok;
+ var me=S;setTimeout(function(){if(S!==me||S.over)return;t.i++;showQ(t)},ok?1100:(q.e?2600:1800));
+}
+function tick(){
+ if(!S||S.over||!document.querySelector('.sk')){clearInterval(tmr);return}
+ var mn=99;
+ [S.b,S.r].forEach(function(t){
+  if(t.done||t.lock)return;
+  var left=Math.max(0,TIME-(Date.now()-t.t0)/1000),bar=$('bar_'+t.k);
+  if(bar)bar.style.width=left/TIME*100+'%';
+  if(left<mn)mn=left;
+  if(left<=0)pick(t,null);
+ });
+ if(mn>0&&mn<=5)snd('beat',mn);
+}
+/* ---------- Kết thúc ---------- */
+function check(){if(S&&S.b.done&&S.r.done&&!S.over)setTimeout(finish,900)}
+function sec(ms){return (ms/1000).toFixed(1).replace('.',',')+' giây'}
+function finish(){
+ if(!S||S.over)return;S.over=true;clearInterval(tmr);
+ var a=S.b,b=S.r,w=null,why='';
+ if(a.ok!=b.ok){w=a.ok>b.ok?a:b;why='Đúng nhiều câu hơn'}
+ else if(Math.abs(a.ms-b.ms)>=10){w=a.ms<b.ms?a:b;why='Bằng số câu đúng, đội trả lời nhanh hơn thắng'}
+ var l=w?(w===a?b:a):null,ti;
+ if(w){setMood(w,'joy');cls(w,'party');setMood(l,'cry');cls(l,'shake');snd('win');setTimeout(function(){snd('sad')},1800);ti='🏆 '+NAME[w.k]+' CHIẾN THẮNG!'}
+ else{setMood(a,'happy');setMood(b,'happy');snd('win');ti='🤝 HAI ĐỘI HOÀ NHAU!'}
+ var big=function(t,m){return '<div class="sk-who">'+face(t.k,m)+'<b>'+NAME[t.k]+'</b><small>Đúng '+t.ok+'/'+N+' – '+sec(t.ms)+'</small></div>'};
+ var d=document.createElement('div');d.className='sk-end ovl';d.id='skend';
+ d.innerHTML=(w?A.confetti(26):'')+'<div class="sk-card"><h1>'+ti+'</h1><div class="sk-two">'+(w?big(w,'joy')+big(l,'cry'):big(a,'happy')+big(b,'happy'))+'</div><p>'+(why||'Cùng số câu đúng và thời gian trả lời gần như bằng nhau.')+'</p><button class="btn big" data-act="start">↻ Chơi lại</button> <button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
+ document.body.appendChild(d);
+}
+function stop(){document.body.classList.remove('sk-on');clearInterval(tmr);if(S)S.over=true;S=null;var e=$('skend');if(e)e.remove()}
+/* Nhận các nút bấm thuộc trò này; trả về true nếu đã xử lý */
+function click(a,v,b){
+ if(a=='skquit'){if(confirm('Thoát trò Nhảy bao bố?')){stop();A.menu()}return true}
+ if(a!='sk')return false;
+ var t=S&&S[b.getAttribute('data-t')];if(!t)return true;
+ if(v=='num'){var inp=$('skn_'+t.k);if(inp&&inp.value.trim())pick(t,inp.value)}else pick(t,v);
+ return true;
+}
+window.addEventListener('resize',function(){if(S){setVh();fit($('pn_b'));fit($('pn_r'))}});
+document.addEventListener('keydown',function(e){if(e.key=='Enter'&&S&&e.target.id&&e.target.id.indexOf('skn_')==0){var t=S[e.target.id.slice(4)];if(t&&e.target.value.trim())pick(t,e.target.value)}});
+window.DTKSACK={start:start,stop:stop,click:click,S:function(){return S},pick:pick};
+})();

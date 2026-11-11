@@ -11,11 +11,15 @@ a{color:var(--cyan)}
 .muted{color:var(--muted)}.small{font-size:14px}.center{text-align:center}
 /* ---------- Bầu trời & đèn sân khấu ---------- */
 .sky{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;background-image:radial-gradient(1.5px 1.5px at 12% 22%,#fff8,transparent),radial-gradient(1.5px 1.5px at 78% 14%,#fff7,transparent),radial-gradient(1px 1px at 35% 64%,#fff6,transparent),radial-gradient(1.5px 1.5px at 88% 58%,#fff6,transparent),radial-gradient(1px 1px at 55% 30%,#fff7,transparent),radial-gradient(1px 1px at 22% 84%,#fff5,transparent),radial-gradient(1.5px 1.5px at 66% 88%,#fff5,transparent)}
-.sky i{position:absolute;top:-30vh;width:38vmax;height:150vh;background:linear-gradient(180deg,rgba(255,220,120,.16),rgba(255,220,120,0) 70%);transform-origin:50% 0;filter:blur(6px)}
+.sky i{position:absolute;top:-30vh;width:38vmax;height:150vh;background:linear-gradient(180deg,rgba(255,220,120,.16),rgba(255,220,120,0) 70%);transform-origin:50% 0}
 .sky i:nth-child(1){left:-6vmax;transform:rotate(-24deg)}
 .sky i:nth-child(2){right:-6vmax;transform:rotate(24deg);background:linear-gradient(180deg,rgba(80,230,255,.14),rgba(80,230,255,0) 70%)}
 @media(prefers-reduced-motion:no-preference){.sky i:nth-child(1){animation:beamL 9s ease-in-out infinite alternate}.sky i:nth-child(2){animation:beamR 11s ease-in-out infinite alternate}
 @keyframes beamL{to{transform:rotate(-8deg)}}@keyframes beamR{to{transform:rotate(10deg)}}}
+/* Tiết kiệm pin, chiếu màn hình mượt: hiệu ứng nền chỉ chuyển động ở màn hình chọn lớp/trang chủ */
+body:not([data-scr=home]):not([data-scr=grade]) .sky i,body:not([data-scr=home]):not([data-scr=grade]) .atom{animation:none!important}
+body.playing .sky i{display:none}
+.sky i{will-change:transform}
 header.top,main,.seo,.site-footer{position:relative;z-index:1}
 /* ---------- Thanh trên cùng ---------- */
 header.top{display:flex;align-items:center;gap:10px;padding:10px 16px;max-width:1100px;margin:0 auto}
@@ -225,9 +229,7 @@ input:focus,select:focus{border-color:var(--cyan);outline:0}
 .sq-av i{position:absolute;left:50%;bottom:-6px;width:70%;height:10px;margin-left:-35%;border-radius:50%;background:rgba(0,0,0,.45)}
 @media(prefers-reduced-motion:no-preference){
  .sq-row.cur .stone{animation:wobble 1.25s var(--d,0s) ease-in-out infinite}
- .sq-row.next .stone{animation:wobble 2.6s var(--d,0s) ease-in-out infinite}
- .sq-row.cur .stone::after{content:'';position:absolute;left:30%;bottom:-2px;width:4px;height:4px;border-radius:50%;background:#7a6a5e;box-shadow:18px 0 0 #6b5c51,40px -2px 0 #8a7a6e;animation:pebble 1.6s var(--d,0s) linear infinite}
- .sq-mist{animation:mist 14s ease-in-out infinite alternate}
+ .sq-row.cur .stone::after{content:'';position:absolute;left:30%;bottom:-2px;width:4px;height:4px;border-radius:50%;background:#7a6a5e;box-shadow:18px 0 0 #6b5c51,40px -2px 0 #8a7a6e}
  .sq-av.jump span{animation:sqjump .5s cubic-bezier(.3,.7,.4,1)}.sq-av.jump i{animation:sqshadow .5s}
  .sq-av.fall span{animation:sqdrop 1.4s .15s ease-in forwards}.sq-av.fall i{opacity:0}
  .stone.crack{animation:crumble .9s .05s ease-in forwards}
@@ -437,3 +439,7 @@ body.sk-camon .sk-p{overflow:hidden}body.sk-camon .sk-body{overflow:hidden}
 .sk-a .opt .ges{font-size:9px;padding:1px 5px}.sk-body{gap:4px}
 .sk-card{padding:8px 12px}.sk-card h1{font-size:18px;margin:0 0 4px}.sk-who .chr{width:70px;height:88px}.sk-two{gap:16px}.sk-card p{margin:4px 0;font-size:12px}.sk-card .btn.big{font-size:15px;padding:6px 20px;margin-top:6px}
 }
+
+/* Chờ camera sẵn sàng (Nhảy bao bố) */
+.sk-waitcam{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;background:#1b1440;border:2px solid var(--cyan);border-radius:18px;padding:16px 20px;text-align:center;max-width:min(92vw,420px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.sk-waitcam div{display:flex;flex-direction:column;gap:8px;align-items:center}.sk-waitcam small{color:var(--muted)}

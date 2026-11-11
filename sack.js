@@ -80,7 +80,12 @@ function start(){
   +(cam?'<div class="sk-legend">Giữ động tác 1 giây để chốt: <b>A</b> ✋ giơ tay trái · <b>B</b> giơ tay phải ✋ · <b>C</b> 🙌 giơ hai tay · <b>D</b> 🤸 dang ngang hai tay · <b>Đúng</b> 🙌 · <b>Sai</b> 🤸</div>':'')
   +'<div class="sk">'+pane('b')+'<div class="sk-stage"><div class="sk-lanes">'+lane('b')+lane('r')+'</div></div>'+pane('r')+'</div>';
  showQ(S.b);showQ(S.r);
- if(cam)camStart();
+ if(cam){
+  /* Chờ camera sẵn sàng rồi mới tính giờ; quá 25 giây thì vẫn bắt đầu (chạm để trả lời) */
+  S.wait=true;var w=document.createElement('div');w.id='skwait';w.className='sk-waitcam';w.innerHTML='<div><b>📷 Đang chuẩn bị camera…</b><small>Đồng hồ chỉ chạy khi camera đã sẵn sàng.</small><button class="btn ghost sm" data-act="skgo">Bắt đầu luôn (chạm để trả lời)</button></div>';
+  document.querySelector('.sk').appendChild(w);var me=S;setTimeout(function(){if(S===me)camReady()},25000);
+  camStart();
+ }
  tmr=setInterval(tick,100);
 }
 function head(t){return '<div class="sk-h"><b>'+NAME[t.k]+'</b><span>Câu '+Math.min(t.i+1,N)+'/'+N+' – Đúng '+t.ok+'</span></div>'}
@@ -129,6 +134,7 @@ function pick(t,v){
 }
 function tick(){
  if(!S||S.over||!document.querySelector('.sk')){clearInterval(tmr);return}
+ if(S.wait)return;
  var mn=99;
  [S.b,S.r].forEach(function(t){
   if(t.done||t.lock)return;
@@ -164,6 +170,7 @@ function click(a,v,b){
   b.textContent='🔄 '+(camFace()=='user'?'Camera trước':'Camera sau');
   camStop();['b','r'].forEach(function(k){var s=$('csel_'+k);if(s)s.value=''});camStart();return true;
  }
+ if(a=='skgo'){camReady();return true}
  if(a=='skquit'){if(confirm('Thoát trò Nhảy bao bố?')){stop();A.menu()}return true}
  if(a!='sk')return false;
  var t=S&&S[b.getAttribute('data-t')];if(!t)return true;
@@ -200,15 +207,24 @@ function makePL(n){
  return loadLib().then(function(L){
   var o=function(d){return{baseOptions:{modelAssetPath:MPMODEL,delegate:d},runningMode:'VIDEO',numPoses:n,minPoseDetectionConfidence:0.5,minTrackingConfidence:0.5}};
   return L.m.PoseLandmarker.createFromOptions(L.fs,o('GPU')).catch(function(){return L.m.PoseLandmarker.createFromOptions(L.fs,o('CPU'))});
+ }).then(function(pl){
+  /* Chạy thử một lần trên ảnh trống: lần nhận dạng đầu tiên luôn rất chậm, làm trước để vào trận không bị khựng */
+  try{var c=document.createElement('canvas');c.width=c.height=64;c.getContext('2d').fillRect(0,0,64,64);pl.detectForVideo(c,performance.now())}catch(e){}
+  return pl;
  });
 }
+/* Tải sẵn bộ nhận dạng (gọi từ màn hình chuẩn bị). Dùng chung một lần tải cho cả trận. */
+function sharedPL(){if(!PL.p){PL.p=makePL(2).then(function(pl){PL.shared=pl;return pl});PL.p.catch(function(){PL.p=null})}return PL.p}
+function preload(){if(!navigator.mediaDevices)return;sharedPL().catch(function(){})}
+/* Trận đấu chỉ bắt đầu tính giờ khi camera và bộ nhận dạng đã sẵn sàng */
+function camReady(){if(!S||!S.wait)return;S.wait=false;var w=$('skwait');if(w)w.remove();[S.b,S.r].forEach(function(t){if(!t.lock&&!t.done)t.t0=Date.now()})}
 /* Camera trước ('user') hay camera sau ('environment'). Camera trước hiển thị kiểu soi gương; camera sau hiển thị như ảnh thật. */
 function camFace(){return A.skFace?A.skFace():'user'}
-function getStream(id){var c={audio:false,video:{width:{ideal:1280},height:{ideal:720}}};if(id)c.video.deviceId={exact:id};else c.video.facingMode={ideal:camFace()};return navigator.mediaDevices.getUserMedia(c)}
+function getStream(id){var c={audio:false,video:{width:{ideal:640},height:{ideal:480},frameRate:{ideal:24,max:30}}};if(id)c.video.deviceId={exact:id};else c.video.facingMode={ideal:camFace()};return navigator.mediaDevices.getUserMedia(c)}
 function attach(k,stream,shared){var f=$('cam_'+k);if(!f)return;f.classList.toggle('half',!!shared);f.classList.toggle('right',!!shared&&k=='r');var v=f.querySelector('video');v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){})}
 /* Mỗi nguồn: {id, stream, video, teams:['b','r'] hoặc ['b'], pl} */
 function camStart(){
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){['b','r'].forEach(function(k){camMsg(k,'Trình duyệt này không hỗ trợ camera. Hãy chạm để chọn đáp án.')});return}
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){['b','r'].forEach(function(k){camMsg(k,'Trình duyệt này không hỗ trợ camera. Hãy chạm để chọn đáp án.')});camReady();return}
  CAM.on=true;CAM.src={};CAM.mirror=camFace()=='user';document.body.classList.toggle('sk-nomirror',!CAM.mirror);
  ['b','r'].forEach(function(k){camMsg(k,'📷 Đang mở camera '+(CAM.mirror?'trước':'sau')+'…')});
  getStream(null).then(function(stream){
@@ -216,10 +232,10 @@ function camStart(){
   CAM.src.shared={stream:stream,teams:['b','r']};attach('b',stream,true);attach('r',stream,true);
   camMsg('b','⏳ Đang tải bộ nhận dạng động tác…');camMsg('r','⏳ Đang tải bộ nhận dạng động tác…');
   navigator.mediaDevices.enumerateDevices().then(function(ds){CAM.devs=ds.filter(function(d){return d.kind=='videoinput'});if(CAM.devs.length>1)['b','r'].forEach(fillSel)}).catch(function(){});
-  return (PL.shared?Promise.resolve(PL.shared):makePL(2)).then(function(pl){PL.shared=pl;if(!CAM.on)return;camMsg('b','');camMsg('r','');CAM.raf=requestAnimationFrame(loop)});
+  return sharedPL().then(function(pl){if(!CAM.on)return;camMsg('b','');camMsg('r','');CAM.raf=requestAnimationFrame(loop);camReady()});
  }).catch(function(e){
   var m=e&&e.name=='NotAllowedError'?'Chưa được phép dùng camera. Hãy cho phép quyền camera rồi chơi lại, hoặc chạm để chọn đáp án.':'Không mở được camera hoặc bộ nhận dạng (cần mạng ở lần đầu). Hãy chạm để chọn đáp án.';
-  ['b','r'].forEach(function(k){camMsg(k,m)});
+  ['b','r'].forEach(function(k){camMsg(k,m)});camReady();
  });
 }
 function fillSel(k){
@@ -241,7 +257,9 @@ function useOwn(k,id){
 }
 function loop(){
  if(!CAM.on)return;CAM.raf=requestAnimationFrame(loop);
- var now=performance.now();if(now-CAM.last<70)return;CAM.last=now;
+ /* Nhận dạng khoảng 8–10 lần/giây là đủ để chốt động tác giữ 1 giây; máy yếu thì tự giãn ra để không giật */
+ var now=performance.now();if(now-CAM.last<Math.max(110,(CAM.cost||0)*2.5))return;CAM.last=now;
+ if(document.hidden)return;var t0=performance.now();
  var seen={};
  Object.keys(CAM.src).forEach(function(key){
   var s=CAM.src[key],pl=key=='shared'?PL.shared:PL[key];if(!pl||!s.teams.length)return;
@@ -256,6 +274,7 @@ function loop(){
   });
  });
  ['b','r'].forEach(function(k){if(!seen[k])onGesture(k,null,now)});
+ var dt=performance.now()-t0;CAM.cost=CAM.cost?CAM.cost*0.8+dt*0.2:dt;
 }
 function draw(k,v,lm){
  var c=$('cam_'+k);if(!c)return;c=c.querySelector('canvas');
@@ -286,5 +305,5 @@ function camStop(){
  CAM.on=false;cancelAnimationFrame(CAM.raf);
  Object.keys(CAM.src).forEach(function(k){CAM.src[k].stream.getTracks().forEach(function(t){t.stop()})});CAM.src={};
 }
-window.DTKSACK={face:face,start:start,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
+window.DTKSACK={face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

@@ -47,7 +47,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=33;
+var APPV=34;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');

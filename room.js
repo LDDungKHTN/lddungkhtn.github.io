@@ -127,7 +127,7 @@ function hostLobby(){
  +'<div class="cta"><button class="btn big" data-act="rmstart"'+(ps.length<(g.team?2:1)?' disabled':'')+'>▶ Bắt đầu</button><button class="btn ghost" data-act="rmsetup">Đổi trò / phạm vi</button></div></section></div>';
  loadJS(QRJS,function(){return !!window.qrcode}).then(function(){var el=$('#rmqr');if(el&&R)el.innerHTML=qrSvg(R.code)}).catch(function(){});
 }
-function chips(ps,team){return ps.filter(function(p){return !team||p.team==team}).map(function(p){return '<button class="chip rm-p'+(team?' t'+team:'')+'" data-act="rmteam" data-v="'+esc(p.n)+'">'+p.e+' '+esc(p.n)+'</button>'}).join('')}
+function chips(ps,team){return ps.filter(function(p){return !team||p.team==team}).map(function(p){return '<button class="chip rm-p'+(team?' t'+team:'')+'" data-act="rmteam" data-v="'+esc(p.n)+'">'+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')}
 function startGame(){
  var b=buildQs();if(!b)return alert('Phạm vi này chưa đủ câu hỏi.');
  R.qs=b.qs;R.slabs=b.slabs;R.game=cfg.game;R.i=-1;R.teams={b:0,r:0};
@@ -220,15 +220,15 @@ function board(stepped){
  var g=RG[R.game],rk=rank();
  if(g.team){
   var lane=function(t){var mem=rk.filter(function(p){return p.team==t&&p.on}),st='';for(var i=1;i<=R.qs.length;i++)st+='<i></i>';
-   return '<div class="rm-lane l'+t+'" style="--p:'+R.teams[t]+';--n:'+R.qs.length+'"><div class="rm-steps">'+st+'</div><div class="rm-mv'+(stepped&&stepped[t]?' hop':'')+'">'+(window.DTKSACK&&DTKSACK.face?DTKSACK.face(t,stepped&&stepped[t]?'happy':'idle'):'🦘')+'</div><b>'+(t=='b'?'XANH':'ĐỎ')+' · '+R.teams[t]+' bước</b><small>'+mem.map(function(p){return p.e}).join('')+'</small></div>'};
+   return '<div class="rm-lane l'+t+'" style="--p:'+R.teams[t]+';--n:'+R.qs.length+'"><div class="rm-steps">'+st+'</div><div class="rm-mv'+(stepped&&stepped[t]?' hop':'')+'">'+(window.DTKSACK&&DTKSACK.face?DTKSACK.face(t,stepped&&stepped[t]?'happy':'idle'):'🦘')+'</div><b>'+(t=='b'?'XANH':'ĐỎ')+' · '+R.teams[t]+' bước</b><small>'+mem.map(function(p){return AVH(p.e)}).join('')+'</small></div>'};
   return '<div class="rm-lanes">'+lane('b')+lane('r')+'</div>';
  }
  if(g.slabs){
-  return '<div class="rm-towers" style="--n:'+R.qs.length+'">'+rk.slice(0,40).map(function(p){return '<div class="tw'+(p.alive?'':' out')+'"><span style="bottom:calc('+p.step+' / var(--n) * 82%)">'+(p.alive?p.e:'💥')+'</span><small>'+esc(p.n)+'</small></div>'}).join('')+'</div>';
+  return '<div class="rm-towers" style="--n:'+R.qs.length+'">'+rk.slice(0,40).map(function(p){return '<div class="tw'+(p.alive?'':' out')+'"><span style="bottom:calc('+p.step+' / var(--n) * 82%)">'+(p.alive?AVH(p.e,'idle','full'):'💥')+'</span><small>'+esc(p.n)+'</small></div>'}).join('')+'</div>';
  }
  var max=Math.max(1,rk.length?rk[0].score:1);
  return (g.elim?'<p class="rm-alive">Còn trụ lại: <b>'+rk.filter(function(p){return p.alive}).length+'</b>/'+rk.length+'</p>':'')
-  +'<div class="rm-top">'+rk.slice(0,8).map(function(p,i){return '<div class="'+(p.alive?'':'out')+'"><i>'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</i><span>'+p.e+' '+esc(p.n)+'</span><b>'+p.score.toLocaleString('vi-VN')+'</b><u style="width:'+Math.round(p.score*100/max)+'%"></u></div>'}).join('')+'</div>';
+  +'<div class="rm-top">'+rk.slice(0,8).map(function(p,i){return '<div class="'+(p.alive?'':'out')+'"><i>'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</i><span>'+AVH(p.e)+' '+esc(p.n)+'</span><b>'+p.score.toLocaleString('vi-VN')+'</b><u style="width:'+Math.round(p.score*100/max)+'%"></u></div>'}).join('')+'</div>';
 }
 function endGame(){
  R.phase='end';clearInterval(R.tm);clearInterval(R.cd);
@@ -238,8 +238,8 @@ function endGame(){
  A.setScreen('result');
  var pod=rk.slice(0,3);
  app.innerHTML=A.confetti(30)+'<section class="hero center result"><div class="trophy">🏆</div><h1 class="title sm">'+(g.team?(win?(win=='b'?'ĐỘI XANH':'ĐỘI ĐỎ')+' CHIẾN THẮNG!':'Hai đội hoà nhau!'):'Kết quả phòng '+R.code)+'</h1><p>'+g.ico+' '+g.name+' · '+R.qs.length+' câu</p></section>'
- +'<div class="rm-podium">'+[1,0,2].map(function(i){var p=pod[i];return p?'<div class="pd p'+(i+1)+'"><span>'+p.e+'</span><b>'+esc(p.n)+'</b><small>'+(g.slabs?p.step+' tầng · ':'')+p.score.toLocaleString('vi-VN')+' điểm</small><div class="blk">'+(i+1)+'</div></div>':''}).join('')+'</div>'
- +'<div class="board">'+rk.map(function(p,i){return '<div><span>'+(i+1)+'. '+p.e+' '+esc(p.n)+(g.team?' <small>'+(p.team=='b'?'Xanh':'Đỏ')+'</small>':'')+' <small>đúng '+p.ok+'/'+R.qs.length+'</small></span><b>'+p.score.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
+ +'<div class="rm-podium">'+[1,0,2].map(function(i){var p=pod[i];return p?'<div class="pd p'+(i+1)+'"><span>'+AVH(p.e)+'</span><b>'+esc(p.n)+'</b><small>'+(g.slabs?p.step+' tầng · ':'')+p.score.toLocaleString('vi-VN')+' điểm</small><div class="blk">'+(i+1)+'</div></div>':''}).join('')+'</div>'
+ +'<div class="board">'+rk.map(function(p,i){return '<div><span>'+(i+1)+'. '+AVH(p.e)+' '+esc(p.n)+(g.team?' <small>'+(p.team=='b'?'Xanh':'Đỏ')+'</small>':'')+' <small>đúng '+p.ok+'/'+R.qs.length+'</small></span><b>'+p.score.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
  +'<div class="cta"><button class="btn big" data-act="rmsetup">↻ Ván mới cùng phòng</button><button class="btn ghost" data-act="rmclose">Đóng phòng</button></div>';
  snd('win');
 }
@@ -253,7 +253,7 @@ function joinForm(code){
  var r=A.roster(),last=load('dtk_rmname',null)||(r[0]?{n:r[0].n,e:r[0].e}:{n:'',e:A.AV[0]});
  app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="room">◀ Quay lại</button><h2>🙋 Vào phòng '+code+'</h2></div>'
  +'<section class="panel"><h3>Tên của bạn</h3><div class="row"><input id="rmname" maxlength="16" value="'+esc(last.n)+'" placeholder="Họ tên hoặc biệt danh" aria-label="Tên của bạn" autocomplete="off"></div>'
- +'<div class="avs">'+A.AV.map(function(e){return '<button class="av'+(e==last.e?' on':'')+'" data-act="rmav" data-v="'+e+'" aria-label="Chọn '+e+'">'+e+'</button>'}).join('')+'</div>'
+ +'<div class="avs">'+A.AV.map(function(e){return '<button class="av'+(e==last.e?' on':'')+'" data-act="rmav" data-v="'+e+'" aria-label="Chọn '+(window.AVNAME?AVNAME(e):e)+'">'+AVH(e)+'</button>'}).join('')+'</div>'
  +'<div class="cta"><button class="btn big" data-act="rmgo" data-v="'+code+'">Vào phòng ▶</button></div></section>';
  R={role:'join',code:code,e:last.e};
  var i=$('#rmname');if(i&&!i.value&&!('ontouchstart' in window))i.focus();
@@ -295,22 +295,22 @@ function onMsg(m){
 function pLobby(ps){
  A.setScreen('room');
  var me=(ps||[]).filter(function(p){return p.n==R.n})[0];if(me)R.team=me.team;
- app.innerHTML='<section class="hero center"><div class="eyebrow">Phòng '+R.code+'</div><h1 class="title sm">'+R.e+' '+esc(R.n)+'</h1><p>Đã vào phòng! Trò chơi: <b>'+esc(R.gname||'')+'</b>'+(R.game=='sack'?' · Bạn ở <b class="'+(R.team=='b'?'tb':'tr')+'">'+(R.team=='b'?'ĐỘI XANH':'ĐỘI ĐỎ')+'</b>':'')+'</p><p class="muted">'+(R.phase=='wait'?'Trận đang diễn ra, bạn sẽ tham gia từ câu tiếp theo.':'Chờ chủ phòng bắt đầu…')+'</p></section>'
- +'<div class="chips center-chips">'+(ps||[]).filter(function(p){return p.on}).map(function(p){return '<span class="chip'+(p.n==R.n?' on':'')+'">'+p.e+' '+esc(p.n)+'</span>'}).join('')+'</div>'
+ app.innerHTML='<section class="hero center"><div class="eyebrow">Phòng '+R.code+'</div><h1 class="title sm">'+AVH(R.e)+' '+esc(R.n)+'</h1><p>Đã vào phòng! Trò chơi: <b>'+esc(R.gname||'')+'</b>'+(R.game=='sack'?' · Bạn ở <b class="'+(R.team=='b'?'tb':'tr')+'">'+(R.team=='b'?'ĐỘI XANH':'ĐỘI ĐỎ')+'</b>':'')+'</p><p class="muted">'+(R.phase=='wait'?'Trận đang diễn ra, bạn sẽ tham gia từ câu tiếp theo.':'Chờ chủ phòng bắt đầu…')+'</p></section>'
+ +'<div class="chips center-chips">'+(ps||[]).filter(function(p){return p.on}).map(function(p){return '<span class="chip'+(p.n==R.n?' on':'')+'">'+AVH(p.e)+' '+esc(p.n)+'</span>'}).join('')+'</div>'
  +'<div class="cta"><button class="btn ghost sm" data-act="rmleave">Rời phòng</button></div>';
 }
 function pQ(m){
  R.q=m;R.phase='q';R.sent=false;A.setScreen('play');
  var spect=!m.alive,o=m.o,body='';
  if(m.t=='slab'){
-  body='<div class="sq-view rm-cliff"><div class="sq-sky"></div><div class="sq-cliff l"></div><div class="sq-cliff r"></div><div class="sq-pit"></div><div class="sq-mist"></div><div class="rm-slabrow sq-row cur" style="--H:110px">'+o.map(function(t,j){return '<button class="stone st'+(j%4)+'" style="--d:-'+(j*0.3)+'s" data-act="rmans" data-v="'+j+'"'+(spect?' disabled':'')+'><span>'+esc(t)+'</span></button>'}).join('')+'</div><div class="rm-me">'+R.e+'<small>Tầng '+m.step+'</small></div></div>';
+  body='<div class="sq-view rm-cliff"><div class="sq-sky"></div><div class="sq-cliff l"></div><div class="sq-cliff r"></div><div class="sq-pit"></div><div class="sq-mist"></div><div class="rm-slabrow sq-row cur" style="--H:110px">'+o.map(function(t,j){return '<button class="stone st'+(j%4)+'" style="--d:-'+(j*0.3)+'s" data-act="rmans" data-v="'+j+'"'+(spect?' disabled':'')+'><span>'+esc(t)+'</span></button>'}).join('')+'</div><div class="rm-me">'+AVH(R.e,'idle','full')+'<small>Tầng '+m.step+'</small></div></div>';
  }else if(m.t=='num'){
   body='<div class="numin"><input id="rmnum" inputmode="decimal" autocomplete="off" placeholder="Nhập một con số" aria-label="Đáp án"'+(spect?' disabled':'')+'><button class="btn" data-act="rmans" data-v="num"'+(spect?' disabled':'')+'>Chốt</button></div>';
  }else{
   var vals=m.t=='tf'?['1','0']:o.map(function(x,j){return String(j)});
   body='<div class="rm-ans'+(o.length==2?' two':'')+'">'+o.map(function(t,j){return '<button class="rm-a '+COL[j%4]+'" data-act="rmans" data-v="'+vals[j]+'"'+(spect?' disabled':'')+'><i>'+SHAPE[j%4]+'</i><span>'+esc(t)+'</span></button>'}).join('')+'</div>';
  }
- app.innerHTML='<div class="hud"><span class="gname">'+esc(R.gname||'')+'</span><span class="qn">Câu '+(m.i+1)+'/'+m.n+'</span><span class="turn">'+R.e+' '+esc(R.n)+'</span><span class="scores"><span class="sc">'+(R.score||0).toLocaleString('vi-VN')+'</span></span></div>'
+ app.innerHTML='<div class="hud"><span class="gname">'+esc(R.gname||'')+'</span><span class="qn">Câu '+(m.i+1)+'/'+m.n+'</span><span class="turn">'+AVH(R.e)+' '+esc(R.n)+'</span><span class="scores"><span class="sc">'+(R.score||0).toLocaleString('vi-VN')+'</span></span></div>'
  +(spect?'<p class="rm-spect">👀 Bạn đã bị loại – đang xem các bạn còn lại thi đấu.</p>':'')
  +'<div class="qcard'+A.qClass({q:m.q,o:o})+'"><div class="qmeta"><span class="pill">'+esc(m.c)+'</span>'+A.stars(m.l)+'</div>'+A.ring()+'<p class="qtext">'+esc(m.q)+'</p></div>'+body+'<div id="fb" class="fb" role="status"></div>';
  if(m.answered)pWait();
@@ -348,7 +348,7 @@ function pEnd(m){
  +'<h1 class="title sm">'+(m.game=='sack'?(m.win?(m.win==m.team?'Đội bạn chiến thắng!':'Đội bạn thua sát nút!'):'Hai đội hoà!'):'Hạng '+m.rank+'/'+m.total)+'</h1>'
  +'<p>Bạn đúng '+m.ok+'/'+m.n+' câu · '+m.score.toLocaleString('vi-VN')+' điểm</p></section>'
  +'<div class="rewards">'+A.rewardHTML(R.n,R.e,res)+'</div>'
- +'<div class="board">'+m.top.map(function(p,i){return '<div class="'+(p.n==R.n?'first':'')+'"><span>'+(i+1)+'. '+p.e+' '+esc(p.n)+'</span><b>'+p.s.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
+ +'<div class="board">'+m.top.map(function(p,i){return '<div class="'+(p.n==R.n?'first':'')+'"><span>'+(i+1)+'. '+AVH(p.e)+' '+esc(p.n)+'</span><b>'+p.s.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
  +'<p class="muted center">Chờ chủ phòng mở ván mới, hoặc rời phòng.</p><div class="cta"><button class="btn ghost" data-act="rmleave">Rời phòng</button></div>';
  if(won)snd('win');A.celebrate([res]);
  R.phase='lobby';

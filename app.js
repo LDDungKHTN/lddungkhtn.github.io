@@ -26,7 +26,7 @@ var GAMES={
  sack:{ico:'🦘',name:'Nhảy bao bố',team:1,d:'Hai đội Xanh – Đỏ thi cùng lúc, mỗi đội 10 câu trắc nghiệm, đúng/sai. Trả lời bằng chạm hoặc bằng động tác tay qua camera.'}};
 var MODES={solo:{ico:'🎯',name:'Chơi đơn',k:1,d:'Một mình thử thách và leo bảng vàng.'},vs:{ico:'⚔️',name:'Đối kháng',k:2,d:'Hai bạn thay phiên trả lời, ai nhiều điểm hơn thắng.'},relay:{ico:'🏃',name:'Tiếp sức',k:3,d:'Ba bạn chuyền gậy từng câu, đúng liên tiếp được thưởng chuỗi.'}};
 var LADDER=[100,200,300,500,1000,2000,4000,8000,15000,30000];
-var AV=['🦊','🐼','🐯','🐸','🦄','🐙','🚀','🤖','🦉','🐬','🦖','🐝'];
+var AV=window.AVCODES||['h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','h12'];if(!window.AVH)window.AVH=function(e){return e};
 var LVN=['Dễ','Vừa','Khó','Nâng cao'];
 var LEVELS=[[0,'Tân binh','🌱'],[150,'Nhà thám hiểm','🧭'],[400,'Nhà khoa học nhí','🔬'],[800,'Nhà nghiên cứu','🧪'],[1500,'Chuyên gia','🧠'],[2500,'Giáo sư','🎓'],[4000,'Thiên tài','🚀'],[6000,'Huyền thoại','👑']];
 var BADGES=[['first','🎬','Lên sóng','Chơi ván đầu tiên'],['streak5','🔥','Chuỗi lửa','Đúng 5 câu liên tiếp'],['streak10','☄️','Sao chổi','Đúng 10 câu liên tiếp'],['mil','💰','Triệu phú tri thức','Vượt qua mọi câu hỏi Ai là triệu phú'],['flash','⚡','Tia chớp','Đúng từ 8 câu Nhanh như chớp trở lên'],['num','🔢','Thần số học','Giải đúng mọi câu Giải mã con số'],['bridge','🌉','Qua cầu','Về đích Vượt cầu sinh tồn'],['review','📚','Chăm ôn','Hoàn thành 5 lượt ôn tập'],['perfect','💯','Hoàn hảo','Ôn tập đúng 100% (từ 10 câu)'],['xp1000','🏆','Ngôi sao','Đạt 1000 điểm kinh nghiệm'],['xp5000','👑','Huyền thoại','Đạt 5000 điểm kinh nghiệm']];
@@ -47,7 +47,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=35;
+var APPV=36;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -92,7 +92,7 @@ function gcfg(){return GR[st.g]}
 var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
-function roster(){return load(K('roster'),[])}
+function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
 function setRoster(r){save(K('roster'),r)}
 
 /* ================= CẤP ĐỘ & HUY HIỆU ================= */
@@ -113,7 +113,7 @@ function award(name,r){
 }
 function bdg(id){for(var i=0;i<BADGES.length;i++)if(BADGES[i][0]==id)return BADGES[i];return['?','🏅',id,'']}
 function rewardHTML(name,e,res){
- var h='<div class="rw"><b>'+e+' '+esc(name)+'</b><span class="xp">+'+res.xp+' XP</span>';
+ var h='<div class="rw"><b>'+AVH(e)+' '+esc(name)+'</b><span class="xp">+'+res.xp+' XP</span>';
  if(res.up)h+='<span class="up">⬆ Lên cấp '+(res.up+1)+': '+LEVELS[res.up][2]+' '+LEVELS[res.up][1]+'</span>';
  res.nb.forEach(function(id){var b=bdg(id);h+='<span class="nb">'+b[1]+' '+b[2]+'</span>'});
  return h+'</div>';
@@ -152,8 +152,8 @@ function home(){
  app.innerHTML='<section class="hero"><div class="eyebrow g'+st.g+'">Lớp '+st.g+' · '+bank().length+' câu hỏi · '+c.bai.length+' bài</div><h1 class="title">ĐẤU TRƯỜNG<span>KHTN '+st.g+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
  +'<section class="panel"><h2>🎤 Ghi danh thí sinh</h2>'
  +'<div class="row"><input id="nm" maxlength="16" placeholder="Tên của bạn" aria-label="Tên của bạn" autocomplete="off"><button class="btn" data-act="reg">Ghi danh</button></div>'
- +'<div class="avs" role="group" aria-label="Chọn biểu tượng">'+AV.map(function(e){return '<button class="av'+(e==st.av?' on':'')+'" data-act="av" data-v="'+e+'" aria-label="Chọn '+e+'">'+e+'</button>'}).join('')+'</div>'
- +'<div class="chips">'+(r.map(function(p,i){return '<span class="chip">'+p.e+' '+esc(p.n)+' '+lvChip(p.n)+'<button class="x" data-act="del" data-v="'+i+'" aria-label="Xoá '+esc(p.n)+'">×</button></span>'}).join('')||'<em class="muted">Chưa có ai ghi danh. Trò Nhảy bao bố và Ôn tập không cần ghi danh.</em>')+'</div></section>'
+ +'<div class="avs" role="group" aria-label="Chọn biểu tượng">'+AV.map(function(e){return '<button class="av'+(e==st.av?' on':'')+'" data-act="av" data-v="'+e+'" aria-label="Chọn '+(window.AVNAME?AVNAME(e):e)+'">'+AVH(e)+'</button>'}).join('')+'</div>'
+ +'<div class="chips">'+(r.map(function(p,i){return '<span class="chip">'+AVH(p.e)+' '+esc(p.n)+' '+lvChip(p.n)+'<button class="x" data-act="del" data-v="'+i+'" aria-label="Xoá '+esc(p.n)+'">×</button></span>'}).join('')||'<em class="muted">Chưa có ai ghi danh. Trò Nhảy bao bố và Ôn tập không cần ghi danh.</em>')+'</div></section>'
  +'<div class="cta"><button class="btn big" data-act="menu">Vào sân khấu ▶</button></div>'
  +'<div class="tiles">'
  +'<button class="tile hot" data-act="room"><span>🌐</span><b>Phòng chơi trực tuyến</b><small>Tạo phòng, mời cả lớp vào bằng mã hoặc QR trên điện thoại, thi cùng lúc.</small></button>'
@@ -197,7 +197,7 @@ function menu(){
   +(st.skcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Camera trước: học sinh nhìn thấy mình trên màn hình như soi gương. Camera sau: hướng điện thoại hoặc máy tính bảng về phía học sinh (màn hình quay về thầy cô). Có thể đổi trong trận bằng nút 🔄.</p>':'')
   +(st.skcam?'<p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng động tác và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.solo&&id!='solo';return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
- +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+p.e+' '+esc(p.n)+'</button>'}).join('')+'</div>'
+ +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>'
  +(r.length<need?'<p class="warn">Chế độ này cần '+need+' thí sinh. Hãy ghi danh thêm '+(need-r.length)+' bạn.</p><button class="btn ghost sm" data-act="home">Ghi danh thêm</button>':'')+'</section>')
  +'<div class="cta sticky"><button class="btn big" data-act="start"'+(ok?'':' disabled')+'>'+g.ico+' Bắt đầu '+g.name+'</button></div>';
  /* Tải sẵn bộ nhận dạng động tác ngay ở màn hình chuẩn bị, để vào trận là dùng được luôn */
@@ -271,10 +271,10 @@ function who(){return S.rv?0:S.mode=='vs'?S.i%2:S.mode=='relay'?S.i%3:0}
 function ask(){
  var q=S.qs[S.i],g=S.g,w=who(),p=S.P[w],team=S.mode=='relay',mil=S.id=='mil'&&!S.rv;
  setScreen('play');S.lock=false;S.sus=false;S.t0=Date.now();document.body.setAttribute('data-game',S.rv?'rv':S.id);
- var score=S.rv?'<span class="sc">✔ '+S.sc[0]+'</span>':team?'<span class="sc">Đội '+S.sc.reduce(function(a,b){return a+b},0)+'</span>':S.P.map(function(x,i){return '<span class="sc'+(i==w&&S.P.length>1?' cur':'')+'">'+x.e+' '+S.sc[i]+'</span>'}).join('');
+ var score=S.rv?'<span class="sc">✔ '+S.sc[0]+'</span>':team?'<span class="sc">Đội '+S.sc.reduce(function(a,b){return a+b},0)+'</span>':S.P.map(function(x,i){return '<span class="sc'+(i==w&&S.P.length>1?' cur':'')+'">'+AVH(x.e)+' '+S.sc[i]+'</span>'}).join('');
  var ladder=mil?'<ol class="ladder" aria-label="Thang tiền thưởng">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+(i==4||i==9?' safe':'')+'"><span>'+(i+1)+'</span><em>'+(i<S.i?'◆ ':'')+'</em>'+LADDER[i].toLocaleString('vi-VN')+'</li>'}).join('')+'</ol>':'';
  var fl=S.id=='flash'&&!S.rv;
- app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+p.e+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
+ app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+AVH(p.e)+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
  +(fl?flashArena(q,w):'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
  +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div><div class="mil-stage" aria-hidden="true"><i></i></div>':'')
  +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">Bài '+q.b+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
@@ -288,7 +288,7 @@ function ask(){
 /* Nhanh như chớp: bố cục kiểu trường quay – cột tiến độ dạng ống tia chớp bên trái, thí sinh ở giữa, thanh câu hỏi neon và đồng hồ số ở dưới */
 function flashArena(q,w){
  var tube='<ol class="fl-tube" aria-label="Tiến độ câu hỏi">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+'">'+(i+1)+'</li>'}).join('')+'</ol>';
- var ppl='<div class="fl-who">'+S.P.map(function(p,i){var cur=S.mode=='relay'||i==w;return '<div class="fl-p'+(cur?' cur':'')+'"><i>'+p.e+'</i><b>'+esc(p.n)+'</b><span'+(i==w?' class="fx-sc"':'')+'>⚡ '+S.sc[i]+'</span></div>'}).join('')+'</div>';
+ var ppl='<div class="fl-who">'+S.P.map(function(p,i){var cur=S.mode=='relay'||i==w;return '<div class="fl-p'+(cur?' cur':'')+'"><i>'+AVH(p.e)+'</i><b>'+esc(p.n)+'</b><span'+(i==w?' class="fx-sc"':'')+'>⚡ '+S.sc[i]+'</span></div>'}).join('')+'</div>';
  return '<div class="arena g-flash fl2">'+tube
   +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span>Bài '+q.b+'</span>':'')+'</div></div>'
   +'<div class="qcard fl-bar'+qClass(q)+'"><p class="qtext">'+esc(q.q)+'</p><div class="fl-time" id="fltime" aria-label="Thời gian còn lại">00:'+('0'+S.g.time).slice(-2)+'</div><div class="fbar" aria-hidden="true"><i id="fbar"></i></div></div>'
@@ -358,8 +358,10 @@ function end(){
  var won=mode=='solo'?S.ok[0]>=Math.ceil(n*0.7):true;
  var tie=mode=='vs'&&tot[0].s==tot[1].s;
  var title=mode=='relay'?'Cả đội về đích với '+sum+' điểm!':mode=='vs'?(tie?'Hai bạn hoà nhau!':esc(tot[0].p.n)+' chiến thắng!'):id=='mil'?(S.ok[0]==n?'Triệu phú tri thức!':'Bạn dừng ở câu '+(S.i+1)):'Bạn đạt '+sum+' điểm!';
- app.innerHTML=(won?confetti():'')+'<section class="hero center result"><div class="trophy">'+(tie?'🤝':id=='mil'&&won&&mode=='solo'?'💰':won?'🏆':'🎯')+'</div><h1 class="title sm">'+title+'</h1><p>'+S.g.ico+' '+S.g.name+' · '+esc(scopeName())+'</p></section>'
- +'<div class="board">'+tot.map(function(x,k){return '<div class="'+(k==0&&tot.length>1&&x.s>tot[1].s?'first':'')+'"><span>'+x.p.e+' '+esc(x.p.n)+' <small>đúng '+S.ok[x.i]+'/'+(mode=='solo'?(id=='mil'?S.i+1:n):Math.floor((n-x.i+S.P.length-1)/S.P.length))+'</small></span><b>'+x.s.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
+ /* Thắng: avatar có hào quang; thua: cúi mặt buồn */
+ var podium='<div class="res-avs">'+(mode=='relay'?S.P.map(function(p){return AVH(p.e,'win','full')}).join(''):mode=='vs'?tot.map(function(x,k){return AVH(x.p.e,tie?'happy':k==0?'win':'sad','full')}).join(''):AVH(S.P[0].e,won?'win':'sad','full'))+'</div>';
+ app.innerHTML=(won?confetti():'')+'<section class="hero center result">'+podium+'<h1 class="title sm">'+title+'</h1><p>'+S.g.ico+' '+S.g.name+' · '+esc(scopeName())+'</p></section>'
+ +'<div class="board">'+tot.map(function(x,k){return '<div class="'+(k==0&&tot.length>1&&x.s>tot[1].s?'first':'')+'"><span>'+AVH(x.p.e)+' '+esc(x.p.n)+' <small>đúng '+S.ok[x.i]+'/'+(mode=='solo'?(id=='mil'?S.i+1:n):Math.floor((n-x.i+S.P.length-1)/S.P.length))+'</small></span><b>'+x.s.toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>'
  +'<div class="rewards">'+res.map(function(x){return rewardHTML(x.p.n,x.p.e,x.r)}).join('')+'</div>'
  +'<div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div><div id="lbx"></div>';
  if(won)snd('win');celebrate(res.map(function(x){return x.r}));
@@ -378,7 +380,7 @@ function review(){
  +'<h3>Phạm vi</h3>'+scopeSelect()
  +'<h3>Mức độ</h3><div class="chips">'+[['all','Tất cả'],['basic','Cơ bản'],['adv','Khó & nâng cao']].map(function(x){return '<button class="chip'+(st.rlv==x[0]?' on':'')+'" data-act="rlv" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
  +'<h3>Số câu mỗi lượt</h3><div class="chips">'+[10,15,20,0].map(function(x){return '<button class="chip'+(st.rn==x?' on':'')+'" data-act="rn" data-v="'+x+'">'+(x||'Tất cả')+'</button>'}).join('')+'</div>'
- +(r.length?'<h3>Ai ôn tập? <small class="muted">(để nhận điểm kinh nghiệm)</small></h3><div class="chips"><button class="chip'+(st.rvp<0?' on':'')+'" data-act="rvp" data-v="-1">👤 Khách</button>'+r.map(function(p,i){return '<button class="chip'+(st.rvp==i?' on':'')+'" data-act="rvp" data-v="'+i+'">'+p.e+' '+esc(p.n)+'</button>'}).join('')+'</div>':'')
+ +(r.length?'<h3>Ai ôn tập? <small class="muted">(để nhận điểm kinh nghiệm)</small></h3><div class="chips"><button class="chip'+(st.rvp<0?' on':'')+'" data-act="rvp" data-v="-1">👤 Khách</button>'+r.map(function(p,i){return '<button class="chip'+(st.rvp==i?' on':'')+'" data-act="rvp" data-v="'+i+'">'+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>':'')
  +'</section><div class="cta"><button class="btn big" data-act="rstart"'+(n?'':' disabled')+'>Bắt đầu ôn ('+(st.rn&&st.rn<n?st.rn:n)+' câu)</button></div>';
 }
 function rrun(qs){
@@ -404,7 +406,7 @@ function profile(){
  var r=roster(),all=profs();
  app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="home">◀ Quay lại</button><h2>🏅 Cấp độ & huy hiệu</h2></div>'
  +(r.length?r.map(function(x){var p=all[x.n]||{xp:0,n:0,b:{}},i=lvOf(p.xp),nx=LEVELS[i+1],pc=nx?Math.round((p.xp-LEVELS[i][0])*100/(nx[0]-LEVELS[i][0])):100;
-  return '<section class="panel prof"><div class="ph"><span class="big-av">'+x.e+'</span><div><b>'+esc(x.n)+'</b><small>'+LEVELS[i][2]+' Cấp '+(i+1)+' – '+LEVELS[i][1]+' · '+p.xp+' XP · '+p.n+' lượt chơi</small></div></div>'
+  return '<section class="panel prof"><div class="ph"><span class="big-av">'+AVH(x.e)+'</span><div><b>'+esc(x.n)+'</b><small>'+LEVELS[i][2]+' Cấp '+(i+1)+' – '+LEVELS[i][1]+' · '+p.xp+' XP · '+p.n+' lượt chơi</small></div></div>'
   +'<div class="xpbar"><i style="width:'+pc+'%"></i></div><small class="muted">'+(nx?'Còn '+(nx[0]-p.xp)+' XP để lên '+nx[2]+' '+nx[1]:'Đã đạt cấp cao nhất!')+'</small>'
   +'<div class="bgs">'+BADGES.map(function(b){var has=p.b&&p.b[b[0]];return '<span class="bg'+(has?' has':'')+'" title="'+b[3]+'"><i>'+b[1]+'</i><b>'+b[2]+'</b><small>'+b[3]+'</small></span>'}).join('')+'</div></section>'}).join('')
  :'<section class="panel"><p>Chưa có thí sinh nào. Hãy ghi danh ở trang chủ để bắt đầu tích điểm kinh nghiệm.</p></section>')
@@ -413,7 +415,7 @@ function profile(){
 function showLB(game,el){
  if(!el||!GAMES[game])return;var rows=load(K('lb'),[]).filter(function(x){return x.g==game}).slice(0,10);
  if(!rows.length){el.innerHTML='<p class="muted center">Chưa có điểm nào cho trò này.</p>';return}
- el.innerHTML='<h2>🏆 Bảng vàng – '+GAMES[game].name+'</h2><div class="board lb">'+rows.map(function(x,i){return '<div><span><i class="rk">'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</i> '+(x.e||'')+' '+esc(x.n)+'</span><b>'+(+x.s).toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>';
+ el.innerHTML='<h2>🏆 Bảng vàng – '+GAMES[game].name+'</h2><div class="board lb">'+rows.map(function(x,i){return '<div><span><i class="rk">'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</i> '+AVH(x.e)+' '+esc(x.n)+'</span><b>'+(+x.s).toLocaleString('vi-VN')+'</b></div>'}).join('')+'</div>';
 }
 var lbGame='mil';
 function lbScreen(){
@@ -463,12 +465,12 @@ function sqScene(){
  h+='<div class="sq-row plat-row"><div class="plat start">🚩 XUẤT PHÁT</div></div>';
  for(var k=1;k<=n;k++)h+=sqRow(k);
  h+='<div class="sq-row plat-row"><div class="plat fin">🏆 ĐÍCH</div></div>';
- return h+'<div class="sq-av" id="sqav" aria-hidden="true"><span>'+Q.p.e+'</span><i></i></div></div></div>';
+ return h+'<div class="sq-av" id="sqav" aria-hidden="true"><span>'+AVH(Q.p.e,'idle','full')+'</span><i></i></div></div></div>';
 }
 /* Kích thước tầng theo chiều cao khung, dịch cầu để tầng hiện tại nằm gần đáy khung */
 function sqSize(){
  var v=$('#sqv'),t=$('#sqt');if(!v||!t)return 0;
- var H=Math.max(52,Math.min(118,Math.round(v.clientHeight/3.4)));
+ var H=Math.max(52,Math.min(150,Math.round(v.clientHeight/3.3)));
  t.style.setProperty('--H',H+'px');Q.H=H;return H;
 }
 function sqShift(r,anim){var t=$('#sqt');if(!t)return;t.style.transition=anim?'transform .65s cubic-bezier(.4,0,.2,1)':'none';t.style.transform='translateY('+Math.max(0,r-1)*Q.H+'px)'}
@@ -480,12 +482,14 @@ function sqAvTo(el,anim){
  a.style.left=(el.offsetLeft+el.offsetWidth/2)+'px';a.style.top=(el.offsetTop+el.offsetHeight*.55)+'px';
  if(anim){a.classList.remove('jump');void a.offsetWidth;a.classList.add('jump')}
 }
+function sqMood(m){var s=$('#sqav span');if(s&&Q)s.innerHTML=AVH(Q.p.e,m,'full')}
 function sqAsk(){
- setScreen('play');
+ setScreen('play');document.body.setAttribute('data-game','squid');
  var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();
- app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+Q.p.e+' '+esc(Q.p.n)+'</span></div>'
- +'<div class="sq-wrap"><div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'</div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
- +'<p class="sq-hint">👇 Chạm vào phiến đá mang đáp án đúng để nhảy lên. Chọn sai, đá sụp và rơi xuống vực!</p><div id="fb" class="fb" role="status"></div></div>'+sqScene()+'</div>';
+ /* Sàn chơi tràn màn hình ở trên, câu hỏi nằm ở dưới */
+ app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+AVH(Q.p.e)+' '+esc(Q.p.n)+'</span></div>'
+ +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'<span class="sq-hint">Chạm phiến đá có đáp án đúng để nhảy lên</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
+ +'<div id="fb" class="fb" role="status"></div></div></div>';
  document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
  fitPlay();sqSize();sqFitText();sqShift(Q.i,false);sqAvTo(sqStand(),false);
  requestAnimationFrame(function(){requestAnimationFrame(function(){sqShift(Q.i+1,true)})});
@@ -506,17 +510,17 @@ function sqPick(i){
  setTimeout(function(){
   if(Q!==me)return;
   if(o&&o.ok){
-   tiles[i].classList.add('done');snd('step');Q.stk++;if(Q.stk>Q.best)Q.best=Q.stk;Q.xp+=10+2*q.l;
+   tiles[i].classList.add('done');snd('step');sqMood('happy');Q.stk++;if(Q.stk>Q.best)Q.best=Q.stk;Q.xp+=10+2*q.l;
    var fb=$('#fb');fb.className='fb good';fb.innerHTML='✅ Vững chân! Tiếp tục leo lên.';
    setTimeout(function(){
     if(Q!==me)return;Q.i++;
-    if(Q.i>=Q.qs.length){var fin=sqRowEl(Q.i+1);sqShift(Q.i+1,true);setTimeout(function(){if(Q===me){sqAvTo(fin.querySelector('.plat'),true);snd('win')}},350);setTimeout(function(){if(Q===me)sqWin()},1500)}
+    if(Q.i>=Q.qs.length){var fin=sqRowEl(Q.i+1);sqShift(Q.i+1,true);setTimeout(function(){if(Q===me){sqAvTo(fin.querySelector('.plat'),true);sqMood('win');snd('win')}},350);setTimeout(function(){if(Q===me)sqWin()},1500)}
     else sqAsk();
    },500);
   }else{
    if(i>=0)tiles[i].classList.add('crack');else{var s=sqStand();if(s&&s.classList.contains('stone'))s.classList.add('crack')}
    tiles.forEach(function(b,j){if(Q.o[j].ok)b.classList.add('reveal')});
-   if(av)av.classList.add('fall');snd('crash');
+   sqMood('sad');if(av)av.classList.add('fall');snd('crash');
    var fb2=$('#fb');fb2.className='fb bad';fb2.innerHTML=(i<0?'⏰ Hết giờ! ':'')+'🪨 Đá sụp, rơi xuống vực! Đáp án đúng: <b>'+esc(right)+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':'');
    setTimeout(function(){if(Q===me)sqLose()},q.e?3600:2600);
   }
@@ -526,7 +530,7 @@ window.addEventListener('resize',function(){if(Q&&$('#sqv')){document.documentEl
 function sqEnd(win){
  setScreen('result');
  var res=award(Q.p.n,{xp:Q.xp+(win?50:0),streak:Q.best,badges:win?['bridge']:[]});
- app.innerHTML=(win?confetti(30):'')+'<section class="hero center result'+(win?' win':'')+'">'+(win?'<div class="cup">🏆</div><div class="wintxt">WIN</div><p>'+Q.p.e+' '+esc(Q.p.n)+' đã vượt qua '+Q.qs.length+' bước và về đích!</p>':'<div class="trophy">💥</div><h1 class="title sm">Bạn đã rơi xuống vực!</h1><p>Vượt qua '+Q.i+'/'+Q.qs.length+' bước. Thử lại nhé!</p>')+'</section>'
+ app.innerHTML=(win?confetti(30):'')+'<section class="hero center result'+(win?' win':'')+'"><div class="res-avs">'+AVH(Q.p.e,win?'win':'sad','full')+'</div>'+(win?'<div class="wintxt">WIN</div><p>'+AVH(Q.p.e)+' '+esc(Q.p.n)+' đã vượt qua '+Q.qs.length+' bước và về đích!</p>':'<h1 class="title sm">Bạn đã rơi xuống vực!</h1><p>Vượt qua '+Q.i+'/'+Q.qs.length+' bước. Thử lại nhé!</p>')+'</section>'
  +'<div class="rewards">'+rewardHTML(Q.p.n,Q.p.e,res)+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
  if(win)snd('win');else snd('sad');celebrate([res]);Q=null;
 }

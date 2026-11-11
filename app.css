@@ -587,3 +587,71 @@ body[data-game=flash][data-scr=play]{background:linear-gradient(115deg,transpare
 }
 @media(max-height:540px) and (orientation:landscape){body.playing .arena.fl2,body.playing .arena.g-mil.has-ladder{align-items:stretch}body.playing .arena.fl2>.answers,body.playing .arena.g-mil>.answers{grid-auto-rows:1fr}}
 @media(max-width:640px){.arena.fl2{min-height:calc(100dvh - 200px)}.fl-p i{width:clamp(56px,11vh,110px);font-size:clamp(34px,7vh,70px)}}
+
+/* ===== v36: Avatar học sinh ===== */
+.avh{display:inline-block;width:1.45em;height:1.45em;vertical-align:-.38em;position:relative;line-height:0}
+.avh svg{width:100%;height:100%;overflow:visible;display:block}
+.avh.emo{width:auto;height:auto;line-height:1;vertical-align:baseline}
+.avh.full{width:100%;height:100%;vertical-align:bottom}
+.avh.win::before{content:'';position:absolute;left:50%;top:42%;width:170%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;z-index:-1;background:radial-gradient(circle,rgba(255,226,120,.85) 0 18%,rgba(255,200,60,.35) 38%,transparent 66%),repeating-conic-gradient(rgba(255,215,90,.38) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.avh.win{isolation:isolate}
+@media(prefers-reduced-motion:no-preference){.res-avs .avh.win::before{animation:halo 8s linear 2}@keyframes halo{to{transform:translate(-50%,-50%) rotate(360deg)}}.res-avs .avh.sad{animation:sadbob 2.4s ease-in-out 2}@keyframes sadbob{50%{transform:translateY(4px)}}}
+.res-avs{display:flex;justify-content:center;gap:clamp(16px,5vw,60px);margin:6px 0 4px}
+.res-avs .avh{width:clamp(96px,22vw,150px);height:clamp(144px,33vw,225px)}
+.res-avs .avh.sad{filter:saturate(.75) brightness(.9)}
+.avs .av{font-size:30px;padding:4px}.avs .av .avh{width:46px;height:50px}
+.big-av .avh{width:72px;height:80px}
+.fl-p i .avh{width:82%;height:82%}
+.sq-av span .avh{width:calc(var(--H,90px) * .62);height:calc(var(--H,90px) * .93)}
+.rm-me .avh{width:54px;height:80px}
+.tw span .avh{width:28px;height:42px}
+
+/* ===== v36: Vượt cầu – sàn chơi tràn màn hình, vực sâu, câu hỏi ở dưới ===== */
+body[data-game=squid][data-scr=play] main{max-width:none;padding:0 0 8px}
+body[data-game=squid][data-scr=play] .hud{padding:4px 14px 0;margin:0 0 4px}
+body[data-game=squid] .sq-wrap{display:flex;flex-direction:column;align-items:stretch;gap:8px;height:calc(100vh - 118px);height:calc(100dvh - 118px);min-height:420px}
+body[data-game=squid] .sq-view{flex:1 1 auto;height:auto;min-height:0;border:0;border-radius:0;box-shadow:none;background:#000}
+body[data-game=squid] .sq-side{flex:none;padding:0 14px;max-width:1100px;width:100%;margin:0 auto;box-sizing:border-box}
+body[data-game=squid] .sq-side .qcard{padding:12px 80px 14px 18px}
+body[data-game=squid] .sq-side .qtext{font-size:clamp(18px,2.2vh + .8vw,30px);margin-top:4px}
+body[data-game=squid] .sq-side .fb{min-height:0;font-size:16px}
+body[data-game=squid] .sq-hint{margin-left:auto;font-size:13px;color:var(--muted);font-weight:600}
+/* Bầu trời chạng vạng phía xa, càng xuống càng tối như vực thẳm */
+body[data-game=squid] .sq-sky{background:radial-gradient(ellipse 60% 30% at 50% 0%,rgba(255,196,120,.55),transparent 70%),linear-gradient(180deg,#f2a65e 0%,#c46a5a 14%,#6d3f6e 30%,#2a1d42 46%,#0d0a1c 62%,#030208 80%,#000 100%)}
+body[data-game=squid] .sq-sky::before{left:50%;top:3%;width:90px;height:90px;margin-left:-45px;background:radial-gradient(circle,#fff6d6 0 40%,rgba(255,225,150,.35) 46%,transparent 70%)}
+/* Vách đá hai bên nhiều lớp, tối dần xuống đáy */
+body[data-game=squid] .sq-cliff{width:22%;background:repeating-linear-gradient(172deg,rgba(0,0,0,.22) 0 2px,transparent 2px 22px),repeating-linear-gradient(95deg,rgba(255,255,255,.04) 0 1px,transparent 1px 30px),linear-gradient(180deg,#8a6448 0%,#5e4230 30%,#2e2018 60%,#0e0906 85%,#000 100%);filter:none}
+body[data-game=squid] .sq-view::before,body[data-game=squid] .sq-view::after{content:'';position:absolute;top:0;bottom:0;width:30%;z-index:0;pointer-events:none;background:linear-gradient(180deg,#3a2a40 0%,#1a1220 40%,#050308 75%,#000);opacity:.85}
+body[data-game=squid] .sq-view::before{left:8%;clip-path:polygon(0 0,40% 0,55% 14%,35% 28%,58% 44%,30% 60%,52% 78%,26% 100%,0 100%)}
+body[data-game=squid] .sq-view::after{right:8%;clip-path:polygon(60% 0,100% 0,100% 100%,74% 100%,48% 80%,70% 62%,42% 46%,66% 30%,44% 14%)}
+body[data-game=squid] .sq-sky,body[data-game=squid] .sq-cliff{z-index:0}
+body[data-game=squid] .sq-pit{height:58%;z-index:1;background:repeating-linear-gradient(180deg,transparent 0 18px,rgba(120,140,200,.03) 18px 19px),linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 35%,rgba(0,0,0,.92) 70%,#000 100%)}
+body[data-game=squid] .sq-mist{z-index:1;bottom:12%;height:34%;opacity:.7}
+body[data-game=squid] .sq-track{z-index:2;padding-bottom:14px}
+body[data-game=squid] .sq-row{padding:0 max(18%,90px);gap:clamp(10px,2vw,28px)}
+/* Phiến đá tự nhiên: viền không đều, mặt trên có rêu, có bề dày và bóng đổ */
+body[data-game=squid] .stone{max-width:300px;background:none;box-shadow:none;border-radius:0;isolation:isolate;overflow:visible;filter:drop-shadow(0 9px 0 #2a211b) drop-shadow(0 18px 14px rgba(0,0,0,.75));color:#fff;text-shadow:0 1px 2px #000,0 0 8px rgba(0,0,0,.9)}
+body[data-game=squid] .stone::before{content:'';position:absolute;inset:0;z-index:-1;clip-path:polygon(5% 22%,16% 6%,38% 0,64% 2%,86% 7%,97% 24%,100% 52%,94% 80%,74% 96%,47% 100%,21% 95%,4% 78%,0 50%);
+ background:radial-gradient(ellipse 70% 26% at 50% 10%,rgba(150,200,105,.85),rgba(110,160,80,.5) 60%,transparent 62%),linear-gradient(128deg,transparent 40%,rgba(30,22,18,.55) 40.6% 41.6%,transparent 42.2%),linear-gradient(58deg,transparent 64%,rgba(30,22,18,.45) 64.6% 65.4%,transparent 66%),radial-gradient(circle at 24% 46%,rgba(255,255,255,.14) 0 5%,transparent 6%),radial-gradient(circle at 76% 62%,rgba(0,0,0,.25) 0 4%,transparent 5%),radial-gradient(circle at 56% 82%,rgba(0,0,0,.2) 0 3%,transparent 4%),linear-gradient(180deg,#b3a598 0%,#8e8176 40%,#6a5e55 78%,#4a4039 100%)}
+body[data-game=squid] .stone.st1::before{clip-path:polygon(3% 30%,12% 8%,34% 2%,58% 0,82% 5%,96% 18%,100% 46%,97% 74%,80% 94%,52% 100%,26% 97%,8% 84%,0 58%)}
+body[data-game=squid] .stone.st2::before{clip-path:polygon(8% 16%,28% 3%,52% 0,74% 4%,92% 14%,100% 38%,98% 68%,86% 90%,60% 100%,32% 98%,12% 88%,1% 64%,0 38%)}
+body[data-game=squid] .stone.st3::before{clip-path:polygon(2% 40%,9% 14%,26% 3%,50% 1%,76% 0,93% 12%,100% 34%,99% 62%,90% 86%,68% 99%,40% 100%,16% 92%,3% 70%)}
+body[data-game=squid] .stone span{position:relative;z-index:1}
+body[data-game=squid] .sq-row.cur .stone::after{content:none}
+body[data-game=squid] .sq-row.cur .stone:not(:disabled):hover,body[data-game=squid] .sq-row.cur .stone:not(:disabled):focus-visible{box-shadow:none;filter:drop-shadow(0 0 0 #000) drop-shadow(0 0 3px #FFE27A) drop-shadow(0 0 12px rgba(255,226,122,.9)) drop-shadow(0 9px 0 #2a211b)}
+body[data-game=squid] .sq-row.next .stone{filter:brightness(.55) drop-shadow(0 8px 0 #1c1612);opacity:.9}
+body[data-game=squid] .stone.done{box-shadow:none;filter:drop-shadow(0 0 3px #4BE38D) drop-shadow(0 0 12px rgba(75,227,141,.75)) drop-shadow(0 9px 0 #2a211b)}
+body[data-game=squid] .stone.reveal{box-shadow:none;filter:drop-shadow(0 0 3px var(--gold)) drop-shadow(0 0 16px rgba(255,201,60,.95)) drop-shadow(0 9px 0 #2a211b)}
+body[data-game=squid] .stone.crack{background:none;box-shadow:none}
+body[data-game=squid] .stone.crack::before{background:linear-gradient(115deg,transparent 30%,#1a0f0c 31% 33%,transparent 34%),linear-gradient(60deg,transparent 55%,#1a0f0c 56% 58%,transparent 59%),linear-gradient(180deg,#8a5a50,#5a352d)}
+body[data-game=squid] .plat{position:relative;isolation:isolate;box-shadow:none;filter:drop-shadow(0 12px 0 #241a12) drop-shadow(0 22px 20px rgba(0,0,0,.75))}
+body[data-game=squid] .sq-av span{display:block}
+body[data-game=squid] .sq-av i{bottom:-4px}
+@media(max-width:640px){body[data-game=squid] .sq-row{padding:0 10%}body[data-game=squid] .sq-wrap{height:calc(100dvh - 150px)}body[data-game=squid] .sq-side .qcard{padding:10px 64px 12px 12px}body[data-game=squid] .sq-hint{display:none}}
+@media(max-height:540px) and (orientation:landscape){
+ body[data-game=squid] .sq-wrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);height:calc(100dvh - 46px);min-height:0;gap:8px}
+ body[data-game=squid] .sq-view{height:100%}
+ body[data-game=squid] .sq-side{padding:0 10px 0 0;display:flex;flex-direction:column;justify-content:center}
+ body[data-game=squid] .sq-row{padding:0 12%}
+ body[data-game=squid] .sq-hint{display:none}
+}

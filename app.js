@@ -44,10 +44,10 @@ function fmt(n){return String(n).replace('.',',')}
 function numVal(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');return s===''?NaN:+s}
 function ansText(q){return q.t=='mc'?'ABCD'[q.a]+'. '+q.o[q.a]:q.t=='tf'?(q.a?'ĐÚNG':'SAI'):fmt(q.a)}
 function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★★★★'.slice(0,Math.min(l,4))+'<i>'+'★★★★'.slice(0,4-Math.min(l,4))+'</i></span>'}
-function setScreen(n){document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
+function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=34;
+var APPV=35;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -215,10 +215,11 @@ function pickQs(pool,n){return shuf(pool).slice(0,n).sort(function(a,b){return a
 var RC=2*Math.PI*20;
 function ring(){return '<div class="ring" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" class="rt"/><circle cx="22" cy="22" r="20" class="rv" id="rv" stroke-dasharray="'+RC.toFixed(2)+'" stroke-dashoffset="0"/></svg><b id="rs"></b></div>'}
 function setRing(left,total){
+ var fb=document.getElementById('fbar');if(fb){fb.style.transform='scaleX('+(left/total).toFixed(3)+')';fb.classList.toggle('hot',left<=3)}
+ var ft=document.getElementById('fltime');if(ft){ft.textContent='00:'+('0'+Math.ceil(left)).slice(-2);ft.classList.toggle('hot',left<=3)}
  var v=$('#rv'),s=$('#rs');if(!v)return;
  v.setAttribute('stroke-dashoffset',(RC*(1-left/total)).toFixed(2));
  s.textContent=Math.ceil(left);
- var fb=document.getElementById('fbar');if(fb){fb.style.transform='scaleX('+(left/total).toFixed(3)+')';fb.classList.toggle('hot',left<=3)}
  var w=v.parentNode.parentNode;w.classList.toggle('hot',left<=5);
 }
 function optsHTML(q,act){
@@ -274,19 +275,31 @@ function ask(){
  var ladder=mil?'<ol class="ladder" aria-label="Thang tiền thưởng">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+(i==4||i==9?' safe':'')+'"><span>'+(i+1)+'</span><em>'+(i<S.i?'◆ ':'')+'</em>'+LADDER[i].toLocaleString('vi-VN')+'</li>'}).join('')+'</ol>':'';
  var fl=S.id=='flash'&&!S.rv;
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+p.e+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
- +'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
- +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div>':'')
+ +(fl?flashArena(q,w):'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
+ +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div><div class="mil-stage" aria-hidden="true"><i></i></div>':'')
  +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">Bài '+q.b+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
  +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
  +(mil?'':'<div class="tools"></div>')
- +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>';
+ +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>');
  var inp=$('#num');if(inp&&!('ontouchstart' in window))inp.focus();
- fitPlay();clearInterval(tm);if(!S.rv){setRing(g.time,g.time);tm=setInterval(tick,100)}
+ S.lastSec=0;fitPlay();clearInterval(tm);if(!S.rv){setRing(g.time,g.time);tm=setInterval(tick,100)}
+ if(mil){var me=S;snd('milQ');setTimeout(function(){if(S===me&&!S.lock&&document.body.getAttribute('data-scr')=='play')snd('bedOn')},1000)}
+}
+/* Nhanh như chớp: bố cục kiểu trường quay – cột tiến độ dạng ống tia chớp bên trái, thí sinh ở giữa, thanh câu hỏi neon và đồng hồ số ở dưới */
+function flashArena(q,w){
+ var tube='<ol class="fl-tube" aria-label="Tiến độ câu hỏi">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+'">'+(i+1)+'</li>'}).join('')+'</ol>';
+ var ppl='<div class="fl-who">'+S.P.map(function(p,i){var cur=S.mode=='relay'||i==w;return '<div class="fl-p'+(cur?' cur':'')+'"><i>'+p.e+'</i><b>'+esc(p.n)+'</b><span'+(i==w?' class="fx-sc"':'')+'>⚡ '+S.sc[i]+'</span></div>'}).join('')+'</div>';
+ return '<div class="arena g-flash fl2">'+tube
+  +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span>Bài '+q.b+'</span>':'')+'</div></div>'
+  +'<div class="qcard fl-bar'+qClass(q)+'"><p class="qtext">'+esc(q.q)+'</p><div class="fl-time" id="fltime" aria-label="Thời gian còn lại">00:'+('0'+S.g.time).slice(-2)+'</div><div class="fbar" aria-hidden="true"><i id="fbar"></i></div></div>'
+  +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
+  +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>';
 }
 function tick(){
  if(!S||S.lock){clearInterval(tm);return}
  var left=Math.max(0,S.g.time-(Date.now()-S.t0)/1000);
  setRing(left,S.g.time);
+ if(S.id=='flash'&&!S.rv){var sec=Math.ceil(left);if(sec!=S.lastSec){S.lastSec=sec;if(left>5)snd('tick')}}
  if(left>0&&left<=5)snd('beat',left);
  if(left<=0)answer(null);
 }
@@ -294,11 +307,12 @@ function fifty(){var q=S.qs[S.i];S.fifty=false;shuf([0,1,2,3].filter(function(i)
 function swapQ(){if(!S.spare.length)return;var q=S.qs[S.i],c=null;for(var i=0;i<S.spare.length;i++)if(S.spare[i].t==q.t){c=S.spare.splice(i,1)[0];break}if(!c)c=S.spare.shift();S.qs[S.i]=prep(c);S.swap=false;ask()}
 function answer(v){
  if(!S||S.lock)return;
+ if(window.SND&&SND.bedOff)SND.bedOff();
  /* Ai là triệu phú: đáp án được chọn sáng màu cam chờ một nhịp rồi mới công bố đúng/sai */
  if(S.id=='mil'&&!S.rv&&v!==null&&!S.sus){
   S.lock=true;clearInterval(tm);var me=S,sel=$('.opt[data-v="'+v+'"]');if(sel)sel.classList.add('lockin');
   $$('.opt').forEach(function(b){b.disabled=true});$$('.tools.life .lf').forEach(function(b){b.disabled=true});
-  snd('tap');setTimeout(function(){if(S!==me)return;S.lock=false;S.sus=true;if(sel)sel.classList.remove('lockin');answer(v)},1500);return;
+  snd('milLock');setTimeout(function(){if(S!==me)return;S.lock=false;S.sus=true;if(sel)sel.classList.remove('lockin');answer(v)},1500);return;
  }
  S.lock=true;clearInterval(tm);
  var q=S.qs[S.i],left=Math.max(0,S.g.time-(Date.now()-S.t0)/1000),w=who(),ok=judge(q,v),pts=0;
@@ -307,8 +321,8 @@ function answer(v){
   S.st++;if(S.mode=='relay')pts+=Math.min(S.st-1,5)*20;
   S.sc[w]+=S.rv?1:pts;S.ok[w]++;S.stk[w]++;if(S.stk[w]>S.best[w])S.best[w]=S.stk[w];
   S.xp[w]+=S.rv?5+q.l:10+2*q.l+Math.min(S.stk[w],5)*2;
-  snd('ok');
- }else{S.st=0;S.stk[w]=0;if(S.rv)S.wrong.push(S.qs[S.i]);snd('bad')}
+  snd(S.rv?'ok':S.id=='mil'?'milOk':S.id=='flash'?'zap':'ok');
+ }else{S.st=0;S.stk[w]=0;if(S.rv)S.wrong.push(S.qs[S.i]);snd(S.id=='mil'&&!S.rv?'milBad':'bad')}
  markOpts(q,v);
  var t=$('.tools');if(t&&!t.classList.contains('life'))t.innerHTML='';
  if(ok&&S.id=='flash'&&!S.rv){var sc=$('.fx-sc');if(sc)sc.textContent='⚡ '+S.sc[w];var qc=$('.qcard');if(qc)qc.insertAdjacentHTML('beforeend','<span class="fx-pop">+'+pts+'</span>')}

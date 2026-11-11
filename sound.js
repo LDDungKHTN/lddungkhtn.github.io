@@ -63,10 +63,28 @@ function win(){var t=AC.currentTime;[523,659,784,1047,1319,1568].forEach(functio
 function happy(){var t=AC.currentTime;[[523,0],[659,.12],[784,.24],[659,.36],[784,.48],[1047,.6]].forEach(function(n){tone(n[0],t+n[1],.22,'square',.07);tone(n[0]*2,t+n[1],.12,'triangle',.06)});tone(1047,t+.72,.5,'triangle',.18);tone(1319,t+.72,.5,'triangle',.12)}
 function tap(){var t=AC.currentTime;tone(880,t,0.08,'triangle',0.18)}
 function badge(){var t=AC.currentTime;[784,988,1175,1568].forEach(function(f,i){tone(f,t+i*0.07,0.5,'sine',0.16)})}
+/* ---- Âm thanh kiểu gameshow (tự tạo, không dùng nhạc của chương trình truyền hình) ---- */
+function pad(fs,t,d,v,cut,att){var f=AC.createBiquadFilter(),gn=AC.createGain();f.type='lowpass';f.frequency.value=cut||1200;gn.gain.setValueAtTime(0.0001,t);gn.gain.exponentialRampToValueAtTime(v,t+(att||0.08));gn.gain.exponentialRampToValueAtTime(0.0001,t+d);f.connect(gn);gn.connect(OUT);fs.forEach(function(fr){[-4,4].forEach(function(dt){var o=AC.createOscillator();o.type='sawtooth';o.frequency.value=fr;o.detune.value=dt;o.connect(f);o.start(t);o.stop(t+d+0.05)})})}
+function boom(t,v){tone(110,t,0.9,'sine',v||0.9,38);noise(t,0.5,0.25,180,0.8,'lowpass')}
+/* Mở câu hỏi: tiếng trống trầm + hợp âm vang lên */
+function milQ(){var t=AC.currentTime;boom(t,0.7);pad([110,165,220,277],t+0.05,1.6,0.09,900,0.3);[880,1109,1319].forEach(function(f,i){tone(f,t+0.25+i*0.07,0.6,'sine',0.05)})}
+/* Nền hồi hộp: nhịp trầm lặp lại cho đến khi chốt đáp án */
+var BED=null;
+function bedOn(){bedOff();var k=0;var play=function(){if(!AC)return;var t=AC.currentTime;tone(55,t,0.5,'sine',0.55,50);tone(k%4==3?82:73,t+0.6,0.35,'sine',0.35);pad([220,262,330],t,1.1,0.025,600,0.4);k++};play();BED=setInterval(function(){try{if(on&&!document.hidden)play()}catch(e){}},1200)}
+function bedOff(){if(BED){clearInterval(BED);BED=null}}
+/* Chốt đáp án: hợp âm trầm phồng lên đầy kịch tính */
+function milLock(){bedOff();var t=AC.currentTime;boom(t,0.6);pad([73,110,147,175],t,1.5,0.14,700,0.6)}
+/* Đúng: hợp âm trưởng sáng rực + chuông */
+function milOk(){var t=AC.currentTime;pad([262,330,392,523],t,1.6,0.12,2200,0.05);[1047,1319,1568,2093].forEach(function(f,i){tone(f,t+0.05+i*0.09,0.9,'triangle',0.09)});boom(t,0.4)}
+/* Sai: hợp âm thứ trầm rơi xuống */
+function milBad(){var t=AC.currentTime;pad([233,277,349],t,0.6,0.14,1000,0.03);pad([185,220,277],t+0.45,1.6,0.13,800,0.05);tone(98,t+0.45,1.4,'sine',0.6,55)}
+/* Nhanh như chớp: tiếng "tia điện" khi đúng, tích tắc mỗi giây */
+function zap(){var t=AC.currentTime;tone(300,t,0.18,'sawtooth',0.18,2400);noise(t,0.15,0.25,4000,2);[1319,1760].forEach(function(f,i){tone(f,t+0.12+i*0.08,0.35,'square',0.06)})}
+function tick(){var t=AC.currentTime;tone(2000,t,0.03,'square',0.05);tone(1000,t,0.05,'triangle',0.08)}
 function g(f){return function(a){try{if(on&&ac())f(a)}catch(e){}}}
-window.SND={beat:g(beat),ok:g(clap),bad:g(crash),crash:g(crash),clap:g(clap),step:g(step),win:g(win),buzz:g(buzz),sad:g(sad),happy:g(happy),tap:g(tap),badge:g(badge),
+window.SND={milQ:g(milQ),bedOn:g(bedOn),bedOff:function(){bedOff()},milLock:g(milLock),milOk:g(milOk),milBad:g(milBad),zap:g(zap),tick:g(tick),beat:g(beat),ok:g(clap),bad:g(crash),crash:g(crash),clap:g(clap),step:g(step),win:g(win),buzz:g(buzz),sad:g(sad),happy:g(happy),tap:g(tap),badge:g(badge),
  isOn:function(){return on},
- toggle:function(){on=!on;try{localStorage.setItem('kh7_snd2',on?'on':'off')}catch(e){}show();if(on&&ac())tap();return on}};
+ toggle:function(){on=!on;if(!on)bedOff();try{localStorage.setItem('kh7_snd2',on?'on':'off')}catch(e){}show();if(on&&ac())tap();return on}};
 var btn=document.getElementById('sndBtn');
 function show(){if(btn)btn.textContent=on?'🔊':'🔇';[].forEach.call(document.querySelectorAll('[data-act="snd"]'),function(b){b.textContent=on?'🔊':'🔇'})}
 if(btn)btn.onclick=function(){SND.toggle()};

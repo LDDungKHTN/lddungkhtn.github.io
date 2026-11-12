@@ -276,11 +276,12 @@ function loop(){
  ['b','r'].forEach(function(k){if(!seen[k])onGesture(k,null,now)});
  var dt=performance.now()-t0;CAM.cost=CAM.cost?CAM.cost*0.8+dt*0.2:dt;
 }
-function draw(k,v,lm){
- var c=$('cam_'+k);if(!c)return;c=c.querySelector('canvas');
+function draw(k,v,lm){var c=$('cam_'+k);if(c)drawTo(c.querySelector('canvas'),v,lm,k=='b'?'#4C9AFF':'#FF6F6F')}
+function drawTo(c,v,lm,col){
+ if(!c)return;
  if(c.width!=v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight}
  var x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);if(!lm)return;
- var col=k=='b'?'#4C9AFF':'#FF6F6F',P=function(i){return[lm[i].x*c.width,lm[i].y*c.height]};
+ var P=function(i){return[lm[i].x*c.width,lm[i].y*c.height]};
  x.lineWidth=Math.max(4,c.width/120);x.strokeStyle=col;x.lineCap='round';
  [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24]].forEach(function(s){if(!vis(lm[s[0]])||!vis(lm[s[1]]))return;var a=P(s[0]),b=P(s[1]);x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()});
  [15,16].forEach(function(i){if(!vis(lm[i]))return;var a=P(i);x.fillStyle='#FFD23F';x.beginPath();x.arc(a[0],a[1],c.width/50,0,7);x.fill()});
@@ -305,5 +306,39 @@ function camStop(){
  CAM.on=false;cancelAnimationFrame(CAM.raf);
  Object.keys(CAM.src).forEach(function(k){CAM.src[k].stream.getTracks().forEach(function(t){t.stop()})});CAM.src={};
 }
-window.DTKSACK={face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
+/* ===== Camera một người (dùng cho Ai là triệu phú) =====
+   box chứa <video>, <canvas>, .gc-msg; onG(cử chỉ, thời điểm) được gọi khoảng 9 lần/giây.
+   Trả về Promise<true> khi camera và bộ nhận dạng đã sẵn sàng, <false> nếu không dùng được. */
+var G1=null;
+function gcamStart(box,onG){
+ gcamStop();
+ var me=G1={raf:0,last:0,cost:0,stream:null},msg=function(m){var e=box.querySelector('.gc-msg');if(e){e.textContent=m||'';e.hidden=!m}};
+ box.classList.toggle('mirror',camFace()=='user');
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg('Trình duyệt này không hỗ trợ camera. Hãy chạm để chọn đáp án.');return Promise.resolve(false)}
+ msg('📷 Đang mở camera '+(camFace()=='user'?'trước':'sau')+'…');
+ return getStream(null).then(function(st){
+  if(G1!==me){st.getTracks().forEach(function(t){t.stop()});return false}
+  me.stream=st;var v=box.querySelector('video');v.srcObject=st;var p=v.play();if(p&&p.catch)p.catch(function(){});
+  msg('⏳ Đang tải bộ nhận dạng động tác…');
+  return sharedPL().then(function(pl){
+   if(G1!==me)return false;msg('');
+   var loop=function(){
+    if(G1!==me)return;me.raf=requestAnimationFrame(loop);
+    var now=performance.now();if(now-me.last<Math.max(110,me.cost*2.5))return;me.last=now;
+    if(document.hidden||v.readyState<2||!v.videoWidth)return;
+    var t0=performance.now(),res;try{res=pl.detectForVideo(v,now)}catch(e){return}
+    var best=null,bw=0;(res&&res.landmarks||[]).forEach(function(q){var w=Math.abs(q[11].x-q[12].x);if(w>bw){bw=w;best=q}});
+    drawTo(box.querySelector('canvas'),v,best,'#FFC24D');
+    try{onG(classify(best),now)}catch(e){}
+    var dt=performance.now()-t0;me.cost=me.cost?me.cost*0.8+dt*0.2:dt;
+   };
+   me.raf=requestAnimationFrame(loop);return true;
+  });
+ }).catch(function(e){
+  if(G1===me)msg(e&&e.name=='NotAllowedError'?'Chưa được phép dùng camera. Hãy cho phép quyền camera, hoặc chạm để chọn đáp án.':'Không mở được camera (lần đầu cần có mạng). Hãy chạm để chọn đáp án.');
+  return false;
+ });
+}
+function gcamStop(){if(!G1)return;cancelAnimationFrame(G1.raf);if(G1.stream)G1.stream.getTracks().forEach(function(t){t.stop()});G1=null}
+window.DTKSACK={gcam:{start:gcamStart,stop:gcamStop,on:function(){return !!G1},gestVal:gestVal,face:camFace},face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

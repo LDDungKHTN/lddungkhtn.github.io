@@ -655,3 +655,26 @@ body[data-game=squid] .sq-av i{bottom:-4px}
  body[data-game=squid] .sq-row{padding:0 12%}
  body[data-game=squid] .sq-hint{display:none}
 }
+
+/* ===== v37: Ai là triệu phú – trả lời bằng camera ===== */
+.mil-stage.cam{pointer-events:auto;overflow:visible}
+.gc-box{position:relative;height:100%;max-height:100%;aspect-ratio:4/3;max-width:100%;border-radius:18px;overflow:hidden;background:#000;border:3px solid #8EA2FF;box-shadow:0 0 30px rgba(90,120,255,.45)}
+.gc-box video,.gc-box canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gc-box.mirror video,.gc-box.mirror canvas{transform:scaleX(-1)}
+.gc-ges{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:rgba(0,0,0,.65);color:#FFC24D;font-weight:800;border-radius:999px;padding:2px 12px;font-size:15px}
+.gc-ges:empty{display:none}
+.gc-msg{position:absolute;left:8px;right:8px;bottom:8px;background:rgba(5,10,58,.88);color:#fff;border-radius:10px;padding:6px 10px;font-size:14px;text-align:center}
+.gc-msg[hidden]{display:none}
+.gc-flip{position:absolute;right:6px;top:6px;width:36px;height:36px;border-radius:50%;border:2px solid #C9D3FF;background:rgba(10,18,87,.8);color:#fff;font-size:17px;padding:0}
+.arena.g-mil .opt .mges{margin-left:auto;font-style:normal;font-size:.72em;color:#C9D3FF;white-space:nowrap;padding-left:6px}
+.arena.g-mil .opt.hold{background:linear-gradient(180deg,#FFE3A6,#FF9F1C 50%,#FFE3A6)}
+.arena.g-mil .opt.hold::after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--hp,0%);z-index:0;background:rgba(255,166,30,.55);clip-path:inherit;transition:width .1s linear}
+@media(max-width:640px){.mil-stage.cam{min-height:28vh}.arena.g-mil .opt .mges{font-size:.62em}}
+@media(max-height:540px) and (orientation:landscape){
+ body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam){grid-template-rows:minmax(0,1fr) auto auto}
+ body.playing .arena.g-mil.has-ladder .mil-stage.cam{display:flex;justify-content:flex-start;grid-column:1;grid-row:2;height:34vh;min-height:0}
+ body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam)>.answers{grid-row:1/span 2}
+ body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam)>.tools{grid-column:1;grid-row:2;justify-self:end;align-self:center;flex-direction:column}
+ body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam)>.fb{grid-column:1/-1;grid-row:3}
+ body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam) .opt{min-height:0}
+}

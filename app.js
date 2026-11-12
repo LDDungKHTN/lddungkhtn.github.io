@@ -44,10 +44,10 @@ function fmt(n){return String(n).replace('.',',')}
 function numVal(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');return s===''?NaN:+s}
 function ansText(q){return q.t=='mc'?'ABCD'[q.a]+'. '+q.o[q.a]:q.t=='tf'?(q.a?'ĐÚNG':'SAI'):fmt(q.a)}
 function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★★★★'.slice(0,Math.min(l,4))+'<i>'+'★★★★'.slice(0,4-Math.min(l,4))+'</i></span>'}
-function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
+function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=36;
+var APPV=37;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -89,7 +89,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
@@ -196,12 +196,16 @@ function menu(){
   +'<button class="mode'+(st.skcam?' on':'')+'" data-act="skcam" data-v="1"><b>📷 Động tác qua camera</b><small>Đứng trước camera: Đội Xanh bên trái, Đội Đỏ bên phải. A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang. Đúng: giơ hai tay · Sai: dang ngang.</small></button></div>'
   +(st.skcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Camera trước: học sinh nhìn thấy mình trên màn hình như soi gương. Camera sau: hướng điện thoại hoặc máy tính bảng về phía học sinh (màn hình quay về thầy cô). Có thể đổi trong trận bằng nút 🔄.</p>':'')
   +(st.skcam?'<p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng động tác và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
+ +(st.game=='mil'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
+  +'<button class="mode'+(st.milcam?'':' on')+'" data-act="milcam" data-v="0"><b>👆 Chạm màn hình</b><small>Bấm vào ô đáp án như bình thường.</small></button>'
+  +'<button class="mode'+(st.milcam?' on':'')+'" data-act="milcam" data-v="1"><b>📷 Động tác qua camera</b><small>Thí sinh đứng trước camera, giữ động tác 1 giây để chốt: A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang hai tay. Vẫn chạm được khi cần.</small></button></div>'
+  +(st.milcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.solo&&id!='solo';return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
  +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>'
  +(r.length<need?'<p class="warn">Chế độ này cần '+need+' thí sinh. Hãy ghi danh thêm '+(need-r.length)+' bạn.</p><button class="btn ghost sm" data-act="home">Ghi danh thêm</button>':'')+'</section>')
  +'<div class="cta sticky"><button class="btn big" data-act="start"'+(ok?'':' disabled')+'>'+g.ico+' Bắt đầu '+g.name+'</button></div>';
  /* Tải sẵn bộ nhận dạng động tác ngay ở màn hình chuẩn bị, để vào trận là dùng được luôn */
- if(g.team&&st.skcam&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
+ if(((g.team&&st.skcam)||(st.game=='mil'&&st.milcam))&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
 }
 
 /* ================= CHƠI: TRÌNH BÀY CÂU HỎI ================= */
@@ -264,24 +268,26 @@ function start(){
  var qs=pickQs(typed,n),used={};qs.forEach(function(q){used[q.q]=1});
  S={id:st.game,g:{ico:g.ico,name:g.name,time:time},qs:qs,spare:shuf(typed.filter(function(q){return !used[q.q]})),i:0,
   P:st.sel.map(function(i){return r[i]}),sc:st.sel.map(function(){return 0}),ok:st.sel.map(function(){return 0}),stk:st.sel.map(function(){return 0}),best:st.sel.map(function(){return 0}),
-  xp:st.sel.map(function(){return 0}),st:0,fifty:true,swap:true,lock:false,mode:st.mode};
+  xp:st.sel.map(function(){return 0}),st:0,fifty:true,swap:true,lock:false,mode:st.mode,cam:st.game=='mil'&&st.milcam,camWait:st.game=='mil'&&st.milcam};
  ask();
 }
 function who(){return S.rv?0:S.mode=='vs'?S.i%2:S.mode=='relay'?S.i%3:0}
 function ask(){
  var q=S.qs[S.i],g=S.g,w=who(),p=S.P[w],team=S.mode=='relay',mil=S.id=='mil'&&!S.rv;
- setScreen('play');S.lock=false;S.sus=false;S.t0=Date.now();document.body.setAttribute('data-game',S.rv?'rv':S.id);
+ var keepCam=S.cam?document.getElementById('gcbox'):null;
+ setScreen('play');S.lock=false;S.sus=false;S.t0=Date.now();S.armed=false;S.calm=0;S.hv=null;document.body.setAttribute('data-game',S.rv?'rv':S.id);
  var score=S.rv?'<span class="sc">✔ '+S.sc[0]+'</span>':team?'<span class="sc">Đội '+S.sc.reduce(function(a,b){return a+b},0)+'</span>':S.P.map(function(x,i){return '<span class="sc'+(i==w&&S.P.length>1?' cur':'')+'">'+AVH(x.e)+' '+S.sc[i]+'</span>'}).join('');
  var ladder=mil?'<ol class="ladder" aria-label="Thang tiền thưởng">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+(i==4||i==9?' safe':'')+'"><span>'+(i+1)+'</span><em>'+(i<S.i?'◆ ':'')+'</em>'+LADDER[i].toLocaleString('vi-VN')+'</li>'}).join('')+'</ol>':'';
  var fl=S.id=='flash'&&!S.rv;
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+AVH(p.e)+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
  +(fl?flashArena(q,w):'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
- +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div><div class="mil-stage" aria-hidden="true"><i></i></div>':'')
+ +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div>'+(S.cam?'<div class="mil-stage cam"><div id="gcslot"></div></div>':'<div class="mil-stage" aria-hidden="true"><i></i></div>'):'')
  +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">Bài '+q.b+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
  +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
  +(mil?'':'<div class="tools"></div>')
  +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>');
  var inp=$('#num');if(inp&&!('ontouchstart' in window))inp.focus();
+ if(mil&&S.cam)milCamMount(keepCam,q);
  S.lastSec=0;fitPlay();clearInterval(tm);if(!S.rv){setRing(g.time,g.time);tm=setInterval(tick,100)}
  if(mil){var me=S;snd('milQ');setTimeout(function(){if(S===me&&!S.lock&&document.body.getAttribute('data-scr')=='play')snd('bedOn')},1000)}
 }
@@ -295,8 +301,38 @@ function flashArena(q,w){
   +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
   +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>';
 }
-function tick(){
- if(!S||S.lock){clearInterval(tm);return}
+/* ===== Ai là triệu phú – trả lời bằng động tác qua camera =====
+   Khung camera nằm giữa sân khấu và được giữ nguyên giữa các câu (không phải mở lại camera).
+   Giữ một động tác 1 giây thì chốt đáp án; sau mỗi câu phải hạ tay xuống rồi mới trả lời câu mới. */
+var MGES=[['✋','Tay trái'],['✋','Tay phải'],['🙌','Hai tay'],['🤸','Dang ngang']],MGNAME={L:'✋ Tay trái',R:'Tay phải ✋',BOTH:'🙌 Hai tay',SIDE:'🤸 Dang ngang'};
+function milCamMount(keep,q){
+ var slot=$('#gcslot');if(!slot)return;
+ if(keep){slot.parentNode.replaceChild(keep,slot);var v=keep.querySelector('video');if(v&&v.play){var p=v.play();if(p&&p.catch)p.catch(function(){})}}
+ else{var d=document.createElement('div');d.id='gcbox';d.className='gc-box';d.innerHTML='<video playsinline muted autoplay></video><canvas></canvas><span class="gc-ges" id="gcges"></span><div class="gc-msg"></div><button class="gc-flip" data-act="mcflip" aria-label="Đổi camera trước hoặc sau">🔄</button>';slot.parentNode.replaceChild(d,slot);milCamStart()}
+ /* Ghi động tác tương ứng lên từng ô đáp án */
+ $$('.opt').forEach(function(b){var v=+b.getAttribute('data-v'),gi=q.t=='tf'?(v==1?2:3):v;if(MGES[gi])b.insertAdjacentHTML('beforeend','<i class="mges">'+MGES[gi][0]+' '+MGES[gi][1]+'</i>')});
+ if(S.camWait&&!$('#mcwait'))document.querySelector('.arena').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="mcwait"><div><b>📷 Đang chuẩn bị camera…</b><small>Đồng hồ chỉ chạy khi camera đã sẵn sàng.</small><button class="btn ghost sm" data-act="mcgo">Bắt đầu luôn (chạm để trả lời)</button></div></div>');
+}
+function milCamStart(){
+ var box=$('#gcbox');if(!box||!window.DTKSACK||!DTKSACK.gcam)return milCamReady();
+ var me=S;setTimeout(function(){if(S===me)milCamReady()},25000);
+ DTKSACK.gcam.start(box,milGesture).then(function(){if(S===me)milCamReady()});
+}
+function milCamReady(){if(!S||!S.camWait)return;S.camWait=false;var w=$('#mcwait');if(w)w.remove();if(!S.lock)S.t0=Date.now()}
+function milGesture(g,now){
+ var gs=$('#gcges');if(gs)gs.textContent=g?MGNAME[g]:'';
+ if(!S||S.id!='mil'||!S.cam||S.lock||S.camWait){if(S)S.hv=null;return}
+ if(!S.armed){if(!g){if(!S.calm)S.calm=now;if(now-S.calm>300)S.armed=true}else S.calm=0;return}
+ var q=S.qs[S.i],v=window.DTKSACK?DTKSACK.gcam.gestVal(q,g):null,b=v!=null?$('.opt[data-v="'+v+'"]'):null;
+ if(b&&b.disabled){v=null;b=null}
+ $$('.opt').forEach(function(x){var on=x===b;x.classList.toggle('hold',on);if(!on)x.style.removeProperty('--hp')});
+ if(v==null){S.hv=null;return}
+ if(S.hv!==v){S.hv=v;S.hs=now}
+ var pr=Math.min(1,(now-S.hs)/1000);b.style.setProperty('--hp',Math.round(pr*100)+'%');
+ if(pr>=1){S.hv=null;b.classList.remove('hold');answer(v)}
+}function tick(){
+  if(!S||S.lock){clearInterval(tm);return}
+ if(S.camWait){S.t0=Date.now();setRing(S.g.time,S.g.time);return}
  var left=Math.max(0,S.g.time-(Date.now()-S.t0)/1000);
  setRing(left,S.g.time);
  if(S.id=='flash'&&!S.rv){var sec=Math.ceil(left);if(sec!=S.lastSec){S.lastSec=sec;if(left>5)snd('tick')}}
@@ -556,6 +592,9 @@ document.addEventListener('click',function(e){
  case 'menu':S=null;menu();break;
  case 'mode':st.mode=v;st.sel=st.sel.slice(0,MODES[v].k);menu();break;
  case 'game':st.game=v;snd('tap');menu();break;
+ case 'milcam':st.milcam=v=='1';save('dtk_milcam',st.milcam);menu();break;
+ case 'mcgo':milCamReady();break;
+ case 'mcflip':if(S&&S.cam){st.skface=st.skface=='user'?'environment':'user';save('dtk_skface',st.skface);milCamStart()}break;
  case 'skcam':st.skcam=v=='1';save('dtk_skcam',st.skcam);menu();break;
  case 'skface':st.skface=v=='environment'?'environment':'user';save('dtk_skface',st.skface);menu();break;
  case 'pick':var i=+v,k=MODES[st.mode].k;if(st.sel.indexOf(i)>=0)st.sel=st.sel.filter(function(x){return x!=i});else if(k==1)st.sel=[i];else if(st.sel.length<k)st.sel.push(i);menu();break;

@@ -678,3 +678,8 @@ body[data-game=squid] .sq-av i{bottom:-4px}
  body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam)>.fb{grid-column:1/-1;grid-row:3}
  body.playing .arena.g-mil.has-ladder:has(.mil-stage.cam) .opt{min-height:0}
 }
+/* v38: camera Triệu phú – nền mờ, chỉ vùng giữa rõ nét (nơi thí sinh đứng) */
+.gc-box video.gc-bg{filter:blur(12px) brightness(.75) saturate(.8);transform:scale(1.1)}
+.gc-box.mirror video.gc-bg{transform:scaleX(-1) scale(1.1)}
+.gc-box video.gc-sharp{-webkit-mask-image:radial-gradient(ellipse 24% 52% at 50% 52%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 24% 52% at 50% 52%,#000 72%,transparent 100%)}
+.gc-zone{position:absolute;left:26%;right:26%;top:3%;bottom:3%;border:2px dashed rgba(255,194,77,.55);border-radius:50% / 40%;pointer-events:none}

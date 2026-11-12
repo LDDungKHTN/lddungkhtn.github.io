@@ -318,7 +318,7 @@ function gcamStart(box,onG){
  msg('📷 Đang mở camera '+(camFace()=='user'?'trước':'sau')+'…');
  return getStream(null).then(function(st){
   if(G1!==me){st.getTracks().forEach(function(t){t.stop()});return false}
-  me.stream=st;var v=box.querySelector('video');v.srcObject=st;var p=v.play();if(p&&p.catch)p.catch(function(){});
+  me.stream=st;var vs=box.querySelectorAll('video'),v=vs[0];[].forEach.call(vs,function(x){x.srcObject=st;var p=x.play();if(p&&p.catch)p.catch(function(){})});
   msg('⏳ Đang tải bộ nhận dạng động tác…');
   return sharedPL().then(function(pl){
    if(G1!==me)return false;msg('');
@@ -327,7 +327,8 @@ function gcamStart(box,onG){
     var now=performance.now();if(now-me.last<Math.max(110,me.cost*2.5))return;me.last=now;
     if(document.hidden||v.readyState<2||!v.videoWidth)return;
     var t0=performance.now(),res;try{res=pl.detectForVideo(v,now)}catch(e){return}
-    var best=null,bw=0;(res&&res.landmarks||[]).forEach(function(q){var w=Math.abs(q[11].x-q[12].x);if(w>bw){bw=w;best=q}});
+    /* Chỉ nhận người đứng ở giữa khung hình (vai nằm trong vùng giữa); người đứng lệch hai bên bị bỏ qua */
+    var best=null,bd=1;(res&&res.landmarks||[]).forEach(function(q){var cx=(q[11].x+q[12].x)/2,d=Math.abs(cx-0.5);if(d<0.2&&d<bd){bd=d;best=q}});
     drawTo(box.querySelector('canvas'),v,best,'#FFC24D');
     try{onG(classify(best),now)}catch(e){}
     var dt=performance.now()-t0;me.cost=me.cost?me.cost*0.8+dt*0.2:dt;

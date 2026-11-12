@@ -47,7 +47,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=37;
+var APPV=38;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -307,8 +307,8 @@ function flashArena(q,w){
 var MGES=[['✋','Tay trái'],['✋','Tay phải'],['🙌','Hai tay'],['🤸','Dang ngang']],MGNAME={L:'✋ Tay trái',R:'Tay phải ✋',BOTH:'🙌 Hai tay',SIDE:'🤸 Dang ngang'};
 function milCamMount(keep,q){
  var slot=$('#gcslot');if(!slot)return;
- if(keep){slot.parentNode.replaceChild(keep,slot);var v=keep.querySelector('video');if(v&&v.play){var p=v.play();if(p&&p.catch)p.catch(function(){})}}
- else{var d=document.createElement('div');d.id='gcbox';d.className='gc-box';d.innerHTML='<video playsinline muted autoplay></video><canvas></canvas><span class="gc-ges" id="gcges"></span><div class="gc-msg"></div><button class="gc-flip" data-act="mcflip" aria-label="Đổi camera trước hoặc sau">🔄</button>';slot.parentNode.replaceChild(d,slot);milCamStart()}
+ if(keep){slot.parentNode.replaceChild(keep,slot);[].forEach.call(keep.querySelectorAll('video'),function(v){var p=v.play();if(p&&p.catch)p.catch(function(){})})}
+ else{var d=document.createElement('div');d.id='gcbox';d.className='gc-box';d.innerHTML='<video class="gc-bg" playsinline muted autoplay></video><video class="gc-sharp" playsinline muted autoplay aria-hidden="true"></video><span class="gc-zone" aria-hidden="true"></span><canvas></canvas><span class="gc-ges" id="gcges"></span><div class="gc-msg"></div><button class="gc-flip" data-act="mcflip" aria-label="Đổi camera trước hoặc sau">🔄</button>';slot.parentNode.replaceChild(d,slot);milCamStart()}
  /* Ghi động tác tương ứng lên từng ô đáp án */
  $$('.opt').forEach(function(b){var v=+b.getAttribute('data-v'),gi=q.t=='tf'?(v==1?2:3):v;if(MGES[gi])b.insertAdjacentHTML('beforeend','<i class="mges">'+MGES[gi][0]+' '+MGES[gi][1]+'</i>')});
  if(S.camWait&&!$('#mcwait'))document.querySelector('.arena').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="mcwait"><div><b>📷 Đang chuẩn bị camera…</b><small>Đồng hồ chỉ chạy khi camera đã sẵn sàng.</small><button class="btn ghost sm" data-act="mcgo">Bắt đầu luôn (chạm để trả lời)</button></div></div>');

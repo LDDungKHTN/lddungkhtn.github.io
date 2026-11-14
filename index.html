@@ -48,6 +48,6 @@
 <script>
 window.onerror=function(m,u,l){var d=document.createElement('div');d.className='errbar';d.textContent='Lỗi: '+m+' (dòng '+l+')';d.onclick=function(){d.remove()};document.body.appendChild(d)};
 </script>
-<script src="avatar.js?v=47"></script><script src="sound.js?v=47"></script><script src="app.js?v=47"></script><script src="sack.js?v=47"></script><script src="room.js?v=47"></script>
+<script src="avatar.js?v=47"></script><script src="sound.js?v=47"></script><script src="app.js?v=47"></script><script src="sack.js?v=47"></script><script src="room.js?v=47"></script><script src="share.js?v=1"></script>
 <script>/* Bản trực tuyến: gỡ bộ nhớ app cũ (service worker) nếu máy còn giữ */if('serviceWorker' in navigator&&navigator.serviceWorker.getRegistrations)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){});if(window.caches&&caches.keys)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})}).catch(function(){});</script>
 </body></html>

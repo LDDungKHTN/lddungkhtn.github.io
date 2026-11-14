@@ -1,7 +1,7 @@
-// Phiên bản: dtk-v47-online. Tăng số này mỗi lần sửa app.
+// Phiên bản: dtk-v48-online. Tăng số này mỗi lần sửa app.
 // Từ bản này ứng dụng CHỈ chạy khi có Internet (không lưu app trên máy nữa).
 // Service worker này chỉ dọn sạch bản đã lưu ở các phiên bản cũ, tự gỡ bỏ, rồi tải lại trang để lấy bản mới nhất từ mạng.
-const V='dtk-v47-online';
+const V='dtk-v48-online';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',e=>{e.waitUntil(
  caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k))))

@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://lddungkhtn.github.io/sitemap.xml
+Sitemap: https://lddungkhtn.github.io/thinghiemKHTN/sitemap.xml

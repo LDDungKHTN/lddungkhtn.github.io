@@ -1,4 +1,4 @@
-/* Ngân hàng câu hỏi KHTN 7 – Kết nối tri thức – Học kì 2 (bài 21–42). 1510 câu.
+/* Ngân hàng câu hỏi KHTN 7 – Kết nối tri thức – Học kì 2 (bài 21–42). 
    Định dạng: {b:bài, t:mc|tf|num, l:1-4 (4 = nâng cao), c:chủ đề, q:câu hỏi, o:[4 đáp án], a:đáp án, e:giải thích} */
 DTK.add(7,[
 {"b":21,"t":"mc","l":1,"c":"Trao đổi chất và chuyển hoá năng lượng","q":"Chuyển hoá năng lượng là","o":["Sự lấy thức ăn","Sự biến đổi năng lượng từ dạng này sang dạng khác","Sự thải chất thải","Sự di chuyển của cơ thể"],"a":1},
@@ -616,7 +616,6 @@ DTK.add(7,[
 {"b":25,"t":"mc","l":2,"c":"Hô hấp tế bào","q":"Trong hô hấp tế bào, chất/bào quan nào là: sản phẩm dùng cho hoạt động sống?","o":["Nước","Oxygen","Ti thể","Năng lượng (ATP và nhiệt)"],"a":3},
 {"b":25,"t":"mc","l":2,"c":"Hô hấp tế bào","q":"Trong hô hấp tế bào, ti thể là","o":["Sản phẩm thải ra của hô hấp","Nguyên liệu của hô hấp tế bào","Sản phẩm dùng cho hoạt động sống","Bào quan nơi diễn ra hô hấp tế bào"],"a":3},
 {"b":25,"t":"mc","l":2,"c":"Hô hấp tế bào","q":"Trong hô hấp tế bào, chất/bào quan nào là: bào quan nơi diễn ra hô hấp tế bào?","o":["Glucose","Carbon dioxide","Ti thể","Năng lượng (ATP và nhiệt)"],"a":2},
-{"b":25,"t":"mc","l":1,"c":"Hô hấp tế bào","q":"Phương trình tổng quát của hô hấp tế bào là","o":["Glucose + Oxygen → Carbon dioxide + Nước + Năng lượng","Oxygen + Nước → Glucose","Carbon dioxide + Nước → Glucose + Oxygen","Glucose → Oxygen + Nước"],"a":0},
 {"b":25,"t":"mc","l":2,"c":"Hô hấp tế bào","q":"Hô hấp tế bào diễn ra ở","o":["Chỉ tế bào động vật","Mọi tế bào sống","Chỉ tế bào rễ","Chỉ tế bào lá"],"a":1},
 {"b":25,"t":"mc","l":2,"c":"Hô hấp tế bào","q":"Hô hấp tế bào diễn ra","o":["Chỉ ban ngày","Chỉ khi có ánh sáng","Chỉ ban đêm","Liên tục cả ngày lẫn đêm"],"a":3},
 {"b":25,"t":"mc","l":3,"c":"Hô hấp tế bào","q":"Quan hệ giữa quang hợp và hô hấp là","o":["Quang hợp phân giải chất hữu cơ","Sản phẩm của quá trình này là nguyên liệu của quá trình kia","Hô hấp tạo ra ánh sáng cho quang hợp","Hai quá trình hoàn toàn độc lập"],"a":1},
@@ -670,7 +669,6 @@ DTK.add(7,[
 {"b":27,"t":"mc","l":2,"c":"Thực hành hô hấp","q":"Đưa que diêm đang cháy vào bình chứa hạt nảy mầm đậy kín vài giờ, que diêm","o":["Không thay đổi","Cháy sáng hơn","Phát nổ","Tắt ngay"],"a":3},
 {"b":27,"t":"mc","l":3,"c":"Thực hành hô hấp","q":"Bình hạt nảy mầm có nhiệt độ cao hơn bình hạt khô chứng tỏ","o":["Hạt quang hợp","Bình bị hỏng","Hạt hấp thụ nhiệt","Hô hấp toả nhiệt"],"a":3},
 {"b":27,"t":"mc","l":3,"c":"Thực hành hô hấp","q":"Trong thí nghiệm, bình hạt đã luộc chín có vai trò","o":["Tạo oxygen","Đối chứng","Tăng nhiệt độ","Tạo CO₂"],"a":1},
-{"b":27,"t":"tf","l":2,"c":"Thực hành hô hấp","q":"Hạt nảy mầm hô hấp mạnh hơn hạt khô.","a":true},
 {"b":27,"t":"tf","l":2,"c":"Thực hành hô hấp","q":"Hạt khô hô hấp mạnh hơn hạt nảy mầm.","a":false,"e":"Đúng phải là: Hạt nảy mầm hô hấp mạnh hơn hạt khô."},
 {"b":27,"t":"tf","l":3,"c":"Thực hành hô hấp","q":"Bình chứa hạt nảy mầm sau một thời gian bị giảm lượng oxygen.","a":true},
 {"b":27,"t":"tf","l":3,"c":"Thực hành hô hấp","q":"Bình chứa hạt nảy mầm sau một thời gian tăng lượng oxygen.","a":false,"e":"Đúng phải là: Bình chứa hạt nảy mầm sau một thời gian bị giảm lượng oxygen."},
@@ -1487,7 +1485,6 @@ DTK.add(7,[
 {"b":39,"t":"tf","l":3,"c":"Sinh sản vô tính","q":"Ghép cây làm mất ưu điểm của cả hai cây.","a":false,"e":"Đúng phải là: Ghép cây giúp kết hợp ưu điểm của gốc ghép và cành ghép."},
 {"b":40,"t":"tf","l":1,"c":"Sinh sản hữu tính","q":"Hoa là cơ quan sinh sản của cây có hoa.","a":true},
 {"b":40,"t":"tf","l":1,"c":"Sinh sản hữu tính","q":"Lá là cơ quan sinh sản của cây có hoa.","a":false,"e":"Đúng phải là: Hoa là cơ quan sinh sản của cây có hoa."},
-{"b":40,"t":"tf","l":2,"c":"Sinh sản hữu tính","q":"Sau thụ tinh, bầu nhuỵ phát triển thành quả.","a":true},
 {"b":40,"t":"tf","l":2,"c":"Sinh sản hữu tính","q":"Sau thụ tinh, cánh hoa phát triển thành quả.","a":false,"e":"Đúng phải là: Sau thụ tinh, bầu nhuỵ phát triển thành quả."},
 {"b":40,"t":"tf","l":3,"c":"Sinh sản hữu tính","q":"Ở động vật, hợp tử phát triển thành phôi rồi thành cơ thể mới.","a":true},
 {"b":40,"t":"tf","l":3,"c":"Sinh sản hữu tính","q":"Ở động vật, hợp tử phát triển thành giao tử.","a":false,"e":"Đúng phải là: Ở động vật, hợp tử phát triển thành phôi rồi thành cơ thể mới."},

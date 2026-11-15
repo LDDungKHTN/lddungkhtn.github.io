@@ -136,7 +136,7 @@ function start(){
  var r=A.roster(),st=A.st;if(st.sel.length!=1)return alert('Trò này chơi một người: hãy chọn 1 thí sinh.');
  var P=A.pool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<VALVES+MAXW)return alert('Phạm vi này chưa đủ câu trắc nghiệm, đúng/sai. Hãy chọn phạm vi rộng hơn.');
- var qs=shuf(P).slice(0,Math.min(P.length,24)).sort(function(a,b){return a.l-b.l}).map(A.prep);
+ var qs=A.fresh(P).slice(0,Math.min(P.length,24)).sort(function(a,b){return a.l-b.l}).map(A.prep);
  var cam=!!st.rscam&&!!(window.DTKSACK&&DTKSACK.gcam);
  S={qs:qs,i:0,p:r[st.sel[0]],lv:8,open:0,wrong:0,ok:0,xp:0,best:0,stk:0,burst:0,phase:cam?'cal':'play',cam:cam,lock:true,armed:false,calm:0,hv:null,last:Date.now(),beat:0,mood:'idle'};
  B=null;

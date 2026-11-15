@@ -1,4 +1,4 @@
-/* Ngân hàng câu hỏi ls8 – Kết nối tri thức – bài 1–33. 2529 câu.
+/* Ngân hàng câu hỏi ls8 – Kết nối tri thức – bài 1–
    Định dạng: {b:bài, t:mc|tf|num, l:1-4 (4 = nâng cao), c:chủ đề, q:câu hỏi, o:[4 đáp án], a:đáp án, e:giải thích} */
 DTK.add("ls8",[
 {"b":1,"t":"num","l":2,"c":"Cách mạng tư sản Anh và Chiến tranh giành độc lập ở Bắc Mỹ","q":"Vua Sác-lơ I triệu tập Quốc hội để tăng thêm thuế mới vào năm nào?","a":1640},
@@ -2228,15 +2228,9 @@ DTK.add("ls8",[
 {"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Lào","Trung Quốc","Nhật Bản","Mi-an-ma"],"a":1},
 {"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Ấn Độ","Phi-líp-pin","Ô-xtrây-li-a","Mi-an-ma"],"a":1},
 {"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Ấn Độ","Hàn Quốc","Nhật Bản","In-đô-nê-xi-a"],"a":3},
-{"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Nhật Bản","Đông Ti-mo","Bru-nây","Ô-xtrây-li-a"],"a":2},
-{"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Băng-la-đét","Hàn Quốc","Ma-lai-xi-a","Ô-xtrây-li-a"],"a":2},
-{"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Hàn Quốc","Xin-ga-po","Đông Ti-mo","Lào"],"a":1},
-{"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Băng-la-đét","Mi-an-ma","Thái Lan","Đông Ti-mo"],"a":2},
-{"b":30,"t":"mc","l":2,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây có chung Biển Đông với Việt Nam?","o":["Ấn Độ","Cam-pu-chia","Băng-la-đét","Lào"],"a":1},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây KHÔNG có chung Biển Đông với Việt Nam?","o":["In-đô-nê-xi-a","Lào","Trung Quốc","Ma-lai-xi-a"],"a":1},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây KHÔNG có chung Biển Đông với Việt Nam?","o":["Xin-ga-po","Phi-líp-pin","Mi-an-ma","Bru-nây"],"a":2},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây KHÔNG có chung Biển Đông với Việt Nam?","o":["In-đô-nê-xi-a","Ấn Độ","Ma-lai-xi-a","Thái Lan"],"a":1},
-{"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Quốc gia nào sau đây KHÔNG có chung Biển Đông với Việt Nam?","o":["Xin-ga-po","Bru-nây","Cam-pu-chia","Nhật Bản"],"a":3},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Điểm chuẩn đường cơ sở A1 nằm tại","o":["Hòn Hải (nhóm đảo Phú Quý), tỉnh Bình Thuận","Hòn Đá Lẻ ở Đông Nam Hòn Khoai, tỉnh Cà Mau","Hòn Bông Lang, Côn Đảo","Hòn Nhạn, quần đảo Thổ Chu, tỉnh Kiên Giang"],"a":3},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Điểm chuẩn đường cơ sở nào nằm tại Hòn Nhạn, quần đảo Thổ Chu, tỉnh Kiên Giang?","o":["A2","A1","A6","A4"],"a":1},
 {"b":30,"t":"mc","l":3,"c":"Biển Đông và vùng biển đảo Việt Nam","q":"Điểm chuẩn đường cơ sở A2 nằm tại","o":["Hòn Đôi, tỉnh Khánh Hoà","Hòn Tài Lớn, Côn Đảo","Hòn Bảy Cạnh, Côn Đảo","Hòn Đá Lẻ ở Đông Nam Hòn Khoai, tỉnh Cà Mau"],"a":3},

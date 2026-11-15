@@ -54,7 +54,7 @@ function hostSetup(){
 function buildQs(){
  var g=RG[cfg.game],P=A.pool().filter(function(q){return g.types.indexOf(q.t)>=0});
  if(P.length<3)return null;
- var qs=A.shuf(P).slice(0,Math.min(cfg.n,P.length)).sort(function(a,b){return a.l-b.l}).map(A.prep);
+ var qs=A.fresh(P).slice(0,Math.min(cfg.n,P.length)).sort(function(a,b){return a.l-b.l}).map(A.prep);
  var slabs=qs.map(function(q){
   if(!g.slabs)return null;
   if(q.t=='tf')return[{t:'Đúng',ok:q.a===true},{t:'Sai',ok:q.a===false}];

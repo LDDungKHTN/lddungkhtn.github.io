@@ -1,6 +1,6 @@
-/* Ngân hàng câu hỏi KHTN 7 – Kết nối tri thức. 618 câu.
+/* Ngân hàng câu hỏi KHTN 7 – Kết nối tri thức. 
    Định dạng: {b:bài, t:mc|tf|num, l:1-4, c:chủ đề, q:câu hỏi, o:[4 đáp án], a:đáp án, e:giải thích} */
-DTK.data(7,[
+DTK.add(7,[
 {"b":1,"t":"mc","l":1,"c":"Phương pháp","q":"Bước đầu tiên của phương pháp tìm hiểu tự nhiên là gì?","o":["Rút ra kết luận","Viết báo cáo kết quả","Thực hiện kế hoạch","Quan sát, đề xuất vấn đề cần tìm hiểu"],"a":3},
 {"b":1,"t":"tf","l":1,"c":"Phương pháp","q":"Quan sát, đo, dự đoán là các kĩ năng cần có khi học môn Khoa học tự nhiên.","a":true},
 {"b":1,"t":"mc","l":1,"c":"Phương pháp","q":"Nhóm kĩ năng nào sau đây là các kĩ năng tiến trình học tập bộ môn Khoa học tự nhiên?","o":["Kĩ năng quan sát, phân loại, dự báo, đo","Kĩ năng quan sát, phân loại, thảo luận","Kĩ năng thảo luận, dự báo","Kĩ năng thảo luận, trình bày báo cáo"],"a":0},
@@ -342,7 +342,6 @@ DTK.data(7,[
 {"b":7,"t":"num","l":3,"c":"Hóa học","q":"Tính phần trăm khối lượng của hydrogen trong Ca(OH)₂, làm tròn đến 1 chữ số thập phân. (Ca = 40; O = 16; H = 1)","a":2.7,"e":"%H = 2/74 · 100% ≈ 2,7%."},
 {"b":7,"t":"num","l":3,"c":"Hóa học","q":"Tính phần trăm khối lượng của đồng (Cu) trong CuSO₄. (Cu = 64; S = 32; O = 16)","a":40,"e":"%Cu = 64/160 · 100% = 40%."},
 {"b":7,"t":"num","l":3,"c":"Hóa học","q":"Tính phần trăm khối lượng của lưu huỳnh (S) trong CuSO₄. (Cu = 64; S = 32; O = 16)","a":20,"e":"%S = 32/160 · 100% = 20%."},
-{"b":7,"t":"num","l":3,"c":"Hóa học","q":"Tính phần trăm khối lượng của oxygen trong CuSO₄. (Cu = 64; S = 32; O = 16)","a":40,"e":"%O = 64/160 · 100% = 40%."},
 {"b":7,"t":"num","l":4,"c":"Hóa trị","q":"Nguyên tố M có hóa trị III, oxygen có hóa trị II. Hợp chất của M với oxygen có công thức M₂Oₓ. Tìm x.","a":3,"e":"Theo quy tắc hóa trị: 2·III = x·II nên x = 3."},
 {"b":7,"t":"num","l":4,"c":"Hóa học","q":"Tính phần trăm khối lượng của oxygen trong CaCO₃. (Ca = 40, C = 12, O = 16)","a":48,"e":"%O = 16·3·100/100 = 48%."},
 {"b":7,"t":"mc","l":4,"c":"Hóa trị","q":"Hợp chất của X với O có công thức hóa học là XO; hợp chất của Y với H có công thức hóa học là YH₃. Công thức hóa học của hợp chất giữa X và Y là","o":["XY","X₃Y₂","X₂Y₃","X₃Y"],"a":1,"e":"X hóa trị II, Y hóa trị III; a·II = b·III nên a : b = 3 : 2."},

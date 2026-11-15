@@ -55,10 +55,10 @@ function split(){
  if(P.length<N)return null;
  var byL=function(a){return a.slice().sort(function(x,y){return x.l-y.l})},X,Y;
  if(P.length>=2*N){
-  var s=byL(shuf(P)),pick=[];
+  var s=byL(shuf(A.fresh(P).slice(0,Math.max(4*N,40)))),pick=[];
   for(var i=0;i<2*N;i++)pick.push(s[Math.floor(i*s.length/(2*N))]);
   X=[];Y=[];pick.forEach(function(q,i){(i%2?Y:X).push(q)});
- }else{var set=shuf(P).slice(0,N);X=set.slice();Y=set.slice()}
+ }else{var set=A.fresh(P).slice(0,N);X=set.slice();Y=set.slice()}
  return[byL(shuf(X)).map(A.prep),byL(shuf(Y)).map(A.prep)];
 }
 function mk(k,qs){return{k:k,qs:qs,i:0,ok:0,ms:0,lock:false,t0:0,done:false,mt:null}}
@@ -348,7 +348,7 @@ function camStop(){
    box chứa <video>, <canvas>, .gc-msg; onG(cử chỉ, thời điểm) được gọi khoảng 9 lần/giây.
    Trả về Promise<true> khi camera và bộ nhận dạng đã sẵn sàng, <false> nếu không dùng được. */
 var G1=null;
-function gcamStart(box,onG,cf){
+function gcamStart(box,onG,cf,opt){
  gcamStop();
  var me=G1={raf:0,last:0,cost:0,stream:null},msg=function(m){var e=box.querySelector('.gc-msg');if(e){e.textContent=m||'';e.hidden=!m}};
  box.classList.toggle('mirror',camFace()=='user');
@@ -366,7 +366,10 @@ function gcamStart(box,onG,cf){
     if(document.hidden||v.readyState<2||!v.videoWidth)return;
     var t0=performance.now(),res;try{res=pl.detectForVideo(v,now)}catch(e){return}
     /* Chỉ nhận người đứng ở giữa khung hình (vai nằm trong vùng giữa); người đứng lệch hai bên bị bỏ qua */
-    var best=null,bd=1;(res&&res.landmarks||[]).forEach(function(q){var cx=(q[11].x+q[12].x)/2,d=Math.abs(cx-0.5);if(d<0.2&&d<bd){bd=d;best=q}});
+    var best=null,bd=1,LMS=res&&res.landmarks||[];
+    /* opt.any (trò Hứng hoa quả): người chơi đi lại khắp khung hình → chọn người đứng gần camera nhất (vai rộng nhất) */
+    if(opt&&opt.any){var bw=0;LMS.forEach(function(q){var w=Math.abs(q[11].x-q[12].x);if(w>bw){bw=w;best=q}})}
+    else LMS.forEach(function(q){var cx=(q[11].x+q[12].x)/2,d=Math.abs(cx-0.5);if(d<0.2&&d<bd){bd=d;best=q}});
     drawTo(box.querySelector('canvas'),v,best,'#FFC24D');
     /* cf: bộ nhận dạng động tác riêng của từng trò (nếu có), nhận thêm tỉ lệ khung hình */
     try{onG(cf?cf(best,v.videoWidth/v.videoHeight,now):classify(best),now)}catch(e){}

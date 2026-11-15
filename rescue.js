@@ -113,11 +113,13 @@ function classify(lm,ar){
  var up=function(w){return w.v>.4&&w.y<my-0.45*B.sw};
  var off=nOk?(no.x-mx)/B.sw*B.sg:0,dz=(ls.z-rs.z)/B.sw,g=null;
  if(up(lw)&&up(rw)&&hyp(lw.x-rw.x,lw.y-rw.y)<1.5*B.sw)g='C';
- else if((hy!=null&&hy<0.45*B.ny)||(my-B.y)>0.6*B.sw||(!nOk&&(my-B.y)>0.35*B.sw))g='D';
  else{
+  /* Xét quay người trước: khi quay nghiêng, hai vai chụm lại nên đầu trông như thấp xuống, dễ nhầm với cúi người
+     (đo thử thực tế: quay người thì độ rộng vai còn 12–25%, cúi người thì vai rộng ra vì gần camera hơn) */
   var narrow=sw<0.72*B.sw;
   if(narrow&&(Math.abs(dz)>0.3||Math.abs(off)>0.14))g=Math.abs(dz)>0.3?(dz>0?'L':'R'):(off>0?'L':'R');
   else if(Math.abs(off)>0.34&&sw<0.86*B.sw)g=off>0?'L':'R';
+  else if(!narrow&&((hy!=null&&hy<0.45*B.ny)||(my-B.y)>0.6*B.sw||(!nOk&&(my-B.y)>0.35*B.sw)))g='D';
  }
  /* Đứng yên, nhìn thẳng thì cập nhật dần tư thế chuẩn (người chơi tiến lại gần hoặc lùi ra xa) */
  if(!g&&nOk&&Math.abs(off)<0.1&&!up(lw)&&!up(rw)&&hy>0.7*B.ny){

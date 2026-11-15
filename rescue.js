@@ -5,7 +5,7 @@
    Câu đúng/sai: A = Đúng, B = Sai. Dùng camera và bộ nhận dạng chung trong sack.js (DTKSACK.gcam). */
 (function(){
 var A=window.DTKAPI;if(!A)return;
-var VALVES=5,MAXW=3,HOLD=900,esc=A.esc,shuf=A.shuf,S=null,tmr=null;
+var VALVES=10,MAXW=3,HOLD=900,esc=A.esc,shuf=A.shuf,S=null,tmr=null;
 var GES={L:['↩️','Quay trái'],R:['↪️','Quay phải'],C:['👏','Vỗ tay trên đầu'],D:['🙇','Cúi người']};
 var KEY=['L','R','C','D'];
 function $(id){return document.getElementById(id)}
@@ -43,15 +43,15 @@ var CSS=''
 +'.rs-bub{position:absolute;bottom:0;width:8px;height:8px;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:rsbub 2.4s ease-in infinite}'
 +'@keyframes rsbub{from{transform:translateY(0);opacity:.9}to{transform:translateY(-160px);opacity:0}}'
 /* Sàn và van */
-+'.rs-floor{position:absolute;left:0;right:0;bottom:0;height:var(--floor);background:linear-gradient(#2A2E37,#1E2128);display:flex;justify-content:space-around;align-items:center;z-index:5;padding:0 4%}'
-+'.rs-valve{position:relative;width:min(13%,46px);aspect-ratio:1;border-radius:50%;border:4px solid #C0392B;background:radial-gradient(#7A1E16 30%,#A93226 32% 40%,#3B3F47 42%);box-shadow:0 0 0 2px #111}'
++'.rs-floor{position:absolute;left:0;right:0;bottom:0;height:var(--floor);background:linear-gradient(#2A2E37,#1E2128);display:flex;justify-content:space-around;align-items:center;z-index:5;padding:0 2%}'
++'.rs-valve{position:relative;width:min(7.8%,40px);aspect-ratio:1;border-radius:50%;border:3px solid #C0392B;background:radial-gradient(#7A1E16 30%,#A93226 32% 40%,#3B3F47 42%);box-shadow:0 0 0 2px #111}'
 +'.rs-valve::before,.rs-valve::after{content:"";position:absolute;left:50%;top:6%;bottom:6%;width:14%;margin-left:-7%;background:#E74C3C;border-radius:3px}'
 +'.rs-valve::after{transform:rotate(90deg)}'
 +'.rs-valve.open{border-color:#2ECC71;animation:rsspin 1s linear infinite}'
 +'.rs-valve.open::before,.rs-valve.open::after{background:#2ECC71}'
 +'@keyframes rsspin{to{transform:rotate(360deg)}}'
 +'.rs-valve.open+.rs-swirl,.rs-swirl{display:none}'
-+'.rs-drain{position:absolute;bottom:calc(var(--floor) - 4px);width:min(10%,36px);height:22px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(rgba(10,40,90,.9),rgba(10,40,90,0) 70%);z-index:6;opacity:0;transition:opacity .4s}'
++'.rs-drain{position:absolute;bottom:calc(var(--floor) - 4px);width:min(7%,30px);height:22px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(rgba(10,40,90,.9),rgba(10,40,90,0) 70%);z-index:6;opacity:0;transition:opacity .4s}'
 +'.rs-drain.on{opacity:1;animation:rsspin 1.2s linear infinite}'
 /* Nhân vật */
 +'.rs-man{position:absolute;left:52%;transform:translateX(-50%);width:auto;height:40%;aspect-ratio:3/5;bottom:calc(var(--floor) + var(--mb,0%));z-index:4;transition:bottom .25s linear}'
@@ -140,7 +140,7 @@ function start(){
  B=null;
  A.setScreen('play');document.body.setAttribute('data-game','rescue');setVh();
  var vs='';for(var i=0;i<VALVES;i++)vs+='<span class="rs-valve" id="rsv'+i+'"></span>';
- var dr='';for(i=0;i<VALVES;i++)dr+='<span class="rs-drain" id="rsd'+i+'" style="left:'+(4+92*(i+.5)/VALVES)+'%"></span>';
+ var dr='';for(i=0;i<VALVES;i++)dr+='<span class="rs-drain" id="rsd'+i+'" style="left:'+(2+96*(i+.5)/VALVES)+'%"></span>';
  document.getElementById('app').innerHTML='<div class="rs">'
   +'<div class="rs-hud"><button class="btn ghost sm" data-act="rsquit" aria-label="Thoát">✕</button><span class="gname">🌊 Giải cứu người bị nạn</span>'
   +'<span class="rs-pill" id="rsValves">🔧 Van mở: 0/'+VALVES+'</span><span class="rs-pill" id="rsLives"></span>'
@@ -221,7 +221,7 @@ function pick(v){
  if(ok){
   S.ok++;S.stk++;if(S.stk>S.best)S.best=S.stk;S.xp+=10+2*q.l;
   var vi=S.open++;var ve=$('rsv'+vi),de=$('rsd'+vi);if(ve)ve.classList.add('open');if(de)de.classList.add('on');
-  S.burst-=15;mood('happy',1300);anim('hop');snd('happy');
+  S.burst-=10;mood('happy',1300);anim('hop');snd('happy');
   var e=$('rsValves');if(e)e.textContent='🔧 Van mở: '+S.open+'/'+VALVES;
   fb.className='rs-fb good';fb.innerHTML='✅ Chính xác! Van thoát nước số '+S.open+' đã mở.';
   if(S.open>=VALVES){S.phase='win';setTimeout(function(){if(S===me)win()},900);return}
@@ -235,12 +235,12 @@ function pick(v){
 }
 
 /* ---------- Nước chảy theo thời gian ---------- */
-function rateIn(){return 1.0*(1+0.55*S.wrong)}   /* % mỗi giây */
+function rateIn(){return 0.6*(1+0.4*S.wrong)}   /* % mỗi giây */
 function tick(){
  if(!S||!$('rsScene')){clearInterval(tmr);return}
  var now=Date.now(),dt=Math.min(0.5,(now-S.last)/1000);S.last=now;
  if(S.phase=='play'){
-  var d=(rateIn()-0.22*S.open)*dt;
+  var d=(rateIn()-0.1*S.open)*dt;
   if(S.burst){var s=Math.sign(S.burst)*Math.min(Math.abs(S.burst),12*dt);S.burst-=s;d+=s}
   S.lv=Math.max(0,Math.min(100,S.lv+d));
   if(S.lv>=100){S.phase='flood'}

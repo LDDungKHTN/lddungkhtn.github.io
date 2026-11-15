@@ -383,5 +383,7 @@ function gcamStart(box,onG,cf,opt){
  });
 }
 function gcamStop(){if(!G1)return;cancelAnimationFrame(G1.raf);if(G1.stream)G1.stream.getTracks().forEach(function(t){t.stop()});G1=null}
-window.DTKSACK={gcam:{start:gcamStart,stop:gcamStop,on:function(){return !!G1},gestVal:gestVal,face:camFace,body:makeBody,names:GNAME},face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
+window.DTKSACK={gcam:{start:gcamStart,stop:gcamStop,on:function(){return !!G1},gestVal:gestVal,face:camFace,body:makeBody,names:GNAME,
+  /* Dùng cho trò Hứng hoa quả đối kháng (nhiều camera): mở camera theo id, bộ nhận dạng dùng chung (2 người) hoặc riêng (1 người), vẽ khung xương */
+  lib:{getStream:getStream,sharedPL:sharedPL,makePL:makePL,drawTo:drawTo}},face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

@@ -23,13 +23,14 @@ var GAMES={
  flash:{ico:'⚡',name:'Nhanh như chớp',pick:['tf','mc'],n:10,time:10,d:'Đúng/sai và trắc nghiệm, mỗi câu 10 giây, trả lời càng nhanh điểm càng cao.'},
  num:{ico:'🔢',name:'Giải mã con số',pick:['num'],n:8,time:40,d:'Tính nhanh và nhập đáp án là một con số.'},
  squid:{ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,solo:1,d:'Chơi đơn. Nhảy qua các phiến đá chênh vênh trên vực sâu. Chọn sai là đá sụp! Qua 8–10 tầng để nhận cúp.'},
- sack:{ico:'🦘',name:'Nhảy bao bố',team:1,d:'Hai đội Xanh – Đỏ thi cùng lúc, mỗi đội 10 câu trắc nghiệm, đúng/sai. Trả lời bằng chạm hoặc bằng động tác tay qua camera.'}};
+ sack:{ico:'🦘',name:'Nhảy bao bố',team:1,d:'Hai đội Xanh – Đỏ thi cùng lúc, mỗi đội 10 câu trắc nghiệm, đúng/sai. Trả lời bằng chạm hoặc bằng động tác tay qua camera.'},
+ rescue:{ico:'🌊',name:'Giải cứu người bị nạn',solo:1,d:'Chơi đơn, vận động trước camera. Nước đang tràn vào phòng kín: trả lời đúng để mở van thoát nước, sai quá 3 câu là giải cứu thất bại.'}};
 var MODES={solo:{ico:'🎯',name:'Chơi đơn',k:1,d:'Một mình thử thách và leo bảng vàng.'},vs:{ico:'⚔️',name:'Đối kháng',k:2,d:'Hai bạn thay phiên trả lời, ai nhiều điểm hơn thắng.'},relay:{ico:'🏃',name:'Tiếp sức',k:3,d:'Ba bạn chuyền gậy từng câu, đúng liên tiếp được thưởng chuỗi.'}};
 var LADDER=[100,200,300,500,1000,2000,4000,8000,15000,30000];
 var AV=window.AVCODES||['h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','h12'];if(!window.AVH)window.AVH=function(e){return e};
 var LVN=['Dễ','Vừa','Khó','Nâng cao'];
 var LEVELS=[[0,'Tân binh','🌱'],[150,'Nhà thám hiểm','🧭'],[400,'Nhà khoa học nhí','🔬'],[800,'Nhà nghiên cứu','🧪'],[1500,'Chuyên gia','🧠'],[2500,'Giáo sư','🎓'],[4000,'Thiên tài','🚀'],[6000,'Huyền thoại','👑']];
-var BADGES=[['first','🎬','Lên sóng','Chơi ván đầu tiên'],['streak5','🔥','Chuỗi lửa','Đúng 5 câu liên tiếp'],['streak10','☄️','Sao chổi','Đúng 10 câu liên tiếp'],['mil','💰','Triệu phú tri thức','Vượt qua mọi câu hỏi Ai là triệu phú'],['flash','⚡','Tia chớp','Đúng từ 8 câu Nhanh như chớp trở lên'],['num','🔢','Thần số học','Giải đúng mọi câu Giải mã con số'],['bridge','🌉','Qua cầu','Về đích Vượt cầu sinh tồn'],['review','📚','Chăm ôn','Hoàn thành 5 lượt ôn tập'],['perfect','💯','Hoàn hảo','Ôn tập đúng 100% (từ 10 câu)'],['xp1000','🏆','Ngôi sao','Đạt 1000 điểm kinh nghiệm'],['xp5000','👑','Huyền thoại','Đạt 5000 điểm kinh nghiệm']];
+var BADGES=[['first','🎬','Lên sóng','Chơi ván đầu tiên'],['streak5','🔥','Chuỗi lửa','Đúng 5 câu liên tiếp'],['streak10','☄️','Sao chổi','Đúng 10 câu liên tiếp'],['mil','💰','Triệu phú tri thức','Vượt qua mọi câu hỏi Ai là triệu phú'],['flash','⚡','Tia chớp','Đúng từ 8 câu Nhanh như chớp trở lên'],['num','🔢','Thần số học','Giải đúng mọi câu Giải mã con số'],['bridge','🌉','Qua cầu','Về đích Vượt cầu sinh tồn'],['rescue','🌊','Người hùng cứu hộ','Giải cứu thành công người bị nạn'],['review','📚','Chăm ôn','Hoàn thành 5 lượt ôn tập'],['perfect','💯','Hoàn hảo','Ôn tập đúng 100% (từ 10 câu)'],['xp1000','🏆','Ngôi sao','Đạt 1000 điểm kinh nghiệm'],['xp5000','👑','Huyền thoại','Đạt 5000 điểm kinh nghiệm']];
 
 /* ================= TIỆN ÍCH ================= */
 var app=document.getElementById('app');
@@ -47,7 +48,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=49;
+var APPV=50;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -89,7 +90,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),rscam:load('dtk_rscam',true)!==false,g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
@@ -125,7 +126,7 @@ function header(){
  var c=$('#gchip');if(!c)return;
  if(st.g){c.hidden=false;c.className='gchip g'+st.g;c.innerHTML='Lớp '+st.g+' <span aria-hidden="true">⇄</span>';c.setAttribute('aria-label','Đang chọn lớp '+st.g+'. Bấm để đổi lớp')}else c.hidden=true;
 }
-function stopAll(){clearInterval(tm);tm=null;if(window.DTKSACK)DTKSACK.stop();document.body.classList.remove('sk-on');var o=$('.ovl');if(o)o.remove()}
+function stopAll(){clearInterval(tm);tm=null;if(window.DTKSACK)DTKSACK.stop();if(window.DTKRESCUE)DTKRESCUE.stop();document.body.classList.remove('sk-on');var o=$('.ovl');if(o)o.remove()}
 
 /* ================= MÀN CHỌN LỚP ================= */
 function gradeScreen(){
@@ -200,12 +201,16 @@ function menu(){
   +'<button class="mode'+(st.milcam?'':' on')+'" data-act="milcam" data-v="0"><b>👆 Chạm màn hình</b><small>Bấm vào ô đáp án như bình thường.</small></button>'
   +'<button class="mode'+(st.milcam?' on':'')+'" data-act="milcam" data-v="1"><b>📷 Động tác qua camera</b><small>Thí sinh đứng trước camera, giữ động tác 1 giây để chốt: A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang hai tay. Vẫn chạm được khi cần.</small></button></div>'
   +(st.milcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
+ +(st.game=='rescue'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
+  +'<button class="mode'+(st.rscam?' on':'')+'" data-act="rscam" data-v="1"><b>📷 Vận động qua camera</b><small>Giữ động tác khoảng 1 giây để chốt: A quay người sang trái · B quay người sang phải · C đưa hai tay lên cao và vỗ tay · D cúi người về phía trước. Câu đúng/sai: A là Đúng, B là Sai.</small></button>'
+  +'<button class="mode'+(st.rscam?'':' on')+'" data-act="rscam" data-v="0"><b>👆 Chạm màn hình</b><small>Dùng khi máy không có camera.</small></button></div>'
+  +(st.rscam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Đứng cách camera khoảng 2 m, thấy rõ từ đầu đến hông. Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.solo&&id!='solo';return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
  +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>'
  +(r.length<need?'<p class="warn">Chế độ này cần '+need+' thí sinh. Hãy ghi danh thêm '+(need-r.length)+' bạn.</p><button class="btn ghost sm" data-act="home">Ghi danh thêm</button>':'')+'</section>')
  +'<div class="cta sticky"><button class="btn big" data-act="start"'+(ok?'':' disabled')+'>'+g.ico+' Bắt đầu '+g.name+'</button></div>';
  /* Tải sẵn bộ nhận dạng động tác ngay ở màn hình chuẩn bị, để vào trận là dùng được luôn */
- if(((g.team&&st.skcam)||(st.game=='mil'&&st.milcam))&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
+ if(((g.team&&st.skcam)||(st.game=='mil'&&st.milcam)||(st.game=='rescue'&&st.rscam))&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
 }
 
 /* ================= CHƠI: TRÌNH BÀY CÂU HỎI ================= */
@@ -260,6 +265,7 @@ function start(){
  var g=GAMES[st.game];
  if(g.team)return window.DTKSACK?DTKSACK.start():null;
  if(st.game=='squid')return sqStart();
+ if(st.game=='rescue')return window.DTKRESCUE?DTKRESCUE.start():null;
  var r=roster(),si=scopeInfo(),P=gamePool(),pick=g.pick,n=g.n,time=g.time;
  var typed=P.filter(function(q){return pick.indexOf(q.t)>=0});
  if(si){if(typed.length<5){pick=['mc','tf','num'];typed=P}n=Math.min(10,typed.length);time=30}
@@ -580,7 +586,9 @@ document.addEventListener('click',function(e){
  if(a=='snd'){if(window.SND)SND.toggle();return}
  if(a=='netretry'){if(navigator.onLine!==false)location.reload();return}
  if(window.DTKSACK&&DTKSACK.click(a,v,b))return;
+ if(window.DTKRESCUE&&DTKRESCUE.click(a,v,b))return;
  switch(a){
+ case 'rscam':st.rscam=v=='1';save('dtk_rscam',st.rscam);menu();break;
  case 'grade':if(document.body.classList.contains('playing')&&!confirm('Thoát ván chơi để đổi lớp?'))return;S=null;Q=null;gradeScreen();break;
  case 'pickg':snd('tap');openGrade(v);break;
  case 'av':st.av=v;$$('.av').forEach(function(x){x.classList.toggle('on',x===b)});break;

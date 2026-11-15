@@ -310,7 +310,7 @@ function camStop(){
    box chứa <video>, <canvas>, .gc-msg; onG(cử chỉ, thời điểm) được gọi khoảng 9 lần/giây.
    Trả về Promise<true> khi camera và bộ nhận dạng đã sẵn sàng, <false> nếu không dùng được. */
 var G1=null;
-function gcamStart(box,onG){
+function gcamStart(box,onG,cf){
  gcamStop();
  var me=G1={raf:0,last:0,cost:0,stream:null},msg=function(m){var e=box.querySelector('.gc-msg');if(e){e.textContent=m||'';e.hidden=!m}};
  box.classList.toggle('mirror',camFace()=='user');
@@ -330,7 +330,8 @@ function gcamStart(box,onG){
     /* Chỉ nhận người đứng ở giữa khung hình (vai nằm trong vùng giữa); người đứng lệch hai bên bị bỏ qua */
     var best=null,bd=1;(res&&res.landmarks||[]).forEach(function(q){var cx=(q[11].x+q[12].x)/2,d=Math.abs(cx-0.5);if(d<0.2&&d<bd){bd=d;best=q}});
     drawTo(box.querySelector('canvas'),v,best,'#FFC24D');
-    try{onG(classify(best),now)}catch(e){}
+    /* cf: bộ nhận dạng động tác riêng của từng trò (nếu có), nhận thêm tỉ lệ khung hình */
+    try{onG(cf?cf(best,v.videoWidth/v.videoHeight,now):classify(best),now)}catch(e){}
     var dt=performance.now()-t0;me.cost=me.cost?me.cost*0.8+dt*0.2:dt;
    };
    me.raf=requestAnimationFrame(loop);return true;

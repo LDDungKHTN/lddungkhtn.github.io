@@ -139,7 +139,7 @@ function startGame(){
 function optsOf(i){var q=R.qs[i],s=R.slabs[i];return s?s.map(function(x){return x.t}):q.t=='mc'?q.o:q.t=='tf'?['Đúng','Sai']:null}
 function sendQ(p){
  var q=R.qs[R.i],left=Math.max(1,Math.round((R.deadline-Date.now())/1000));
- send(p,{type:'q',i:R.i,n:R.qs.length,t:R.slabs[R.i]?'slab':q.t,c:q.c,l:q.l,q:q.q,o:optsOf(R.i),time:left,game:R.game,alive:p.alive,step:p.step,team:p.team,teams:R.teams,answered:!!R.ans[p.n]});
+ send(p,{type:'q',i:R.i,n:R.qs.length,t:R.slabs[R.i]?'slab':q.t,c:q.c,l:q.l,q:q.q,o:optsOf(R.i),en:q.en||0,s:q.s,lis:q.lis||0,ro:q.ro||0,time:left,game:R.game,alive:p.alive,step:p.step,team:p.team,teams:R.teams,answered:!!R.ans[p.n]});
 }
 function nextQ(){
  if(!R||R.role!='host')return;clearInterval(R.tm);clearTimeout(R.at);
@@ -160,8 +160,14 @@ function countHTML(){var e=expect(),a=e.filter(function(n){return R.ans[n]}).len
 function hostQ(){
  A.setScreen('play');
  var q=R.qs[R.i],g=RG[R.game],o=optsOf(R.i);
+ /* Giọng đọc: màn hình chủ phòng (thường chiếu lên máy chiếu) tự đọc câu hỏi; nút loa đọc đúng các đáp án đang hiện */
+ var qv=o?Object.assign({},q,{o:o,t:R.slabs[R.i]?'mc':q.t,nol:1}):q;
+ hostHTML(q,g,o,A.sayB?A.sayB(qv):'');
+ if(A.sayAuto)A.sayAuto(qv);
+}
+function hostHTML(q,g,o,sayH){
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="rmclose" aria-label="Đóng phòng">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(R.i+1)+'/'+R.qs.length+'</span><span class="turn">Phòng '+R.code+'</span><span class="scores" id="rmcount">'+countHTML()+'</span></div>'
- +'<div class="rm-host"><div class="qcard'+A.qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+A.stars(q.l)+'</div>'+A.ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
+ +'<div class="rm-host"><div class="qcard'+A.qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+sayH+A.stars(q.l)+'</div>'+A.ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
  +(o?'<div class="rm-opts">'+o.map(function(t,j){return '<div class="rm-o '+COL[j%4]+'"><i>'+SHAPE[j%4]+'</i><span>'+esc(t)+'</span></div>'}).join('')+'</div>':'<div class="rm-numnote">🔢 Mỗi bạn nhập đáp án là một con số trên máy của mình.</div>')
  +'<div class="rm-side">'+board()+'</div>'
  +'<div class="cta"><button class="btn ghost" data-act="rmreveal">⏭ Kết thúc câu này</button></div></div>';
@@ -312,7 +318,8 @@ function pQ(m){
  }
  app.innerHTML='<div class="hud"><span class="gname">'+esc(R.gname||'')+'</span><span class="qn">Câu '+(m.i+1)+'/'+m.n+'</span><span class="turn">'+AVH(R.e)+' '+esc(R.n)+'</span><span class="scores"><span class="sc">'+(R.score||0).toLocaleString('vi-VN')+'</span></span></div>'
  +(spect?'<p class="rm-spect">👀 Bạn đã bị loại – đang xem các bạn còn lại thi đấu.</p>':'')
- +'<div class="qcard'+A.qClass({q:m.q,o:o})+'"><div class="qmeta"><span class="pill">'+esc(m.c)+'</span>'+A.stars(m.l)+'</div>'+A.ring()+'<p class="qtext">'+esc(m.q)+'</p></div>'+body+'<div id="fb" class="fb" role="status"></div>';
+ /* Máy học sinh: chỉ có nút loa (không tự đọc, tránh cả lớp cùng phát tiếng một lúc) */
+ +'<div class="qcard'+A.qClass({q:m.q,o:o})+'"><div class="qmeta"><span class="pill">'+esc(m.c)+'</span>'+(A.sayB?A.sayB({q:m.q,t:m.t=='slab'?'mc':m.t,o:o,en:m.en,s:m.s,lis:m.lis,ro:m.ro,c:m.c,nol:1}):'')+A.stars(m.l)+'</div>'+A.ring()+'<p class="qtext">'+esc(m.q)+'</p></div>'+body+'<div id="fb" class="fb" role="status"></div>';
  if(m.answered)pWait();
  R.qt0=Date.now();clearInterval(R.tm);A.setRing(m.time,m.time);
  R.tm=setInterval(function(){var left=Math.max(0,m.time-(Date.now()-R.qt0)/1000);A.setRing(left,m.time);if(left>0&&left<=5&&!R.sent&&!spect)snd('beat',left);if(left<=0)clearInterval(R.tm)},150);

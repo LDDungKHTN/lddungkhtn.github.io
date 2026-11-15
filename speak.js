@@ -40,12 +40,12 @@ function parts(q,opts){
   if(q.lis)return q.s?[q.s]:[];
   var out=[],t=q.s!=null?q.s:q.q;
   if(t&&isEn(t))out.push(cleanEn(t));
-  if((opts||q.ro)&&q.t=='mc'&&q.o.every(isEn))q.o.forEach(function(o,i){out.push('ABCD'[i]+'. '+cleanEn(o))});
+  if((opts||q.ro)&&q.t=='mc'&&q.o.every(isEn))q.o.forEach(function(o,i){out.push((q.nol?'':'ABCD'[i]+'. ')+cleanEn(o))});
   return out.filter(Boolean);
  }
  /* Khoa học tự nhiên, Lịch sử – Địa lí: đọc đề; bấm loa thì đọc cả các đáp án */
  var v=[cleanVi(q.q)];
- if(opts&&q.t=='mc'&&q.o)q.o.forEach(function(o,i){v.push('ABCD'[i]+'. '+cleanVi(o))});
+ if(opts&&q.t=='mc'&&q.o)q.o.forEach(function(o,i){v.push((q.nol?'':'ABCD'[i]+'. ')+cleanVi(o))});
  if(opts&&q.t=='tf')v.push('Đúng hay sai?');
  return v.filter(Boolean);
 }

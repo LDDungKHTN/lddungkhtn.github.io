@@ -71,7 +71,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=55;
+var APPV=56;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -113,7 +113,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),rscam:load('dtk_rscam',true)!==false,g:gkey(load('dtk_grade',0)),subj:load('dtk_subj','khtn'),mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),sqcam:!!load('dtk_sqcam',false),rscam:load('dtk_rscam',true)!==false,g:gkey(load('dtk_grade',0)),subj:load('dtk_subj','khtn'),mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
@@ -220,13 +220,17 @@ function menu(){
  +'<section class="panel"><h3>② Trò chơi</h3><div class="games">'+Object.keys(GAMES).map(function(id){var x=GAMES[id];return '<button class="game'+(id==st.game?' on':'')+'" data-act="game" data-v="'+id+'"><span class="gi">'+x.ico+'</span><b>'+x.name+'</b><small>'+x.d+'</small></button>'}).join('')+'</div></section>'
  +(g.team?'<section class="panel"><h3>③ Cách trả lời</h3><div class="modes two">'
   +'<button class="mode'+(st.skcam?'':' on')+'" data-act="skcam" data-v="0"><b>👆 Chạm màn hình</b><small>Mỗi đội bấm vào đáp án ở khung của đội mình.</small></button>'
-  +'<button class="mode'+(st.skcam?' on':'')+'" data-act="skcam" data-v="1"><b>📷 Động tác qua camera</b><small>Đứng trước camera: Đội Xanh bên trái, Đội Đỏ bên phải. A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang. Đúng: giơ hai tay · Sai: dang ngang.</small></button></div>'
+  +'<button class="mode'+(st.skcam?' on':'')+'" data-act="skcam" data-v="1"><b>📷 Động tác qua camera</b><small>Đứng trước camera: Đội Xanh bên trái, Đội Đỏ bên phải. A quay người sang trái · B quay người sang phải · C đưa hai tay lên cao vỗ tay · D cúi người. Đúng: quay trái · Sai: quay phải.</small></button></div>'
   +(st.skcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Camera trước: học sinh nhìn thấy mình trên màn hình như soi gương. Camera sau: hướng điện thoại hoặc máy tính bảng về phía học sinh (màn hình quay về thầy cô). Có thể đổi trong trận bằng nút 🔄.</p>':'')
   +(st.skcam?'<p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng động tác và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(st.game=='mil'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
   +'<button class="mode'+(st.milcam?'':' on')+'" data-act="milcam" data-v="0"><b>👆 Chạm màn hình</b><small>Bấm vào ô đáp án như bình thường.</small></button>'
-  +'<button class="mode'+(st.milcam?' on':'')+'" data-act="milcam" data-v="1"><b>📷 Động tác qua camera</b><small>Thí sinh đứng trước camera, giữ động tác 1 giây để chốt: A giơ tay trái · B giơ tay phải · C giơ hai tay · D dang ngang hai tay. Vẫn chạm được khi cần.</small></button></div>'
+  +'<button class="mode'+(st.milcam?' on':'')+'" data-act="milcam" data-v="1"><b>📷 Động tác qua camera</b><small>Thí sinh đứng trước camera, giữ động tác 1 giây để chốt: A quay người sang trái · B quay người sang phải · C đưa hai tay lên cao vỗ tay · D cúi người về phía trước. Câu đúng/sai: A là Đúng, B là Sai. Vẫn chạm được khi cần.</small></button></div>'
   +(st.milcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
+ +(st.game=='squid'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
+  +'<button class="mode'+(st.sqcam?'':' on')+'" data-act="sqcam" data-v="0"><b>👆 Chạm màn hình</b><small>Chạm vào phiến đá có đáp án đúng để nhảy lên.</small></button>'
+  +'<button class="mode'+(st.sqcam?' on':'')+'" data-act="sqcam" data-v="1"><b>📷 Động tác qua camera</b><small>Giữ động tác 1 giây để nhảy lên phiến đá: phiến 1 quay người sang trái · phiến 2 quay người sang phải · phiến 3 đưa hai tay lên cao vỗ tay · phiến 4 cúi người. Câu đúng/sai: quay trái là Đúng, quay phải là Sai. Vẫn chạm được khi cần.</small></button></div>'
+  +(st.sqcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Đứng cách camera khoảng 2 m, thấy rõ từ đầu đến hông. Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(st.game=='rescue'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
   +'<button class="mode'+(st.rscam?' on':'')+'" data-act="rscam" data-v="1"><b>📷 Vận động qua camera</b><small>Giữ động tác khoảng 1 giây để chốt: A quay người sang trái · B quay người sang phải · C đưa hai tay lên cao và vỗ tay · D cúi người về phía trước. Câu đúng/sai: A là Đúng, B là Sai.</small></button>'
   +'<button class="mode'+(st.rscam?'':' on')+'" data-act="rscam" data-v="0"><b>👆 Chạm màn hình</b><small>Dùng khi máy không có camera.</small></button></div>'
@@ -236,7 +240,7 @@ function menu(){
  +(r.length<need?'<p class="warn">Chế độ này cần '+need+' thí sinh. Hãy ghi danh thêm '+(need-r.length)+' bạn.</p><button class="btn ghost sm" data-act="home">Ghi danh thêm</button>':'')+'</section>')
  +'<div class="cta sticky"><button class="btn big" data-act="start"'+(ok?'':' disabled')+'>'+g.ico+' Bắt đầu '+g.name+'</button></div>';
  /* Tải sẵn bộ nhận dạng động tác ngay ở màn hình chuẩn bị, để vào trận là dùng được luôn */
- if(((g.team&&st.skcam)||(st.game=='mil'&&st.milcam)||(st.game=='rescue'&&st.rscam))&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
+ if(((g.team&&st.skcam)||(st.game=='mil'&&st.milcam)||(st.game=='rescue'&&st.rscam)||(st.game=='squid'&&st.sqcam))&&window.DTKSACK&&DTKSACK.preload)DTKSACK.preload();
 }
 
 /* ================= CHƠI: TRÌNH BÀY CÂU HỎI ================= */
@@ -336,23 +340,29 @@ function flashArena(q,w){
 /* ===== Ai là triệu phú – trả lời bằng động tác qua camera =====
    Khung camera nằm giữa sân khấu và được giữ nguyên giữa các câu (không phải mở lại camera).
    Giữ một động tác 1 giây thì chốt đáp án; sau mỗi câu phải hạ tay xuống rồi mới trả lời câu mới. */
-var MGES=[['✋','Tay trái'],['✋','Tay phải'],['🙌','Hai tay'],['🤸','Dang ngang']],MGNAME={L:'✋ Tay trái',R:'Tay phải ✋',BOTH:'🙌 Hai tay',SIDE:'🤸 Dang ngang'};
+/* Động tác giống trò Giải cứu: A quay trái · B quay phải · C vỗ tay trên đầu · D cúi người; đúng/sai: A = Đúng, B = Sai */
+var MGES=[['↩️','Quay trái'],['↪️','Quay phải'],['👏','Vỗ tay'],['🙇','Cúi người']],MGNAME={L:'↩️ Quay trái',R:'Quay phải ↪️',C:'👏 Vỗ tay',D:'🙇 Cúi người'};
+/* Chữ hiện trên khung camera khi chưa có động tác: đang ghi nhớ tư thế chuẩn thì nhắc đứng thẳng */
+function gcIdle(bd){return bd&&!bd.B?'🧍 Đứng thẳng, nhìn màn hình… '+Math.round(bd.prog()*100)+'%':''}
 function milCamMount(keep,q){
  var slot=$('#gcslot');if(!slot)return;
  if(keep){slot.parentNode.replaceChild(keep,slot);[].forEach.call(keep.querySelectorAll('video'),function(v){var p=v.play();if(p&&p.catch)p.catch(function(){})})}
  else{var d=document.createElement('div');d.id='gcbox';d.className='gc-box';d.innerHTML='<video class="gc-bg" playsinline muted autoplay></video><video class="gc-sharp" playsinline muted autoplay aria-hidden="true"></video><span class="gc-zone" aria-hidden="true"></span><canvas></canvas><span class="gc-ges" id="gcges"></span><div class="gc-msg"></div><button class="gc-flip" data-act="mcflip" aria-label="Đổi camera trước hoặc sau">🔄</button>';slot.parentNode.replaceChild(d,slot);milCamStart()}
  /* Ghi động tác tương ứng lên từng ô đáp án */
- $$('.opt').forEach(function(b){var v=+b.getAttribute('data-v'),gi=q.t=='tf'?(v==1?2:3):v;if(MGES[gi])b.insertAdjacentHTML('beforeend','<i class="mges">'+MGES[gi][0]+' '+MGES[gi][1]+'</i>')});
- if(S.camWait&&!$('#mcwait'))document.querySelector('.arena').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="mcwait"><div><b>📷 Đang chuẩn bị camera…</b><small>Đồng hồ chỉ chạy khi camera đã sẵn sàng.</small><button class="btn ghost sm" data-act="mcgo">Bắt đầu luôn (chạm để trả lời)</button></div></div>');
+ $$('.opt').forEach(function(b){var v=+b.getAttribute('data-v'),gi=q.t=='tf'?(v==1?0:1):v;if(MGES[gi])b.insertAdjacentHTML('beforeend','<i class="mges">'+MGES[gi][0]+' '+MGES[gi][1]+'</i>')});
+ if(S.camWait&&!$('#mcwait'))document.querySelector('.arena').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="mcwait"><div><b>📷 Đang chuẩn bị camera…</b><small>Đứng thẳng, nhìn vào màn hình, thấy rõ đầu, vai và hai tay để máy ghi nhớ tư thế. Đồng hồ chỉ chạy khi máy đã nhận ra em.</small><button class="btn ghost sm" data-act="mcgo">Bắt đầu luôn (chạm để trả lời)</button></div></div>');
 }
 function milCamStart(){
  var box=$('#gcbox');if(!box||!window.DTKSACK||!DTKSACK.gcam)return milCamReady();
  var me=S;setTimeout(function(){if(S===me)milCamReady()},25000);
- DTKSACK.gcam.start(box,milGesture).then(function(){if(S===me)milCamReady()});
+ /* Mỗi lần mở camera thì ghi nhớ lại tư thế chuẩn của thí sinh */
+ var bd=S.bd=DTKSACK.gcam.body&&DTKSACK.gcam.body();
+ DTKSACK.gcam.start(box,milGesture,bd?bd.classify:null).then(function(ok){if(S===me&&(!ok||!bd))milCamReady()});
 }
 function milCamReady(){if(!S||!S.camWait)return;S.camWait=false;var w=$('#mcwait');if(w)w.remove();if(!S.lock)S.t0=Date.now()}
 function milGesture(g,now){
- var gs=$('#gcges');if(gs)gs.textContent=g?MGNAME[g]:'';
+ var gs=$('#gcges');if(gs)gs.textContent=g?MGNAME[g]:gcIdle(S&&S.bd);
+ if(S&&S.camWait&&S.bd&&S.bd.B)milCamReady();
  if(!S||S.id!='mil'||!S.cam||S.lock||S.camWait){if(S)S.hv=null;return}
  if(!S.armed){if(!g){if(!S.calm)S.calm=now;if(now-S.calm>300)S.armed=true}else S.calm=0;return}
  var q=S.qs[S.i],v=window.DTKSACK?DTKSACK.gcam.gestVal(q,g):null,b=v!=null?$('.opt[data-v="'+v+'"]'):null;
@@ -500,7 +510,8 @@ function sqStart(){
  var P=gamePool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<4)return alert('Phạm vi này chưa đủ câu trắc nghiệm cho trò chơi. Hãy chọn phạm vi rộng hơn.');
  var n=Math.min(P.length,8+Math.floor(Math.random()*3));
- Q={qs:pickQs(P,n),i:0,p:r[st.sel[0]],lock:false,stk:0,best:0,xp:0};
+ var cam=!!st.sqcam&&!!(window.DTKSACK&&DTKSACK.gcam);
+ Q={qs:pickQs(P,n),i:0,p:r[st.sel[0]],lock:false,stk:0,best:0,xp:0,cam:cam,camWait:cam};
  Q.opts=Q.qs.map(sqOpts);
  sqAsk();
 }
@@ -518,12 +529,14 @@ function sqRow(k){
   var cls='stone'+(past?(x.ok?' done':' gone'):'')+(cur&&x.t.length>30?' lg':'')+(cur&&x.t.length>55?' xl':'');
   /* mỗi phiến đá rung lệch nhịp và có hình dạng hơi khác nhau */
   var d=((k*7+j*13)%10)/10,sh=(k*3+j*5)%4;
-  return '<button class="'+cls+' st'+sh+'" style="--d:-'+d+'s" data-act="sq" data-v="'+j+'"'+(cur?' aria-label="Nhảy lên phiến đá: '+esc(x.t)+'"':' disabled tabindex="-1" aria-hidden="true"')+'><span>'+(cur?esc(x.t):past&&x.ok?'✓':'?')+'</span></button>'}).join('')+'</div>';
+  /* Chơi bằng camera: phiến đá thứ 1–4 ứng với động tác A–D (câu đúng/sai: Đúng = quay trái, Sai = quay phải) */
+  var ge=cur&&Q.cam&&MGES[j]?'<i class="sges" title="'+MGES[j][1]+'">'+MGES[j][0]+' '+MGES[j][1]+'</i>':'';
+  return '<button class="'+cls+' st'+sh+'" style="--d:-'+d+'s" data-act="sq" data-v="'+j+'"'+(cur?' aria-label="Nhảy lên phiến đá: '+esc(x.t)+(ge?' (động tác: '+MGES[j][1]+')':'')+'"':' disabled tabindex="-1" aria-hidden="true"')+'>'+ge+'<span>'+(cur?esc(x.t):past&&x.ok?'✓':'?')+'</span></button>'}).join('')+'</div>';
 }
 /* Co chữ trong phiến đá cho vừa, không bị cắt */
 function sqFitText(){
  $$('#sqt .sq-row.cur .stone').forEach(function(b){
-  var s=b.firstChild;if(!s)return;s.style.fontSize='';
+  var s=b.querySelector('span');if(!s)return;s.style.fontSize='';
   var fs=parseFloat(getComputedStyle(s).fontSize),room=b.clientHeight-8,w=b.clientWidth-10;
   while(fs>9&&(s.offsetHeight>room||s.scrollWidth>w)){fs-=0.5;s.style.fontSize=fs+'px'}
  });
@@ -553,18 +566,50 @@ function sqAvTo(el,anim){
 function sqMood(m){var s=$('#sqav span');if(s&&Q)s.innerHTML=AVH(Q.p.e,m,'full')}
 function sqAsk(){
  setScreen('play');document.body.setAttribute('data-game','squid');
- var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();
+ var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();Q.armed=false;Q.calm=0;Q.hv=null;
+ var keep=Q.cam?document.getElementById('sqcam'):null;
  /* Sàn chơi tràn màn hình ở trên, câu hỏi nằm ở dưới */
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+AVH(Q.p.e)+' '+esc(Q.p.n)+'</span></div>'
- +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'<span class="sq-hint">Chạm phiến đá có đáp án đúng để nhảy lên</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
+ +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'<span class="sq-hint">'+(Q.cam?'Giữ động tác 1 giây để nhảy lên phiến đá: ↩️ quay trái · ↪️ quay phải · 👏 vỗ tay · 🙇 cúi người':'Chạm phiến đá có đáp án đúng để nhảy lên')+'</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
  +'<div id="fb" class="fb" role="status"></div></div></div>';
  document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
  fitPlay();sqSize();sqFitText();sqShift(Q.i,false);sqAvTo(sqStand(),false);
  requestAnimationFrame(function(){requestAnimationFrame(function(){sqShift(Q.i+1,true)})});
+ if(Q.cam)sqCamMount(keep);
  clearInterval(qt);setRing(30,30);qt=setInterval(sqTick,100);
+}
+/* ----- Vượt cầu bằng động tác qua camera: khung camera nhỏ ở góc sân chơi, giữ nguyên giữa các tầng ----- */
+function sqCamMount(keep){
+ var v=$('#sqv');if(!v)return;
+ if(keep){v.appendChild(keep);[].forEach.call(keep.querySelectorAll('video'),function(x){var p=x.play();if(p&&p.catch)p.catch(function(){})})}
+ else{var d=document.createElement('div');d.id='sqcam';d.className='gc-box sq-cam';d.innerHTML='<video class="gc-bg" playsinline muted autoplay></video><video class="gc-sharp" playsinline muted autoplay aria-hidden="true"></video><canvas></canvas><span class="gc-ges" id="sqges"></span><div class="gc-msg"></div><button class="gc-flip" data-act="sqflip" aria-label="Đổi camera trước hoặc sau">🔄</button>';v.appendChild(d);sqCamStart()}
+ if(Q.camWait&&!$('#sqwait'))$('.sq-wrap').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="sqwait"><div><b>📷 Đang chuẩn bị camera…</b><small>Đứng cách camera khoảng 2 m, thẳng người, nhìn vào màn hình để máy ghi nhớ tư thế. Đồng hồ chỉ chạy khi máy đã nhận ra em.</small><button class="btn ghost sm" data-act="sqgo">Bắt đầu luôn (chạm để trả lời)</button></div></div>');
+}
+function sqCamStart(){
+ var box=$('#sqcam');if(!box||!window.DTKSACK||!DTKSACK.gcam)return sqCamReady();
+ var me=Q;setTimeout(function(){if(Q===me)sqCamReady()},25000);
+ var bd=Q.bd=DTKSACK.gcam.body&&DTKSACK.gcam.body();
+ DTKSACK.gcam.start(box,sqGesture,bd?bd.classify:null).then(function(ok){if(Q===me&&(!ok||!bd))sqCamReady()});
+}
+function sqCamReady(){if(!Q||!Q.camWait)return;Q.camWait=false;var w=$('#sqwait');if(w)w.remove();if(!Q.lock)Q.t0=Date.now()}
+function sqGesture(g,now){
+ var gs=$('#sqges');if(gs)gs.textContent=g?MGNAME[g]:gcIdle(Q&&Q.bd);
+ if(!Q)return;
+ if(Q.camWait&&Q.bd&&Q.bd.B)sqCamReady();
+ if(Q.lock||Q.camWait||!$('#sqv')){Q.hv=null;return}
+ /* Sau mỗi tầng phải về tư thế đứng thẳng rồi mới tính động tác mới */
+ if(!Q.armed){if(!g){if(!Q.calm)Q.calm=now;if(now-Q.calm>300)Q.armed=true}else Q.calm=0;return}
+ var j=g?['L','R','C','D'].indexOf(g):-1,row=sqRowEl(Q.i+1),tiles=row?[].slice.call(row.querySelectorAll('.stone')):[];
+ if(j>=tiles.length)j=-1;
+ tiles.forEach(function(b,k){var on=k===j;b.classList.toggle('hold',on);if(!on)b.style.removeProperty('--hp')});
+ if(j<0){Q.hv=null;return}
+ if(Q.hv!==j){Q.hv=j;Q.hs=now}
+ var pr=Math.min(1,(now-Q.hs)/1000);tiles[j].style.setProperty('--hp',Math.round(pr*100)+'%');
+ if(pr>=1){Q.hv=null;tiles[j].classList.remove('hold');sqPick(j)}
 }
 function sqTick(){
  if(!Q||Q.lock||!$('#sqv')){clearInterval(qt);return}
+ if(Q.camWait){Q.t0=Date.now();return}
  var left=Math.max(0,30-(Date.now()-Q.t0)/1000);setRing(left,30);
  if(left>0&&left<=5)snd('beat',left);
  if(left<=0)sqPick(-1);
@@ -629,6 +674,9 @@ document.addEventListener('click',function(e){
  case 'game':st.game=v;snd('tap');menu();break;
  case 'milcam':st.milcam=v=='1';save('dtk_milcam',st.milcam);menu();break;
  case 'mcgo':milCamReady();break;
+ case 'sqcam':st.sqcam=v=='1';save('dtk_sqcam',st.sqcam);menu();break;
+ case 'sqgo':sqCamReady();break;
+ case 'sqflip':if(Q&&Q.cam){st.skface=st.skface=='user'?'environment':'user';save('dtk_skface',st.skface);sqCamStart()}break;
  case 'mcflip':if(S&&S.cam){st.skface=st.skface=='user'?'environment':'user';save('dtk_skface',st.skface);milCamStart()}break;
  case 'skcam':st.skcam=v=='1';save('dtk_skcam',st.skcam);menu();break;
  case 'skface':st.skface=v=='environment'?'environment':'user';save('dtk_skface',st.skface);menu();break;

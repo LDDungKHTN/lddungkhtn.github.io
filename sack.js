@@ -102,7 +102,7 @@ function showQ(t){
  t.armed=false;t.calm=0;t.hv=null;
  if(t.i>=N){t.done=true;el.innerHTML=head(t)+'<div class="sk-wait">'+(t.ok==N?'🎉 Đúng cả 10 câu!<br>Xuất sắc!':'Đã xong 10 câu!')+'<br><small>Đang chờ đội kia…</small></div>';return check()}
  var q=t.qs[t.i];t.lock=false;t.t0=Date.now();
- el.innerHTML=head(t)+'<div class="sk-bar"><i id="bar_'+t.k+'"></i></div><div class="sk-q"><small>'+esc(q.c)+' – '+LV[q.l-1]+'</small><p>'+esc(q.q)+'</p></div><div class="sk-a">'+body(t,q)+'</div><div class="sk-fb" id="fb_'+t.k+'" role="status"></div>';
+ el.innerHTML=head(t)+'<div class="sk-bar"><i id="bar_'+t.k+'"></i></div><div class="sk-q"><small>'+esc(q.c)+' – '+LV[q.l-1]+(A.sayB?' '+A.sayB(q,t.k):'')+'</small><p>'+esc(q.q)+'</p></div><div class="sk-a">'+body(t,q)+'</div><div class="sk-fb" id="fb_'+t.k+'" role="status"></div>';
  fit(el);
 }
 /* ---------- Nhân vật phản ứng ---------- */

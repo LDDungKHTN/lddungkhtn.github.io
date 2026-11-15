@@ -699,3 +699,9 @@ body[data-game=squid] .sq-av i{bottom:-4px}
 .stone .sges{position:absolute;left:50%;top:-4px;transform:translate(-50%,-60%);z-index:3;font-style:normal;font-size:12px;font-weight:800;white-space:nowrap;color:#fff;padding:1px 8px;border-radius:999px;border:1px solid rgba(255,226,122,.8);background:linear-gradient(90deg,rgba(255,200,40,.95) var(--hp,0%),rgba(10,8,20,.78) var(--hp,0%));text-shadow:0 1px 2px #000;pointer-events:none}
 .sq-row.cur .stone.hold{outline:3px solid #FFE27A;outline-offset:2px}
 @media(max-width:640px){.sq-cam{width:36%}.stone .sges{font-size:10px;padding:0 5px}}body[data-game=squid] .sq-row.cur .stone.hold{filter:brightness(1.18) drop-shadow(0 0 6px #FFE27A) drop-shadow(0 0 16px rgba(255,210,63,.9));outline:0}
+
+/* Nút loa đọc câu hỏi tiếng Anh (v57) */
+.say-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;border-radius:50%;border:2px solid #7FE3FF;background:rgba(10,30,90,.85);color:#fff;font-size:17px;line-height:1;padding:0;cursor:pointer;vertical-align:middle;box-shadow:0 0 12px rgba(127,227,255,.45)}
+.say-btn:hover,.say-btn:focus-visible{background:#1d4fd8;outline:none;box-shadow:0 0 0 3px #FFE27A}
+.say-btn:active{transform:scale(.92)}
+.sk-q small .say-btn,.rs-q small .say-btn{width:28px;height:28px;font-size:14px;margin-left:4px}

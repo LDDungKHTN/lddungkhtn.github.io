@@ -23,7 +23,16 @@ var GR={
    bn: tên hiển thị của từng bài (phân môn Lịch sử và Địa lí đánh số bài riêng trong sách). */
 var SUBJ=[
  {id:'khtn',ico:'🔬',name:'Khoa học tự nhiên',short:'KHTN',keys:[6,7,8,9]},
- {id:'ls',ico:'🌏',name:'Lịch sử và Địa lí',short:'Sử – Địa',keys:['ls6','ls7','ls8','ls9']}];
+ {id:'ls',ico:'🌏',name:'Lịch sử và Địa lí',short:'Sử – Địa',keys:['ls6','ls7','ls8','ls9']},
+ {id:'en',ico:'🔤',name:'Tiếng Anh',short:'Tiếng Anh',keys:['en6','en7','en8','en9']}];
+/* Tiếng Anh (Global Success): câu hỏi được đọc bằng giọng tiếng Anh của trình duyệt (speak.js) */
+GR.en6={n:6,subj:'en',soon:1,files:[],tag:'Global Success 6',bai:[],ch:[]};
+GR.en7={n:7,subj:'en',soon:1,files:[],tag:'Global Success 7',bai:[],ch:[]};
+GR.en8={n:8,subj:'en',soon:1,files:[],tag:'Global Success 8',bai:[],ch:[]};
+GR.en9={n:9,subj:'en',files:['cauhoi-en9.js'],tag:'Global Success 9 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',
+ bai:['Local Community','City Life','Healthy Living for Teens','Remembering the Past','Our Experiences','Vietnamese Lifestyle: Then and Now','Natural Wonders of the World','Tourism','World Englishes','Planet Earth','Electronic Devices','Career Choices'],
+ bn:['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12'],
+ ch:[['Theme 1. Our Communities',1,3],['Theme 2. Our Heritage',4,6],['Theme 3. Our World',7,9],['Theme 4. Visions of the Future',10,12]]};
 [6,7,8,9].forEach(function(g){GR[g].subj='khtn'});
 GR.ls6={n:6,subj:'ls',soon:1,files:[],tag:'Xã hội nguyên thuỷ, cổ đại · Bản đồ, Trái Đất, các thành phần tự nhiên',bai:[],ch:[]};
 GR.ls7={n:7,subj:'ls',soon:1,files:[],tag:'Tây Âu, Trung Quốc, Ấn Độ, Đông Nam Á trung đại · Việt Nam thế kỉ X–XVI · Các châu lục',bai:[],ch:[]};
@@ -68,10 +77,10 @@ function fmt(n){return String(n).replace('.',',')}
 function numVal(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');return s===''?NaN:+s}
 function ansText(q){return q.t=='mc'?'ABCD'[q.a]+'. '+q.o[q.a]:q.t=='tf'?(q.a?'ĐÚNG':'SAI'):fmt(q.a)}
 function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★★★★'.slice(0,Math.min(l,4))+'<i>'+'★★★★'.slice(0,4-Math.min(l,4))+'</i></span>'}
-function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
+function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=56;
+var APPV=57;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -93,7 +102,7 @@ function norm(q){
 }
 var DTK=window.DTK={
  data:function(g,qs){BANK[g]=(qs||[]).map(norm).filter(Boolean)},
- add:function(g,qs){BANK[g]=(BANK[g]||[]).concat((qs||[]).map(norm).filter(Boolean))},
+ add:function(g,qs){var en=/^en/.test(g);BANK[g]=(BANK[g]||[]).concat((qs||[]).map(norm).filter(Boolean).map(function(q){if(en)q.en=1;return q}))},
  MC:function(b,l,c,q,ans,w1,w2,w3){return{t:'mc',b:b,l:l,c:c,q:q,o:[ans,w1,w2,w3],a:0}},
  TF:function(b,l,c,q,a,e){var r={t:'tf',b:b,l:l,c:c,q:q,a:a};if(e)r.e=e;return r},
  NUM:function(b,l,c,q,a,e){var r={t:'num',b:b,l:l,c:c,q:q,a:a};if(e)r.e=e;return r}};
@@ -156,7 +165,7 @@ function gradeScreen(){
  stopAll();setScreen('grade');header();
  var sj=SUBJ.filter(function(x){return x.id==st.subj})[0]||SUBJ[0];
  var card=function(g){var c=GR[g],n=BANK[g]&&!LOADING[g]?BANK[g].length:0;
-  return '<button class="door g'+c.n+(st.g===g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+c.n+'</span><span class="dl"><b>Lớp '+c.n+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+' bài':c.bai.length+' bài')+'</em></span></button>'};
+  return '<button class="door g'+c.n+(st.g===g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+c.n+'</span><span class="dl"><b>Lớp '+c.n+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':' bài'):c.bai.length+(c.subj=='en'?' Unit':' bài'))+'</em></span></button>'};
  app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập cho học sinh THCS</div><h1 class="title">ĐẤU TRƯỜNG<span>TRI THỨC</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn môn học và lớp của bạn để bước lên sân khấu!</p></section>'
  +'<div class="subjs" role="tablist" aria-label="Chọn môn học">'+SUBJ.map(function(x){return '<button class="subj'+(x===sj?' on':'')+'" role="tab" aria-selected="'+(x===sj)+'" data-act="subj" data-v="'+x.id+'"><span>'+x.ico+'</span>'+x.name+'</button>'}).join('')+'</div>'
  +'<div class="doors">'+sj.keys.map(card).join('')+'</div>'
@@ -176,7 +185,7 @@ function openGrade(g){
 function home(){
  stopAll();setScreen('home');header();
  var r=roster(),c=gcfg();
- app.innerHTML='<section class="hero"><div class="eyebrow g'+c.n+'">'+subjOf(st.g).name+' · Lớp '+c.n+' · '+bank().length+' câu hỏi · '+c.bai.length+' bài</div><h1 class="title">ĐẤU TRƯỜNG<span>'+subjOf(st.g).short.toUpperCase()+' '+c.n+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
+ app.innerHTML='<section class="hero"><div class="eyebrow g'+c.n+'">'+subjOf(st.g).name+' · Lớp '+c.n+' · '+bank().length+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':' bài')+'</div><h1 class="title">ĐẤU TRƯỜNG<span>'+subjOf(st.g).short.toUpperCase()+' '+c.n+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
  +'<section class="panel"><h2>🎤 Ghi danh thí sinh</h2>'
  +'<div class="row"><input id="nm" maxlength="16" placeholder="Tên của bạn" aria-label="Tên của bạn" autocomplete="off"><button class="btn" data-act="reg">Ghi danh</button></div>'
  +'<div class="avs" role="group" aria-label="Chọn biểu tượng">'+AV.map(function(e){return '<button class="av'+(e==st.av?' on':'')+'" data-act="av" data-v="'+e+'" aria-label="Chọn '+(window.AVNAME?AVNAME(e):e)+'">'+AVH(e)+'</button>'}).join('')+'</div>'
@@ -288,6 +297,9 @@ function fitPlay(){
  if(over()){b.classList.add('tight');if(over())b.classList.add('tighter')}
 }
 window.addEventListener('resize',function(){if(document.body.classList.contains('playing'))fitPlay()});
+/* Nút loa đọc câu hỏi tiếng Anh (speak.js) */
+function sayB(q,k){return window.DTKSAY?DTKSAY.btn(q,k):''}
+function sayAuto(q,k){if(window.DTKSAY)DTKSAY.auto(q,k)}
 function qClass(q){var L=q.q.length+(q.o?q.o.join('').length/2:0);return L>190?' xl':L>120?' lg':''}
 
 /* ================= TRÒ CHƠI KIỂU TRUYỀN HÌNH (mil, flash, num) ================= */
@@ -318,12 +330,13 @@ function ask(){
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+AVH(p.e)+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
  +(fl?flashArena(q,w):'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
  +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div>'+(S.cam?'<div class="mil-stage cam"><div id="gcslot"></div></div>':'<div class="mil-stage" aria-hidden="true"><i></i></div>'):'')
- +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">'+esc(bname(gcfg(),q.b))+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
+ +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+sayB(q)+stars(q.l)+(q.b?'<span class="muted">'+esc(bname(gcfg(),q.b))+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
  +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
  +(mil?'':'<div class="tools"></div>')
  +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>');
  var inp=$('#num');if(inp&&!('ontouchstart' in window))inp.focus();
  if(mil&&S.cam)milCamMount(keepCam,q);
+ sayAuto(q);
  S.lastSec=0;fitPlay();clearInterval(tm);if(!S.rv){setRing(g.time,g.time);tm=setInterval(tick,100)}
  if(mil){var me=S;snd('milQ');setTimeout(function(){if(S===me&&!S.lock&&document.body.getAttribute('data-scr')=='play')snd('bedOn')},1000)}
 }
@@ -332,7 +345,7 @@ function flashArena(q,w){
  var tube='<ol class="fl-tube" aria-label="Tiến độ câu hỏi">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+'">'+(i+1)+'</li>'}).join('')+'</ol>';
  var ppl='<div class="fl-who">'+S.P.map(function(p,i){var cur=S.mode=='relay'||i==w;return '<div class="fl-p'+(cur?' cur':'')+'"><i>'+AVH(p.e)+'</i><b>'+esc(p.n)+'</b><span'+(i==w?' class="fx-sc"':'')+'>⚡ '+S.sc[i]+'</span></div>'}).join('')+'</div>';
  return '<div class="arena g-flash fl2">'+tube
-  +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span>'+esc(bname(gcfg(),q.b))+'</span>':'')+'</div></div>'
+  +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+sayB(q)+stars(q.l)+(q.b?'<span>'+esc(bname(gcfg(),q.b))+'</span>':'')+'</div></div>'
   +'<div class="qcard fl-bar'+qClass(q)+'"><p class="qtext">'+esc(q.q)+'</p><div class="fl-time" id="fltime" aria-label="Thời gian còn lại">00:'+('0'+S.g.time).slice(-2)+'</div><div class="fbar" aria-hidden="true"><i id="fbar"></i></div></div>'
   +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
   +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>';
@@ -567,15 +580,18 @@ function sqMood(m){var s=$('#sqav span');if(s&&Q)s.innerHTML=AVH(Q.p.e,m,'full')
 function sqAsk(){
  setScreen('play');document.body.setAttribute('data-game','squid');
  var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();Q.armed=false;Q.calm=0;Q.hv=null;
+ /* Loa đọc đúng chữ trên các phiến đá (2–4 phiến, thứ tự khác với đề gốc) */
+ var qv=q.t=='mc'?Object.assign({},q,{o:Q.o.map(function(x){return x.t})}):q;
  var keep=Q.cam?document.getElementById('sqcam'):null;
  /* Sàn chơi tràn màn hình ở trên, câu hỏi nằm ở dưới */
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+AVH(Q.p.e)+' '+esc(Q.p.n)+'</span></div>'
- +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+'<span class="sq-hint">'+(Q.cam?'Giữ động tác 1 giây để nhảy lên phiến đá: ↩️ quay trái · ↪️ quay phải · 👏 vỗ tay · 🙇 cúi người':'Chạm phiến đá có đáp án đúng để nhảy lên')+'</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
+ +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+sayB(qv)+stars(q.l)+'<span class="sq-hint">'+(Q.cam?'Giữ động tác 1 giây để nhảy lên phiến đá: ↩️ quay trái · ↪️ quay phải · 👏 vỗ tay · 🙇 cúi người':'Chạm phiến đá có đáp án đúng để nhảy lên')+'</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
  +'<div id="fb" class="fb" role="status"></div></div></div>';
  document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
  fitPlay();sqSize();sqFitText();sqShift(Q.i,false);sqAvTo(sqStand(),false);
- requestAnimationFrame(function(){requestAnimationFrame(function(){sqShift(Q.i+1,true)})});
+ requestAnimationFrame(function(){requestAnimationFrame(function(){if(Q)sqShift(Q.i+1,true)})});
  if(Q.cam)sqCamMount(keep);
+ sayAuto(qv);
  clearInterval(qt);setRing(30,30);qt=setInterval(sqTick,100);
 }
 /* ----- Vượt cầu bằng động tác qua camera: khung camera nhỏ ở góc sân chơi, giữ nguyên giữa các tầng ----- */
@@ -674,6 +690,7 @@ document.addEventListener('click',function(e){
  case 'game':st.game=v;snd('tap');menu();break;
  case 'milcam':st.milcam=v=='1';save('dtk_milcam',st.milcam);menu();break;
  case 'mcgo':milCamReady();break;
+ case 'say':if(window.DTKSAY)DTKSAY.say(v);break;
  case 'sqcam':st.sqcam=v=='1';save('dtk_sqcam',st.sqcam);menu();break;
  case 'sqgo':sqCamReady();break;
  case 'sqflip':if(Q&&Q.cam){st.skface=st.skface=='user'?'environment':'user';save('dtk_skface',st.skface);sqCamStart()}break;
@@ -711,7 +728,7 @@ document.addEventListener('keydown',function(e){
 /* Giao tiếp với trò Nhảy bao bố (sack.js) */
 window.DTKAPI={st:st,GR:GR,AV:AV,LADDER:LADDER,roster:roster,setRoster:setRoster,scopeSelect:scopeSelect,scopeInfo:scopeInfo,bank:bank,award:award,rewardHTML:rewardHTML,celebrate:celebrate,snd:snd,numVal:numVal,fmt:fmt,ring:ring,setRing:setRing,qClass:qClass,home:home,gradeScreen:gradeScreen,header:header,stopAll:stopAll,loadGrade:loadGrade,
  setG:function(g){g=gkey(g);if(g){st.g=g;st.subj=GR[g].subj;save('dtk_grade',st.g);header()}},glab:glab,
- skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
+ skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars,sayB:sayB,sayAuto:sayAuto};
 
 /* ================= KHỞI ĐỘNG ================= */
 header();netGate();

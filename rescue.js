@@ -212,7 +212,8 @@ function ask(){
  var em=function(k){return cam?'<em><i>'+GES[k][0]+'</i>'+GES[k][1]+'</em>':''};
  var opts=q.t=='mc'?q.o.map(function(o,i){return '<button class="rs-opt'+(cam?' cam':'')+'" '+(cam?'':'data-act="rsans" ')+'data-v="'+i+'"><b>'+'ABCD'[i]+'</b><span>'+esc(o)+'</span>'+em(KEY[i])+'</button>'}).join('')
   :'<button class="rs-opt'+(cam?' cam':'')+'" '+(cam?'':'data-act="rsans" ')+'data-v="1"><b>A</b><span>Đúng</span>'+em('L')+'</button><button class="rs-opt'+(cam?' cam':'')+'" '+(cam?'':'data-act="rsans" ')+'data-v="0"><b>B</b><span>Sai</span>'+em('R')+'</button>';
- $('rsSide').innerHTML='<div class="rs-q"><small>Câu '+(S.ok+S.wrong+1)+' · '+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+'</small><p>'+esc(q.q)+'</p></div><div class="rs-opts">'+opts+'</div><div class="rs-fb" id="rsFb" role="status">'+(cam?'Giữ động tác khoảng 1 giây để chốt đáp án.':'Chạm vào đáp án em chọn.')+'</div>';
+ $('rsSide').innerHTML='<div class="rs-q"><small>Câu '+(S.ok+S.wrong+1)+' · '+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+(A.sayB?' '+A.sayB(q):'')+'</small><p>'+esc(q.q)+'</p></div><div class="rs-opts">'+opts+'</div><div class="rs-fb" id="rsFb" role="status">'+(cam?'Giữ động tác khoảng 1 giây để chốt đáp án.':'Chạm vào đáp án em chọn.')+'</div>';
+ if(A.sayAuto)A.sayAuto(q);
  S.lock=false;S.armed=false;S.calm=0;S.hv=null;
 }
 function pick(v){

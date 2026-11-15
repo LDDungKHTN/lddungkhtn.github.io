@@ -36,7 +36,7 @@ function roomHome(){
  app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="'+(g?'home':'grade')+'">◀ Quay lại</button><h2>🌐 Phòng chơi trực tuyến</h2></div>'
  +'<p class="muted">Mỗi bạn dùng điện thoại hoặc máy tính của mình, vào cùng một phòng để thi đấu trực tiếp. Cần kết nối Internet.</p>'
  +'<div class="rm-two">'
- +'<section class="panel"><h3>🎤 Tạo phòng</h3>'+(g?'<p>Thầy cô hoặc một bạn làm <b>chủ phòng</b>: chọn trò chơi, phạm vi câu hỏi lớp '+g+', rồi chiếu mã phòng cho cả lớp.</p><button class="btn big" data-act="rmnew">Tạo phòng lớp '+g+'</button>':'<p>Hãy chọn lớp trước để lấy câu hỏi.</p><button class="btn" data-act="grade">Chọn lớp</button>')+'</section>'
+ +'<section class="panel"><h3>🎤 Tạo phòng</h3>'+(g?'<p>Thầy cô hoặc một bạn làm <b>chủ phòng</b>: chọn trò chơi, phạm vi câu hỏi '+A.glab(g)+', rồi chiếu mã phòng cho cả lớp.</p><button class="btn big" data-act="rmnew">Tạo phòng '+A.glab(g)+'</button>':'<p>Hãy chọn môn và lớp trước để lấy câu hỏi.</p><button class="btn" data-act="grade">Chọn lớp</button>')+'</section>'
  +'<section class="panel"><h3>🙋 Vào phòng</h3><p>Nhập mã phòng do chủ phòng đọc hoặc chiếu trên màn hình.</p><div class="row"><input id="jcode" maxlength="5" placeholder="Mã phòng" aria-label="Mã phòng" autocomplete="off" autocapitalize="characters"><button class="btn" data-act="rmjoin">Vào phòng</button></div></section>'
  +'</div>';
 }
@@ -45,7 +45,7 @@ function roomHome(){
 function hostSetup(){
  A.stopAll();A.setScreen('room');
  var keep=R&&R.role=='host';
- app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="'+(keep?'rmlobby':'room')+'">◀ Quay lại</button><h2>🎤 '+(keep?'Ván mới – phòng '+R.code:'Tạo phòng lớp '+A.st.g)+'</h2></div>'
+ app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="'+(keep?'rmlobby':'room')+'">◀ Quay lại</button><h2>🎤 '+(keep?'Ván mới – phòng '+R.code:'Tạo phòng '+A.glab(A.st.g))+'</h2></div>'
  +'<section class="panel"><h3>① Trò chơi</h3><div class="games">'+Object.keys(RG).map(function(id){var x=RG[id];return '<button class="game'+(id==cfg.game?' on':'')+'" data-act="rmgame" data-v="'+id+'"><span class="gi">'+x.ico+'</span><b>'+x.name+'</b><small>'+x.d+'</small></button>'}).join('')+'</div></section>'
  +'<section class="panel"><h3>② Phạm vi câu hỏi</h3>'+A.scopeSelect()+'</section>'
  +'<section class="panel"><h3>③ Số câu</h3><div class="chips">'+[5,10,15,20].map(function(n){return '<button class="chip'+(cfg.n==n?' on':'')+'" data-act="rmn" data-v="'+n+'">'+n+' câu</button>'}).join('')+'</div></section>'
@@ -123,7 +123,7 @@ function hostLobby(){
  +'<p class="small">Vào <b>'+esc(location.host+location.pathname)+'</b> → nhập mã, hoặc quét mã QR.</p><button class="btn ghost sm" data-act="rmcopy">📋 Chép đường link mời</button></section>'
  +'<section class="panel"><h3>👥 '+ps.length+' người đã vào'+(g.team?' · bấm vào tên để đổi đội':'')+'</h3>'
  +(g.team?'<div class="rm-teams"><div class="tb"><b>ĐỘI XANH</b>'+chips(ps,'b')+'</div><div class="tr"><b>ĐỘI ĐỎ</b>'+chips(ps,'r')+'</div></div>':'<div class="chips">'+(chips(ps)||'<em class="muted">Đang chờ người chơi vào phòng…</em>')+'</div>')
- +'<p class="muted small">Lớp '+R.grade+' · '+esc(A.scopeInfo()?A.scopeInfo().name:'Tất cả các bài')+' · '+cfg.n+' câu</p>'
+ +'<p class="muted small">'+A.glab(R.grade)+' · '+esc(A.scopeInfo()?A.scopeInfo().name:'Tất cả các bài')+' · '+cfg.n+' câu</p>'
  +'<div class="cta"><button class="btn big" data-act="rmstart"'+(ps.length<(g.team?2:1)?' disabled':'')+'>▶ Bắt đầu</button><button class="btn ghost" data-act="rmsetup">Đổi trò / phạm vi</button></div></section></div>';
  loadJS(QRJS,function(){return !!window.qrcode}).then(function(){var el=$('#rmqr');if(el&&R)el.innerHTML=qrSvg(R.code)}).catch(function(){});
 }

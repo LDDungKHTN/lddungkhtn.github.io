@@ -18,6 +18,29 @@ var GR={
 9:{n:9,files:['cauhoi-l9-hk1.js','cauhoi-l9-hk2.js'],tag:'Năng lượng, ánh sáng, điện, điện từ · Kim loại, hợp chất hữu cơ, tài nguyên · Di truyền, tiến hoá',
  bai:['Nhận biết một số dụng cụ, hoá chất. Thuyết trình một vấn đề khoa học','Động năng. Thế năng','Cơ năng','Công và công suất','Khúc xạ ánh sáng','Phản xạ toàn phần','Lăng kính','Thấu kính','Thực hành đo tiêu cự của thấu kính hội tụ','Kính lúp. Bài tập thấu kính','Điện trở. Định luật Ohm','Đoạn mạch nối tiếp, song song','Năng lượng của dòng điện và công suất điện','Cảm ứng điện từ. Nguyên tắc tạo ra dòng điện xoay chiều','Tác dụng của dòng điện xoay chiều','Vòng năng lượng trên Trái Đất. Năng lượng hoá thạch','Một số dạng năng lượng tái tạo','Tính chất chung của kim loại','Dãy hoạt động hoá học','Tách kim loại và việc sử dụng hợp kim','Sự khác nhau cơ bản giữa phi kim và kim loại','Giới thiệu về hợp chất hữu cơ','Alkane','Alkene','Nguồn nhiên liệu','Ethylic alcohol','Acetic acid','Lipid','Carbohydrate. Glucose và saccharose','Tinh bột và cellulose','Protein','Polymer','Sơ lược về hoá học vỏ Trái Đất và khai thác tài nguyên từ vỏ Trái Đất','Khai thác đá vôi. Công nghiệp silicate','Khai thác nhiên liệu hoá thạch. Nguồn carbon. Chu trình carbon và sự ấm lên toàn cầu','Khái quát về di truyền học','Các quy luật di truyền của Mendel','Nucleic acid và gene','Tái bản DNA và phiên mã tạo RNA','Dịch mã và mối quan hệ từ gene đến tính trạng','Đột biến gene','Nhiễm sắc thể và bộ nhiễm sắc thể','Nguyên phân và giảm phân','Nhiễm sắc thể giới tính và cơ chế xác định giới tính','Di truyền liên kết','Đột biến nhiễm sắc thể','Di truyền học với con người','Ứng dụng công nghệ di truyền vào đời sống','Khái niệm tiến hoá và các hình thức chọn lọc','Cơ chế tiến hoá','Sự phát sinh và phát triển sự sống trên Trái Đất'],
  ch:[['Mở đầu',1,1],['Chương I. Năng lượng cơ học',2,4],['Chương II. Ánh sáng',5,10],['Chương III. Điện',11,13],['Chương IV. Điện từ',14,15],['Chương V. Năng lượng với cuộc sống',16,17],['Chương VI. Kim loại. Sự khác nhau cơ bản giữa phi kim và kim loại',18,21],['Chương VII. Giới thiệu về chất hữu cơ. Hydrocarbon và nguồn nhiên liệu',22,25],['Chương VIII. Ethylic alcohol và acetic acid',26,27],['Chương IX. Lipid. Carbohydrate. Protein. Polymer',28,32],['Chương X. Khai thác tài nguyên từ vỏ Trái Đất',33,35],['Chương XI. Di truyền học Mendel. Cơ sở phân tử của hiện tượng di truyền',36,41],['Chương XII. Di truyền nhiễm sắc thể',42,46],['Chương XIII. Di truyền học với con người và đời sống',47,48],['Chương XIV. Tiến hoá',49,51]]}};
+/* ================= CÁC MÔN HỌC =================
+   KHTN dùng khoá lớp là số (6–9). Môn khác dùng khoá chữ (ls8 = Lịch sử và Địa lí 8).
+   bn: tên hiển thị của từng bài (phân môn Lịch sử và Địa lí đánh số bài riêng trong sách). */
+var SUBJ=[
+ {id:'khtn',ico:'🔬',name:'Khoa học tự nhiên',short:'KHTN',keys:[6,7,8,9]},
+ {id:'ls',ico:'🌏',name:'Lịch sử và Địa lí',short:'Sử – Địa',keys:['ls6','ls7','ls8','ls9']}];
+[6,7,8,9].forEach(function(g){GR[g].subj='khtn'});
+GR.ls6={n:6,subj:'ls',soon:1,files:[],tag:'Xã hội nguyên thuỷ, cổ đại · Bản đồ, Trái Đất, các thành phần tự nhiên',bai:[],ch:[]};
+GR.ls7={n:7,subj:'ls',soon:1,files:[],tag:'Tây Âu, Trung Quốc, Ấn Độ, Đông Nam Á trung đại · Việt Nam thế kỉ X–XVI · Các châu lục',bai:[],ch:[]};
+GR.ls9={n:9,subj:'ls',soon:1,files:[],tag:'Thế giới và Việt Nam 1918 đến nay · Địa lí dân cư, kinh tế, vùng Việt Nam',bai:[],ch:[]};
+GR.ls8={n:8,subj:'ls',files:['cauhoi-ls8.js'],tag:'Châu Âu, châu Á, Việt Nam thế kỉ XVI – đầu thế kỉ XX · Tự nhiên Việt Nam, biển đảo Việt Nam',
+ bai:['Cách mạng tư sản Anh và Chiến tranh giành độc lập của 13 thuộc địa Anh ở Bắc Mỹ','Cách mạng tư sản Pháp cuối thế kỉ XVIII','Cách mạng công nghiệp (nửa sau thế kỉ XVIII – giữa thế kỉ XIX)','Đông Nam Á từ nửa sau thế kỉ XVI đến giữa thế kỉ XIX','Cuộc xung đột Nam – Bắc triều và Trịnh – Nguyễn','Công cuộc khai phá vùng đất phía Nam từ thế kỉ XVI đến thế kỉ XVIII','Khởi nghĩa nông dân ở Đàng Ngoài thế kỉ XVIII','Phong trào Tây Sơn','Tình hình kinh tế, văn hoá, tôn giáo trong các thế kỉ XVI – XVIII','Sự hình thành chủ nghĩa đế quốc ở các nước Âu – Mỹ (cuối thế kỉ XIX – đầu thế kỉ XX)','Phong trào công nhân từ cuối thế kỉ XVIII đến đầu thế kỉ XX và sự ra đời của chủ nghĩa xã hội khoa học','Chiến tranh thế giới thứ nhất (1914 – 1918) và Cách mạng tháng Mười Nga năm 1917','Sự phát triển của khoa học, kĩ thuật, văn học, nghệ thuật trong các thế kỉ XVIII – XIX','Trung Quốc và Nhật Bản từ nửa sau thế kỉ XIX đến đầu thế kỉ XX','Ấn Độ và Đông Nam Á từ nửa sau thế kỉ XIX đến đầu thế kỉ XX','Việt Nam dưới thời Nguyễn (nửa đầu thế kỉ XIX)','Cuộc kháng chiến chống thực dân Pháp xâm lược từ năm 1858 đến năm 1884','Phong trào chống Pháp trong những năm 1885 – 1896','Phong trào yêu nước chống Pháp ở Việt Nam từ đầu thế kỉ XX đến năm 1917',
+  'Vị trí địa lí và phạm vi lãnh thổ Việt Nam','Địa hình Việt Nam','Khoáng sản Việt Nam','Khí hậu Việt Nam','Thực hành: Vẽ và phân tích biểu đồ khí hậu','Thuỷ văn Việt Nam','Vai trò của tài nguyên khí hậu và tài nguyên nước đối với sự phát triển kinh tế – xã hội của nước ta','Tác động của biến đổi khí hậu đối với khí hậu và thuỷ văn Việt Nam','Thổ nhưỡng Việt Nam','Sinh vật Việt Nam','Phạm vi Biển Đông. Vùng biển đảo và đặc điểm tự nhiên vùng biển đảo Việt Nam','Môi trường và tài nguyên biển đảo Việt Nam',
+  'Văn minh châu thổ sông Hồng và sông Cửu Long','Bảo vệ chủ quyền, các quyền và lợi ích hợp pháp của Việt Nam ở Biển Đông'],
+ bn:(function(){var a=[];for(var i=1;i<=19;i++)a.push('Sử – Bài '+i);for(i=1;i<=12;i++)a.push('Địa – Bài '+i);a.push('Chủ đề chung 1','Chủ đề chung 2');return a})(),
+ ch:[['Lịch sử – Chương 1. Châu Âu và Bắc Mỹ từ nửa sau thế kỉ XVI đến thế kỉ XVIII',1,3],['Lịch sử – Chương 2. Đông Nam Á từ nửa sau thế kỉ XVI đến giữa thế kỉ XIX',4,4],['Lịch sử – Chương 3. Việt Nam từ đầu thế kỉ XVI đến thế kỉ XVIII',5,9],['Lịch sử – Chương 4. Châu Âu và nước Mỹ từ cuối thế kỉ XVIII đến đầu thế kỉ XX',10,12],['Lịch sử – Chương 5. Sự phát triển của khoa học, kĩ thuật, văn học, nghệ thuật trong các thế kỉ XVIII – XIX',13,13],['Lịch sử – Chương 6. Châu Á từ nửa sau thế kỉ XIX đến đầu thế kỉ XX',14,15],['Lịch sử – Chương 7. Việt Nam từ thế kỉ XIX đến đầu thế kỉ XX',16,19],
+  ['Địa lí – Chương 1. Vị trí địa lí và phạm vi lãnh thổ, địa hình và khoáng sản Việt Nam',20,22],['Địa lí – Chương 2. Khí hậu và thuỷ văn Việt Nam',23,27],['Địa lí – Chương 3. Thổ nhưỡng và sinh vật Việt Nam',28,29],['Địa lí – Chương 4. Biển đảo Việt Nam',30,31],['Chủ đề chung',32,33]]};
+function subjOf(g){var id=GR[g]&&GR[g].subj||'khtn';for(var i=0;i<SUBJ.length;i++)if(SUBJ[i].id==id)return SUBJ[i];return SUBJ[0]}
+/* Nhãn ngắn của một lớp: "Lớp 8" (KHTN) hoặc "Sử – Địa 8" */
+function glab(g){var c=GR[g];if(!c)return '';return c.subj=='khtn'?'Lớp '+c.n:subjOf(g).short+' '+c.n}
+/* Chuẩn hoá khoá lớp: "8" → 8 (KHTN), "ls8" giữ nguyên; khoá lạ → 0 */
+function gkey(g){if(g==null||g==='')return 0;var n=+g;if(isFinite(n)&&GR[n])return n;return GR[g]?String(g):0}
+function bname(c,b){return (c.bn&&c.bn[b-1]?c.bn[b-1]:'Bài '+b)}
 var GAMES={
  mil:{ico:'💰',name:'Ai là triệu phú',pick:['mc'],n:10,time:30,d:'10 câu từ dễ đến khó, tiền thưởng tăng dần, có quyền trợ giúp 50:50 và Đổi câu hỏi.'},
  flash:{ico:'⚡',name:'Nhanh như chớp',pick:['tf','mc'],n:10,time:10,d:'Đúng/sai và trắc nghiệm, mỗi câu 10 giây, trả lời càng nhanh điểm càng cao.'},
@@ -48,11 +71,11 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=52;
+var APPV=53;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
-  o.innerHTML='<div class="offbox"><div class="offic">📡</div><h2>Cần kết nối Internet</h2><p>Đấu trường KHTN chỉ chơi được khi có mạng. Hãy bật Wi-Fi hoặc dữ liệu di động, trò chơi sẽ tự mở lại.</p><button class="btn" data-act="netretry">Thử lại</button></div>';
+  o.innerHTML='<div class="offbox"><div class="offic">📡</div><h2>Cần kết nối Internet</h2><p>Đấu trường Tri thức chỉ chơi được khi có mạng. Hãy bật Wi-Fi hoặc dữ liệu di động, trò chơi sẽ tự mở lại.</p><button class="btn" data-act="netretry">Thử lại</button></div>';
   document.body.appendChild(o)}
  else if(!off&&o)o.remove();
 }
@@ -90,7 +113,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),rscam:load('dtk_rscam',true)!==false,g:+load('dtk_grade',0)||0,mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),rscam:load('dtk_rscam',true)!==false,g:gkey(load('dtk_grade',0)),subj:load('dtk_subj','khtn'),mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
@@ -124,24 +147,27 @@ function celebrate(res){var n=0;res.forEach(function(r){n+=r.nb.length+(r.up?1:0
 /* ================= HEADER & ĐIỀU HƯỚNG ================= */
 function header(){
  var c=$('#gchip');if(!c)return;
- if(st.g){c.hidden=false;c.className='gchip g'+st.g;c.innerHTML='Lớp '+st.g+' <span aria-hidden="true">⇄</span>';c.setAttribute('aria-label','Đang chọn lớp '+st.g+'. Bấm để đổi lớp')}else c.hidden=true;
+ if(st.g){var n=GR[st.g].n;c.hidden=false;c.className='gchip g'+n;c.innerHTML=glab(st.g)+' <span aria-hidden="true">⇄</span>';c.setAttribute('aria-label','Đang chọn '+subjOf(st.g).name+' lớp '+n+'. Bấm để đổi môn hoặc lớp')}else c.hidden=true;
 }
 function stopAll(){clearInterval(tm);tm=null;if(window.DTKSACK)DTKSACK.stop();if(window.DTKRESCUE)DTKRESCUE.stop();document.body.classList.remove('sk-on');var o=$('.ovl');if(o)o.remove()}
 
 /* ================= MÀN CHỌN LỚP ================= */
 function gradeScreen(){
  stopAll();setScreen('grade');header();
+ var sj=SUBJ.filter(function(x){return x.id==st.subj})[0]||SUBJ[0];
  var card=function(g){var c=GR[g],n=BANK[g]&&!LOADING[g]?BANK[g].length:0;
-  return '<button class="door g'+g+(st.g==g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+g+'</span><span class="dl"><b>Lớp '+g+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+' bài':c.bai.length+' bài')+'</em></span></button>'};
- app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập Khoa học tự nhiên</div><h1 class="title">ĐẤU TRƯỜNG<span>KHTN</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn lớp của bạn để bước lên sân khấu!</p></section><div class="doors">'+[6,7,8,9].map(card).join('')+'</div>'
+  return '<button class="door g'+c.n+(st.g===g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+c.n+'</span><span class="dl"><b>Lớp '+c.n+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+' bài':c.bai.length+' bài')+'</em></span></button>'};
+ app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập cho học sinh THCS</div><h1 class="title">ĐẤU TRƯỜNG<span>TRI THỨC</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn môn học và lớp của bạn để bước lên sân khấu!</p></section>'
+ +'<div class="subjs" role="tablist" aria-label="Chọn môn học">'+SUBJ.map(function(x){return '<button class="subj'+(x===sj?' on':'')+'" role="tab" aria-selected="'+(x===sj)+'" data-act="subj" data-v="'+x.id+'"><span>'+x.ico+'</span>'+x.name+'</button>'}).join('')+'</div>'
+ +'<div class="doors">'+sj.keys.map(card).join('')+'</div>'
  +'<section class="panel joinbox"><h3>🌐 Có mã phòng chơi?</h3><div class="row"><input id="jcode" maxlength="5" placeholder="Nhập mã phòng (5 kí tự)" aria-label="Mã phòng" autocomplete="off" autocapitalize="characters"><button class="btn" data-act="rmjoin">Vào phòng</button></div><p class="muted small">Thầy cô hoặc bạn tạo phòng sẽ đọc mã, chiếu mã QR hoặc gửi đường link cho bạn.</p></section>';
- [6,7,8,9].forEach(function(g){if(!BANK[g]&&!LOADING[g])loadGrade(g,function(){if(document.body.getAttribute('data-scr')=='grade')gradeScreen()})});
+ sj.keys.forEach(function(g){if(!GR[g].files.length)return;if(!BANK[g]&&!LOADING[g])loadGrade(g,function(){if(document.body.getAttribute('data-scr')=='grade')gradeScreen()})});
 }
 function openGrade(g){
- g=+g;var c=GR[g];if(!c)return;
+ g=gkey(g);var c=GR[g];if(!c)return;
  var go=function(){
-  if(c.soon&&!(BANK[g]||[]).length){alert('Câu hỏi lớp '+g+' đang được soạn, thầy cô sẽ cập nhật sớm. Bạn hãy chọn lớp khác nhé!');return gradeScreen()}
-  st.g=g;save('dtk_grade',g);st.sel=[];st.scope='0';st.rvp=-1;home();
+  if(c.soon&&!(BANK[g]||[]).length){alert('Câu hỏi '+subjOf(g).name+' lớp '+c.n+' đang được soạn, thầy cô sẽ cập nhật sớm. Bạn hãy chọn lớp khác nhé!');return gradeScreen()}
+  st.g=g;save('dtk_grade',g);st.subj=c.subj;save('dtk_subj',c.subj);st.sel=[];st.scope='0';st.rvp=-1;home();
  };
  loadGrade(g,go);
 }
@@ -150,7 +176,7 @@ function openGrade(g){
 function home(){
  stopAll();setScreen('home');header();
  var r=roster(),c=gcfg();
- app.innerHTML='<section class="hero"><div class="eyebrow g'+st.g+'">Lớp '+st.g+' · '+bank().length+' câu hỏi · '+c.bai.length+' bài</div><h1 class="title">ĐẤU TRƯỜNG<span>KHTN '+st.g+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
+ app.innerHTML='<section class="hero"><div class="eyebrow g'+c.n+'">'+subjOf(st.g).name+' · Lớp '+c.n+' · '+bank().length+' câu hỏi · '+c.bai.length+' bài</div><h1 class="title">ĐẤU TRƯỜNG<span>'+subjOf(st.g).short.toUpperCase()+' '+c.n+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
  +'<section class="panel"><h2>🎤 Ghi danh thí sinh</h2>'
  +'<div class="row"><input id="nm" maxlength="16" placeholder="Tên của bạn" aria-label="Tên của bạn" autocomplete="off"><button class="btn" data-act="reg">Ghi danh</button></div>'
  +'<div class="avs" role="group" aria-label="Chọn biểu tượng">'+AV.map(function(e){return '<button class="av'+(e==st.av?' on':'')+'" data-act="av" data-v="'+e+'" aria-label="Chọn '+(window.AVNAME?AVNAME(e):e)+'">'+AVH(e)+'</button>'}).join('')+'</div>'
@@ -167,7 +193,7 @@ function home(){
 function scopeInfo(){
  var s=String(st.scope),c=gcfg();
  if(s.charAt(0)=='c'){var r=c.ch[+s.slice(1)];if(r)return{name:r[0],f:function(q){return q.b>=r[1]&&q.b<=r[2]}}}
- else if(+s&&c.bai[+s-1]){var b=+s;return{name:'Bài '+b+'. '+c.bai[b-1],f:function(q){return q.b==b}}}
+ else if(+s&&c.bai[+s-1]){var b=+s;return{name:bname(c,b)+'. '+c.bai[b-1],f:function(q){return q.b==b}}}
  return null;
 }
 function scopeName(){var s=scopeInfo();return s?s.name:'Tất cả các bài'}
@@ -176,7 +202,7 @@ function scopeSelect(){
  var cnt={},B=bank(),c=gcfg();B.forEach(function(q){cnt[q.b]=(cnt[q.b]||0)+1});
  var h='<select id="scope" aria-label="Phạm vi câu hỏi"><option value="0">🌐 Tất cả các bài ('+B.length+' câu)</option>';
  c.ch.forEach(function(r,i){var n=0;for(var b=r[1];b<=r[2];b++)n+=cnt[b]||0;h+='<optgroup label="'+esc(r[0])+'"><option value="c'+i+'"'+(st.scope=='c'+i?' selected':'')+'>📘 Cả chương: '+esc(r[0].replace(/^Chương [IVXL]+\. /,''))+' ('+n+' câu)</option>';
-  for(b=r[1];b<=r[2];b++){var k=cnt[b]||0;h+='<option value="'+b+'"'+(String(st.scope)==String(b)?' selected':'')+(k?'':' disabled')+'>Bài '+b+'. '+esc(c.bai[b-1])+' ('+(k?k+' câu':'đang soạn')+')</option>'}
+  for(b=r[1];b<=r[2];b++){var k=cnt[b]||0;h+='<option value="'+b+'"'+(String(st.scope)==String(b)?' selected':'')+(k?'':' disabled')+'>'+esc(bname(c,b))+'. '+esc(c.bai[b-1])+' ('+(k?k+' câu':'đang soạn')+')</option>'}
   h+='</optgroup>'});
  return h+'</select>';
 }
@@ -288,7 +314,7 @@ function ask(){
  app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát ván chơi">✕</button><span class="gname">'+g.ico+' '+g.name+'</span><span class="qn">Câu '+(S.i+1)+'/'+S.qs.length+'</span>'+(S.rv?'':'<span class="turn">'+AVH(p.e)+' '+esc(p.n)+(team?' cầm gậy':'')+'</span>')+'<span class="scores">'+score+'</span></div>'
  +(fl?flashArena(q,w):'<div class="arena g-'+(S.rv?'rv':S.id)+(mil?' has-ladder':'')+'">'+ladder
  +(mil?'<div class="tools life">'+(S.fifty&&q.t=='mc'?'<button class="lf" data-act="fifty" aria-label="Trợ giúp 50:50">50:50</button>':'<span class="lf used">50:50</span>')+(S.swap&&S.spare.length?'<button class="lf" data-act="swap" aria-label="Đổi câu hỏi">⇄</button>':'<span class="lf used">⇄</span>')+'</div>'+(S.cam?'<div class="mil-stage cam"><div id="gcslot"></div></div>':'<div class="mil-stage" aria-hidden="true"><i></i></div>'):'')
- +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">Bài '+q.b+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
+ +'<div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span class="muted">'+esc(bname(gcfg(),q.b))+'</span>':'')+(mil?'<span class="prize">💰 '+LADDER[S.i].toLocaleString('vi-VN')+'</span>':'')+(fl?'<span class="fx-sc">⚡ '+S.sc[w]+'</span>':'')+'</div>'+(S.rv?'':ring())+'<p class="qtext">'+esc(q.q)+'</p>'+(fl?'<div class="fbar" aria-hidden="true"><i id="fbar"></i></div>':'')+'</div>'
  +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
  +(mil?'':'<div class="tools"></div>')
  +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>');
@@ -302,7 +328,7 @@ function flashArena(q,w){
  var tube='<ol class="fl-tube" aria-label="Tiến độ câu hỏi">'+S.qs.map(function(x,i){return '<li class="'+(i==S.i?'cur':i<S.i?'done':'')+'">'+(i+1)+'</li>'}).join('')+'</ol>';
  var ppl='<div class="fl-who">'+S.P.map(function(p,i){var cur=S.mode=='relay'||i==w;return '<div class="fl-p'+(cur?' cur':'')+'"><i>'+AVH(p.e)+'</i><b>'+esc(p.n)+'</b><span'+(i==w?' class="fx-sc"':'')+'>⚡ '+S.sc[i]+'</span></div>'}).join('')+'</div>';
  return '<div class="arena g-flash fl2">'+tube
-  +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span>Bài '+q.b+'</span>':'')+'</div></div>'
+  +'<div class="fl-stage">'+ppl+'<div class="fl-meta"><span class="pill">'+esc(q.c)+'</span>'+stars(q.l)+(q.b?'<span>'+esc(bname(gcfg(),q.b))+'</span>':'')+'</div></div>'
   +'<div class="qcard fl-bar'+qClass(q)+'"><p class="qtext">'+esc(q.q)+'</p><div class="fl-time" id="fltime" aria-label="Thời gian còn lại">00:'+('0'+S.g.time).slice(-2)+'</div><div class="fbar" aria-hidden="true"><i id="fbar"></i></div></div>'
   +'<div class="answers'+(q.t=='tf'?' two':'')+'">'+optsHTML(q,'ans')+'</div>'
   +'<div id="fb" class="fb" role="status" aria-live="polite"></div></div>';
@@ -462,7 +488,7 @@ function showLB(game,el){
 var lbGame='mil';
 function lbScreen(){
  stopAll();setScreen('lb');header();
- app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="home">◀ Quay lại</button><h2>🏆 Bảng vàng lớp '+st.g+'</h2></div><div class="chips">'+['mil','flash','num'].map(function(id){return '<button class="chip'+(lbGame==id?' on':'')+'" data-act="lbg" data-v="'+id+'">'+GAMES[id].ico+' '+GAMES[id].name+'</button>'}).join('')+'</div><div id="lbx"></div><p class="muted small">Điểm chỉ lưu trên máy này.</p>';
+ app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="home">◀ Quay lại</button><h2>🏆 Bảng vàng '+glab(st.g)+'</h2></div><div class="chips">'+['mil','flash','num'].map(function(id){return '<button class="chip'+(lbGame==id?' on':'')+'" data-act="lbg" data-v="'+id+'">'+GAMES[id].ico+' '+GAMES[id].name+'</button>'}).join('')+'</div><div id="lbx"></div><p class="muted small">Điểm chỉ lưu trên máy này.</p>';
  showLB(lbGame,$('#lbx'));
 }
 
@@ -588,6 +614,7 @@ document.addEventListener('click',function(e){
  if(window.DTKSACK&&DTKSACK.click(a,v,b))return;
  if(window.DTKRESCUE&&DTKRESCUE.click(a,v,b))return;
  switch(a){
+ case 'subj':st.subj=v;save('dtk_subj',v);snd('tap');gradeScreen();break;
  case 'rscam':st.rscam=v=='1';save('dtk_rscam',st.rscam);menu();break;
  case 'grade':if(document.body.classList.contains('playing')&&!confirm('Thoát ván chơi để đổi lớp?'))return;S=null;Q=null;gradeScreen();break;
  case 'pickg':snd('tap');openGrade(v);break;
@@ -635,7 +662,7 @@ document.addEventListener('keydown',function(e){
 
 /* Giao tiếp với trò Nhảy bao bố (sack.js) */
 window.DTKAPI={st:st,GR:GR,AV:AV,LADDER:LADDER,roster:roster,setRoster:setRoster,scopeSelect:scopeSelect,scopeInfo:scopeInfo,bank:bank,award:award,rewardHTML:rewardHTML,celebrate:celebrate,snd:snd,numVal:numVal,fmt:fmt,ring:ring,setRing:setRing,qClass:qClass,home:home,gradeScreen:gradeScreen,header:header,stopAll:stopAll,loadGrade:loadGrade,
- setG:function(g){if(GR[g]){st.g=+g;save('dtk_grade',st.g);header()}},
+ setG:function(g){g=gkey(g);if(g){st.g=g;st.subj=GR[g].subj;save('dtk_grade',st.g);header()}},glab:glab,
  skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars};
 
 /* ================= KHỞI ĐỘNG ================= */

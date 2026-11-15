@@ -7,7 +7,7 @@
   function msg(sec) {
     var h = sec.querySelector('h1,.wintxt'), p = sec.querySelector('p');
     var t = ((h ? h.textContent : '') + (p ? ' – ' + p.textContent : '')).replace(/\s+/g, ' ').trim();
-    return 'Mình vừa chơi Đấu trường KHTN' + (t ? ': ' + t : '') + '. Thử sức ôn Khoa học tự nhiên 6–9 cùng mình nhé!';
+    return 'Mình vừa chơi Đấu trường Tri thức' + (t ? ': ' + t : '') + '. Thử sức ôn Khoa học tự nhiên, Lịch sử và Địa lí cùng mình nhé!';
   }
   function add() {
     var sec = app.querySelector('section.result');
@@ -21,7 +21,7 @@
     sec.insertAdjacentElement('afterend', box);
     box.querySelector('[data-sh]').onclick = function () {
       var text = msg(sec), b = this;
-      if (navigator.share) { navigator.share({ title: 'Đấu trường KHTN', text: text, url: URL0 }).catch(function () {}); return; }
+      if (navigator.share) { navigator.share({ title: 'Đấu trường Tri thức', text: text, url: URL0 }).catch(function () {}); return; }
       try { navigator.clipboard.writeText(text + ' ' + URL0); b.textContent = '✅ Đã sao chép, dán vào Zalo/Facebook'; }
       catch (e) { prompt('Sao chép để chia sẻ:', text + ' ' + URL0); }
     };

@@ -683,3 +683,10 @@ body[data-game=squid] .sq-av i{bottom:-4px}
 .gc-box.mirror video.gc-bg{transform:scaleX(-1) scale(1.1)}
 .gc-box video.gc-sharp{-webkit-mask-image:radial-gradient(ellipse 24% 52% at 50% 52%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 24% 52% at 50% 52%,#000 72%,transparent 100%)}
 .gc-zone{position:absolute;left:26%;right:26%;top:3%;bottom:3%;border:2px dashed rgba(255,194,77,.55);border-radius:50% / 40%;pointer-events:none}
+/* Chọn môn học */
+.subjs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 2px}
+.subj{display:flex;align-items:center;gap:8px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:999px;padding:8px 18px;font:inherit;font-weight:800;font-size:16px;cursor:pointer}
+.subj span{font-size:20px}
+.subj.on{border-color:var(--gold,#FFD23F);background:rgba(255,210,63,.18);box-shadow:0 0 18px rgba(255,210,63,.35)}
+.lt b,.lt em{white-space:nowrap}
+@media(max-width:420px){.lt b{font-size:11px;letter-spacing:.12em}.lt em{font-size:19px}}

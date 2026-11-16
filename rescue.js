@@ -115,42 +115,60 @@ function css(){var o=$('rsCss');if(o)o.remove();var s=document.createElement('st
 /* ================= THÚ CƯNG CẦN GIẢI CỨU (SVG): cún con và mèo con =================
    mood: idle (sợ hãi, vẫy tay kêu cứu) · happy (vui) · sad (khóc) · win (được cứu, giơ hai tay) */
 function petSVG(kind,mood){
- var cat=kind=='cat',fur=cat?'#B8B9C9':'#E2A86A',dark=cat?'#7E8096':'#9A5F2E',light=cat?'#F1F1F6':'#FBE6C8',ink='#2B1B12',h='';
- /* Đuôi */
- h+=cat?'<path d="M86 168 C112 166 116 140 104 126" stroke="'+fur+'" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M106 132 l6 -3 M109 141 l6 0 M108 151 l6 2" stroke="'+dark+'" stroke-width="3"/>'
-  :'<path d="M86 166 C108 162 112 146 106 134" stroke="'+fur+'" stroke-width="9" fill="none" stroke-linecap="round" class="rs-tail"/>';
- /* Chân và thân */
- h+='<ellipse cx="45" cy="187" rx="13" ry="9" fill="'+fur+'"/><ellipse cx="75" cy="187" rx="13" ry="9" fill="'+fur+'"/>';
- h+='<ellipse cx="60" cy="150" rx="31" ry="36" fill="'+fur+'"/><ellipse cx="60" cy="157" rx="19" ry="25" fill="'+light+'"/>';
- if(cat)h+='<path d="M36 136 q8 -4 12 2 M34 152 q8 -4 12 2 M84 136 q-8 -4 -12 2 M86 152 q-8 -4 -12 2" stroke="'+dark+'" stroke-width="3" fill="none" stroke-linecap="round"/>';
- /* Vòng cổ: cún có thẻ tên, mèo có chuông */
- h+='<path d="M36 112 Q60 124 84 112" stroke="'+(cat?'#E84393':'#E74C3C')+'" stroke-width="7" fill="none" stroke-linecap="round"/>'+(cat?'<circle cx="60" cy="122" r="5.5" fill="#F7C948" stroke="#B7791F" stroke-width="1.5"/>':'<circle cx="60" cy="122" r="5.5" fill="#F7C948" stroke="#B7791F" stroke-width="1.5"/><text x="60" y="124.5" font-size="6" text-anchor="middle" fill="#7A4B0B" font-weight="700">♥</text>');
- /* Tay: sợ hãi thì vẫy một tay kêu cứu, được cứu thì giơ cả hai tay */
- var up='<path d="M36 132 Q20 112 22 92" stroke="'+fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="22" cy="90" r="8" fill="'+light+'"/>';
- var upR='<path d="M84 132 Q100 112 98 92" stroke="'+fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="98" cy="90" r="8" fill="'+light+'"/>';
- var down='<path d="M36 134 Q28 152 36 164" stroke="'+fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="37" cy="165" r="7.5" fill="'+light+'"/>';
- var downR='<path d="M84 134 Q92 152 84 164" stroke="'+fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="83" cy="165" r="7.5" fill="'+light+'"/>';
- h+=mood=='win'||mood=='happy'?up+upR:mood=='sad'?down+downR:'<g class="rs-wave">'+up+'</g>'+downR;
- /* Tai */
- if(cat)h+='<path d="M30 50 L34 14 L56 36Z" fill="'+fur+'"/><path d="M90 50 L86 14 L64 36Z" fill="'+fur+'"/><path d="M35 42 L37 22 L50 36Z" fill="#F6A6C1"/><path d="M85 42 L83 22 L70 36Z" fill="#F6A6C1"/>';
- /* Đầu */
- h+='<circle cx="60" cy="62" r="36" fill="'+fur+'"/>';
- if(cat)h+='<path d="M50 30 l3 10 M60 28 v11 M70 30 l-3 10" stroke="'+dark+'" stroke-width="3" stroke-linecap="round"/>';
- else h+='<ellipse cx="44" cy="52" rx="12" ry="10" fill="'+light+'" opacity=".55"/>';
- h+='<ellipse cx="60" cy="76" rx="20" ry="15" fill="'+light+'"/>';
- /* Tai cụp của cún (vẽ sau đầu để rủ xuống hai bên) */
- if(!cat)h+='<ellipse cx="25" cy="58" rx="11" ry="22" transform="rotate(18 25 58)" fill="'+dark+'"/><ellipse cx="95" cy="58" rx="11" ry="22" transform="rotate(-18 95 58)" fill="'+dark+'"/>';
+ /* Thú cưng ngồi, nhìn thẳng: đầu gắn liền cổ và thân, hai chân trước chống xuống (hoặc giơ lên vẫy), hai chân sau gập hai bên.
+    Lông có đổ bóng (gradient), mắt có màu và ánh sáng để trông thật hơn. */
+ var cat=kind=='cat',id=cat?'pc':'pd';
+ var C=cat?{fur:'#AEB0C4',furD:'#7F8299',furL:'#F4F4F8',stripe:'#6C6F87',nose:'#E3708F',iris:'#7CC242',irisD:'#3F7A1C'}
+  :{fur:'#D99A55',furD:'#A8682E',furL:'#FAE7CC',ear:'#7C4520',nose:'#2B1B12',iris:'#5A3418',irisD:'#2E1A0C'};
+ var ink='#2B1B12',happy=mood=='happy'||mood=='win',h='';
+ h+='<defs><radialGradient id="'+id+'f" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="'+C.furL+'" stop-opacity=".55"/><stop offset=".45" stop-color="'+C.fur+'"/><stop offset="1" stop-color="'+C.furD+'"/></radialGradient>'
+  +'<radialGradient id="'+id+'h" cx="40%" cy="32%" r="70%"><stop offset="0" stop-color="'+C.furL+'" stop-opacity=".6"/><stop offset=".5" stop-color="'+C.fur+'"/><stop offset="1" stop-color="'+C.furD+'"/></radialGradient>'
+  +'<radialGradient id="'+id+'i" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="'+C.iris+'"/><stop offset="1" stop-color="'+C.irisD+'"/></radialGradient></defs>';
+ var F='url(#'+id+'f)',H='url(#'+id+'h)',line=' stroke="'+C.furD+'" stroke-width="1.5"';
+ /* Đuôi (sau thân) */
+ h+=cat?'<path d="M84 176 C112 176 116 150 108 128 C104 118 98 120 101 128 C107 146 104 164 82 166Z" fill="'+F+'"'+line+'/><path d="M104 136 l7 -2 M106 148 l7 1 M103 160 l6 4" stroke="'+C.stripe+'" stroke-width="3" stroke-linecap="round"/>'
+  :'<path d="M86 170 C104 168 112 152 106 138 C103 132 98 134 100 140 C103 150 98 160 84 162Z" fill="'+F+'"'+line+'/>';
+ /* Chân sau gập hai bên */
+ h+='<ellipse cx="33" cy="170" rx="17" ry="21" fill="'+F+'"'+line+'/><ellipse cx="87" cy="170" rx="17" ry="21" fill="'+F+'"'+line+'/>'
+  +'<ellipse cx="29" cy="189" rx="13" ry="7" fill="'+C.furL+'"'+line+'/><ellipse cx="91" cy="189" rx="13" ry="7" fill="'+C.furL+'"'+line+'/>';
+ /* Thân ngồi (liền với cổ) và ngực sáng màu */
+ h+='<path d="M40 92 C30 112 26 150 32 178 Q60 192 88 178 C94 150 90 112 80 92Z" fill="'+F+'"'+line+'/>';
+ h+='<path d="M48 104 C42 124 44 156 52 176 Q60 180 68 176 C76 156 78 124 72 104 Q60 98 48 104Z" fill="'+C.furL+'"/>';
+ if(cat)h+='<path d="M33 128 q8 -3 11 3 M31 144 q8 -3 11 3 M87 128 q-8 -3 -11 3 M89 144 q-8 -3 -11 3" stroke="'+C.stripe+'" stroke-width="3" fill="none" stroke-linecap="round"/>';
+ /* Chân trước: sợ hãi giơ một chân vẫy kêu cứu; vui / được cứu giơ cả hai chân; khóc thì cả hai chân chống xuống */
+ var legL='<path d="M45 118 L44 182" stroke="'+C.furD+'" stroke-width="15" stroke-linecap="round"/><path d="M45 118 L44 182" stroke="'+C.fur+'" stroke-width="12" stroke-linecap="round"/><ellipse cx="44" cy="186" rx="9" ry="6" fill="'+C.furL+'"'+line+'/>';
+ var legR='<path d="M75 118 L76 182" stroke="'+C.furD+'" stroke-width="15" stroke-linecap="round"/><path d="M75 118 L76 182" stroke="'+C.fur+'" stroke-width="12" stroke-linecap="round"/><ellipse cx="76" cy="186" rx="9" ry="6" fill="'+C.furL+'"'+line+'/>';
+ var armL='<path d="M42 112 Q20 108 10 86" stroke="'+C.furD+'" stroke-width="15" fill="none" stroke-linecap="round"/><path d="M42 112 Q20 108 10 86" stroke="'+C.fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><ellipse cx="9" cy="82" rx="8" ry="7.5" fill="'+C.furL+'"'+line+'/>';
+ var armR='<path d="M78 112 Q100 108 110 86" stroke="'+C.furD+'" stroke-width="15" fill="none" stroke-linecap="round"/><path d="M78 112 Q100 108 110 86" stroke="'+C.fur+'" stroke-width="12" fill="none" stroke-linecap="round"/><ellipse cx="111" cy="82" rx="8" ry="7.5" fill="'+C.furL+'"'+line+'/>';
+ /* Tai mèo (sau đầu) */
+ if(cat)h+='<path d="M30 54 Q28 24 36 14 Q48 26 56 40Z" fill="'+H+'"'+line+'/><path d="M90 54 Q92 24 84 14 Q72 26 64 40Z" fill="'+H+'"'+line+'/><path d="M35 46 Q34 30 38 22 Q45 30 50 40Z" fill="#F6A6C1"/><path d="M85 46 Q86 30 82 22 Q75 30 70 40Z" fill="#F6A6C1"/>';
+ /* Đầu (phần dưới đè lên cổ để gắn liền với thân) */
+ h+=cat?'<path d="M60 30 C84 30 94 48 94 66 C94 82 86 96 60 98 C34 96 26 82 26 66 C26 48 36 30 60 30Z" fill="'+H+'"'+line+'/>'
+  :'<path d="M60 26 C86 26 96 46 95 64 C94 84 82 98 60 100 C38 98 26 84 25 64 C24 46 34 26 60 26Z" fill="'+H+'"'+line+'/>';
+ /* Lông má xù của mèo, vằn trên trán */
+ if(cat)h+='<path d="M27 72 l-7 4 l8 2 l-6 6 l9 -1 M93 72 l7 4 l-8 2 l6 6 l-9 -1" fill="'+C.fur+'" stroke="'+C.furD+'" stroke-width="1.2" stroke-linejoin="round"/><path d="M52 34 q2 7 1 12 M60 32 v13 M68 34 q-2 7 -1 12" stroke="'+C.stripe+'" stroke-width="3.2" stroke-linecap="round"/>';
+ /* Mõm sáng màu */
+ h+=cat?'<path d="M60 70 C72 70 78 78 76 85 C74 92 66 94 60 92 C54 94 46 92 44 85 C42 78 48 70 60 70Z" fill="'+C.furL+'"/>'
+  :'<path d="M60 66 C76 66 82 76 80 85 C78 95 68 98 60 97 C52 98 42 95 40 85 C38 76 44 66 60 66Z" fill="'+C.furL+'"/><path d="M60 34 C55 44 55 58 60 66 C65 58 65 44 60 34Z" fill="'+C.furL+'" opacity=".7"/>';
+ /* Tai cụp của cún (rủ xuống hai bên đầu) */
+ if(!cat)h+='<path d="M34 34 C18 36 10 60 16 82 C19 92 28 90 30 80 C32 66 36 52 42 40Z" fill="'+C.ear+'"/><path d="M86 34 C102 36 110 60 104 82 C101 92 92 90 90 80 C88 66 84 52 78 40Z" fill="'+C.ear+'"/>';
  /* Mắt */
- if(mood=='happy'||mood=='win')h+='<path d="M41 60 Q47 52 53 60 M67 60 Q73 52 79 60" stroke="'+ink+'" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
- else h+='<ellipse cx="47" cy="58" rx="6.5" ry="7.5" fill="'+ink+'"/><ellipse cx="73" cy="58" rx="6.5" ry="7.5" fill="'+ink+'"/><circle cx="49.5" cy="55" r="2.6" fill="#fff"/><circle cx="75.5" cy="55" r="2.6" fill="#fff"/><circle cx="45" cy="61" r="1.2" fill="#fff"/><circle cx="71" cy="61" r="1.2" fill="#fff"/>'
-  +'<path d="M39 49 Q46 47 53 44 M81 49 Q74 47 67 44" stroke="'+ink+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+ var eye=function(x){return cat?'<ellipse cx="'+x+'" cy="58" rx="8" ry="9" fill="#fff"/><ellipse cx="'+x+'" cy="58" rx="7" ry="8" fill="url(#'+id+'i)"/><ellipse cx="'+x+'" cy="58" rx="2.2" ry="6.5" fill="'+ink+'"/><circle cx="'+(x+2.5)+'" cy="54" r="2.4" fill="#fff"/><path d="M'+(x-8)+' 55 Q'+x+' 47 '+(x+8)+' 55" stroke="'+ink+'" stroke-width="1.6" fill="none"/>'
+  :'<ellipse cx="'+x+'" cy="56" rx="8" ry="9" fill="#fff"/><circle cx="'+x+'" cy="57" r="7" fill="url(#'+id+'i)"/><circle cx="'+x+'" cy="57" r="3.6" fill="'+ink+'"/><circle cx="'+(x+2.6)+'" cy="53.5" r="2.6" fill="#fff"/><circle cx="'+(x-2)+'" cy="60" r="1.1" fill="#fff"/><path d="M'+(x-8)+' 53 Q'+x+' 45 '+(x+8)+' 53" stroke="'+ink+'" stroke-width="1.6" fill="none"/>'};
+ if(happy)h+='<path d="M39 58 Q46 49 53 58 M67 58 Q74 49 81 58" stroke="'+ink+'" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
+ else h+=eye(46)+eye(74)+'<path d="M38 '+(cat?45:43)+' Q45 '+(cat?43:41)+' 52 '+(cat?40:38)+' M82 '+(cat?45:43)+' Q75 '+(cat?43:41)+' 68 '+(cat?40:38)+'" stroke="'+(cat?C.stripe:C.furD)+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
  /* Mũi, miệng, râu */
- h+=cat?'<path d="M56 70 L64 70 L60 75Z" fill="#E86A92"/>':'<ellipse cx="60" cy="70" rx="7" ry="5" fill="'+ink+'"/><ellipse cx="58" cy="68.5" rx="2" ry="1.2" fill="#fff" opacity=".7"/>';
- if(mood=='happy'||mood=='win')h+='<path d="M50 78 Q60 92 70 78 Z" fill="#B23B4B"/><path d="M55 84 Q60 92 65 84 Q60 86 55 84Z" fill="#FF8FA3"/>';
- else if(mood=='sad')h+='<path d="M52 86 Q60 79 68 86" stroke="'+ink+'" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M44 66 q-5 10 0 13 q5 -3 0 -13z" fill="#6EC6FF"/><path d="M76 66 q-5 10 0 13 q5 -3 0 -13z" fill="#6EC6FF"/>';
- else h+='<ellipse cx="60" cy="83" rx="4.5" ry="5.5" fill="#7A1F2B"/>';
- if(cat)h+='<path d="M44 74 L24 70 M44 78 L24 80 M76 74 L96 70 M76 78 L96 80" stroke="'+ink+'" stroke-width="1.4" opacity=".55"/>';
- if(mood!='sad')h+='<circle cx="38" cy="72" r="5" fill="#FF8FA3" opacity=".5"/><circle cx="82" cy="72" r="5" fill="#FF8FA3" opacity=".5"/>';
+ h+=cat?'<path d="M55.5 76 Q60 74 64.5 76 L60 81Z" fill="'+C.nose+'"/><path d="M60 81 v4" stroke="'+ink+'" stroke-width="1.5"/>'
+  :'<path d="M52 74 Q60 70 68 74 Q67 80 60 82 Q53 80 52 74Z" fill="'+C.nose+'"/><ellipse cx="57" cy="73.5" rx="3" ry="1.4" fill="#fff" opacity=".55"/><path d="M60 82 v4" stroke="'+ink+'" stroke-width="1.6"/>';
+ var my=cat?85:86;
+ if(happy)h+='<path d="M50 '+my+' Q60 '+(my+13)+' 70 '+my+' Q60 '+(my+4)+' 50 '+my+'Z" fill="#9E2F3E"/><path d="M55 '+(my+5)+' Q60 '+(my+11)+' 65 '+(my+5)+' Q60 '+(my+7)+' 55 '+(my+5)+'Z" fill="#FF8FA3"/>';
+ else if(mood=='sad')h+='<path d="M52 '+(my+5)+' Q56 '+(my+1)+' 60 '+my+' Q64 '+(my+1)+' 68 '+(my+5)+'" stroke="'+ink+'" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M42 64 q-5 11 0 14 q5 -3 0 -14z" fill="#6EC6FF"/><path d="M78 64 q-5 11 0 14 q5 -3 0 -14z" fill="#6EC6FF"/>';
+ else h+='<path d="M53 '+my+' Q56 '+(my+3)+' 60 '+my+' Q64 '+(my+3)+' 67 '+my+'" stroke="'+ink+'" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="'+(my+5)+'" rx="3.4" ry="4" fill="#7A1F2B"/>';
+ if(cat)h+='<path d="M46 80 L22 76 M46 84 L22 86 M74 80 L98 76 M74 84 L98 86" stroke="'+ink+'" stroke-width="1.2" opacity=".55" stroke-linecap="round"/>';
+ if(mood!='sad')h+='<ellipse cx="37" cy="74" rx="5.5" ry="3.5" fill="#FF8FA3" opacity=".45"/><ellipse cx="83" cy="74" rx="5.5" ry="3.5" fill="#FF8FA3" opacity=".45"/>';
+ h+=happy?armL+armR:mood=='sad'?legL+legR:armL+legR;
+ /* Vòng cổ nằm trên phần cổ, nối đầu với thân */
+ h+='<path d="M38 96 Q60 108 82 96" stroke="'+(cat?'#E84393':'#D63031')+'" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="60" cy="106" r="6" fill="#F7C948" stroke="#B7791F" stroke-width="1.5"/>'+(cat?'<path d="M56 106 h8" stroke="#B7791F" stroke-width="1.3"/>':'<text x="60" y="108.5" font-size="7" text-anchor="middle" fill="#7A4B0B" font-weight="700">♥</text>');
  return '<svg viewBox="0 0 120 200" aria-hidden="true">'+h+'</svg>';
 }
 var PETNAME={dog:'cún con',cat:'mèo con'};

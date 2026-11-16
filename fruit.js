@@ -136,6 +136,11 @@ var CSS=''
 +'.fr-cal>div{background:#16205a;border:2px solid #9fd0ff;border-radius:16px;padding:14px 18px;max-width:min(92%,520px);text-align:center;display:flex;flex-direction:column;gap:8px}'
 +'.fr-cal big{font-size:46px;font-weight:800;color:#FFD23F}.fr-cal p{margin:0}'
 +'@media(max-height:540px) and (orientation:landscape){.fr-q{padding:4px 10px}.fr-q p{font-size:15px}.fr-fruit i{font-size:30px}.fr-cam{width:min(26%,140px)}}'
+/* Đối kháng: khung câu hỏi riêng trên sân mỗi phe; giỏ xuống góc dưới phía ngoài, camera ngay trên giỏ */
++'.fr-qh{position:absolute;left:6px;right:6px;top:6px;margin:0;padding:5px 9px 6px;z-index:5}'
++'.fr-qh p{font-size:clamp(13px,1.6vw,19px);margin:2px 0 3px}.fr-qh small{font-size:12px}'
++'.h1 .fr-qh{border-color:#FFB3B3}'
++'.fr-vs .fr-basket{top:auto;bottom:8px;z-index:3}.fr-vs .fr-cam{bottom:66px}'
 +'@media(prefers-reduced-motion:reduce){.fr-pet.happy .body,.fr-pet.sad .body,.fr-fruit.rot::after{animation:none}}';
 function css(){var o=$('frCss');if(o)o.remove();var s=document.createElement('style');s.id='frCss';s.textContent=CSS;document.head.appendChild(s)}
 
@@ -146,16 +151,33 @@ function start(){
  if(st.sel.length!=need)return alert(vs?'Chế độ đối kháng: hãy chọn 2 thí sinh.':'Hãy chọn 1 thí sinh.');
  var P=A.pool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<N)return alert('Phạm vi này chưa đủ '+N+' câu trắc nghiệm, đúng/sai. Hãy chọn phạm vi rộng hơn.');
- var qs=A.fresh(P).slice(0,N).sort(function(a,b){return a.l-b.l}).map(A.prep);
+ var byL=function(a,b){return a.l-b.l},qs,qs2=null;
+ if(!vs)qs=A.fresh(P).slice(0,N).sort(byL).map(A.prep);
+ else{
+  /* Đối kháng: mỗi phe một bộ câu hỏi KHÁC NHAU nhưng từng cặp câu cùng cấp độ (và cùng dạng nếu được), để không nhìn bài nhau.
+     Bỏ câu "nghe – chọn từ" vì hai phe nghe hai từ khác nhau cùng lúc sẽ lẫn. */
+  var F=A.fresh(P.filter(function(q){return !q.lis}));
+  if(F.length<2*N)return alert('Phạm vi này chưa đủ '+(2*N)+' câu cho hai phe. Hãy chọn phạm vi rộng hơn.');
+  var a=F.slice(0,N).sort(byL),used={},rest=F.slice(N);
+  a.forEach(function(q){used[F.indexOf(q)]=1});
+  var b=a.map(function(q){
+   var pick=function(t){for(var i=0;i<rest.length;i++){var x=rest[i];if(!x._u&&t(x)){x._u=1;return x}}return null};
+   return pick(function(x){return x.l==q.l&&x.t==q.t})||pick(function(x){return x.l==q.l})||pick(function(x){return Math.abs(x.l-q.l)<=1})||pick(function(){return true});
+  });
+  rest.forEach(function(x){delete x._u});
+  qs=a.map(A.prep);qs2=b.map(A.prep);
+ }
  var cam=st.frcam!==false&&!!(window.DTKSACK&&DTKSACK.gcam);
  var p1=petOf(st.frpet),p2=petOf(st.frpet2,PETS[1]);if(vs&&p2[0]==p1[0])p2=PETS[(PETS.indexOf(p1)+1)%PETS.length];
  var mk=function(k,pet){return{k:k,p:r[st.sel[k]],pet:pet,tx:.5,ax:.5,basket:[],xp:0,stk:0,best:0,seen:0,flip:false,mood:'idle'}};
  S={qs:qs,i:-1,vs:vs,sides:vs?[mk(0,p1),mk(1,p2)]:[mk(0,p1)],cam:cam,phase:'cal',lock:true};
+ S.sides[0].qs=qs;if(vs)S.sides[1].qs=qs2;
  A.setScreen('play');document.body.setAttribute('data-game','fruit');setVh();
  /* Bố trí mỗi sân: giỏ ở góc trên, camera ở góc dưới phía ngoài, thùng rác ở góc dưới đối diện camera */
  var half=function(sd){var k=sd.k,out=vs?(k?'r':'l'):'r',bsk=vs?out:'l',trash=out=='l'?'r':'l';
   return '<div class="fr-half h'+k+'" id="frH'+k+'">'
-   +(vs?'<span class="fr-tag" style="color:'+(k?'#FFB3B3':'#B9D8FF')+'">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</span>':'')
+   /* Đối kháng: khung câu hỏi riêng ở đầu sân mỗi phe */
+   +(vs?'<div class="fr-q fr-qh" id="frQ'+k+'"><small style="color:'+(k?'#FFB3B3':'#B9D8FF')+';font-weight:800">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</small><p>Chuẩn bị!</p><div class="fr-bar"><i></i></div></div>':'')
    +'<div class="fr-lanes" id="frL'+k+'"></div>'
    +'<div class="fr-pet" id="frP'+k+'"><div class="body">'+petSVG(sd.pet[0],'idle')+'</div><span class="shadow"></span></div>'
    +'<div class="fr-basket '+bsk+'" id="frB'+k+'"><b>🧺 Giỏ '+(vs?esc(sd.p.n):'hoa quả')+'</b><div></div></div><div class="fr-trash '+trash+'" aria-hidden="true">🗑️</div>'
@@ -168,7 +190,7 @@ function start(){
   +'<span class="fr-pill" id="frNo">Câu 0/'+N+'</span>'+pills
   +'<button class="btn ghost sm" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button></div>'
   +'<div class="fr-scene" id="frScene"><div class="fr-canopy"></div>'
-  +'<div class="fr-q" id="frQ"><small>'+who+'</small><p>Chuẩn bị hứng hoa quả!</p><div class="fr-bar" id="frBar"><i></i></div></div>'
+  +(vs?'':'<div class="fr-q" id="frQ"><small>'+who+'</small><p>Chuẩn bị hứng hoa quả!</p><div class="fr-bar" id="frBar"><i></i></div></div>')
   +'<div class="fr-field">'+S.sides.map(half).join('')+'</div>'
   +'<div class="fr-cal" id="frCal"><div><h3 style="margin:0">🧺 Sẵn sàng hứng hoa quả!</h3>'
   +(cam?'<p id="frCalMsg">📷 Đang mở camera…</p><small>'+(vs?'Mỗi phe đứng trước camera của phe mình (hoặc phe 1 bên trái, phe 2 bên phải nếu dùng chung 1 camera), cách khoảng 2 m. ':'Đứng cách camera khoảng 2 m. ')+'Bước sang trái, sang phải để con vật chạy theo. Đứng dưới quả mang đáp án đúng khi quả rơi xuống (15 giây).</small>'
@@ -289,10 +311,10 @@ function bindPointer(sd){
  h.addEventListener('pointerup',function(){sd.drag=false});h.addEventListener('pointerleave',function(){sd.drag=false});
 }
 document.addEventListener('keydown',function(e){
- if(!S||!$('frScene'))return;var n=S.n||4,k=null,dir=0;
+ if(!S||!$('frScene'))return;var k=null,dir=0;
  if(e.key=='ArrowLeft'||e.key=='ArrowRight'){k=S.vs?1:0;dir=e.key=='ArrowLeft'?-1:1}
  else if(S.vs&&(e.key=='a'||e.key=='A'||e.key=='d'||e.key=='D')){k=0;dir=/a/i.test(e.key)?-1:1}
- if(k==null)return;e.preventDefault();var sd=S.sides[k],lane=Math.max(0,Math.min(n-1,Math.floor(sd.tx*n)+dir));sd.tx=(lane+.5)/n;
+ if(k==null)return;e.preventDefault();var sd=S.sides[k],n=sd.n||4,lane=Math.max(0,Math.min(n-1,Math.floor(sd.tx*n)+dir));sd.tx=(lane+.5)/n;
 });
 function go(){if(!S||S.phase!='cal')return;var c=$('frCal');if(c)c.remove();S.phase='play';snd('tap');next()}
 
@@ -300,36 +322,45 @@ function go(){if(!S||S.phase!='cal')return;var c=$('frCal');if(c)c.remove();S.ph
 function next(){
  if(!S)return;S.i++;
  if(S.i>=S.qs.length)return end();
- var q=S.q=S.qs[S.i],labels=q.t=='tf'?['Đúng','Sai']:q.o.slice(),n=S.n=labels.length,fr=shuf(FRUITS).slice(0,n);
- S.vals=q.t=='tf'?['1','0']:labels.map(function(x,j){return String(j)});
- S.fr=fr;S.lock=false;S.t0=Date.now();S.beat=0;
+ S.lock=false;S.t0=Date.now();S.beat=0;
  $('frNo').textContent='Câu '+(S.i+1)+'/'+N;
- var qv=Object.assign({},q,{o:labels,nol:1});
- $('frQ').innerHTML='<small>'+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+(A.sayB?' '+A.sayB(qv):'')+'</small><p>'+esc(q.q)+'</p><div class="fr-bar" id="frBar"><i></i></div>';
+ var qvs=[];
+ /* Mỗi phe một câu hỏi riêng (chơi đơn: chỉ một phe) */
  S.sides.forEach(function(sd){
-  var k=sd.k;$('frL'+k).innerHTML=labels.map(function(t,j){return '<div class="fr-lane" data-l="'+j+'"><div class="fr-fruit" id="frF'+k+'_'+j+'"><b>'+'ABCD'[j]+'</b><i>'+fr[j]+'</i><span>'+esc(t)+'</span></div></div>'}).join('');
+  var k=sd.k,q=sd.q=sd.qs[S.i],labels=q.t=='tf'?['Đúng','Sai']:q.o.slice(),n=sd.n=labels.length,fr=sd.fr=shuf(FRUITS).slice(0,n);
+  sd.vals=q.t=='tf'?['1','0']:labels.map(function(x,j){return String(j)});
+  var qv=Object.assign({},q,{o:labels,nol:1});qvs.push(qv);
+  var head='<small>'+(S.vs?'<b style="color:'+(k?'#FFB3B3':'#B9D8FF')+'">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</b> · ':'')+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+(A.sayB?' '+A.sayB(qv,'fr'+k):'')+'</small>';
+  var card=$(S.vs?'frQ'+k:'frQ');card.innerHTML=head+'<p>'+esc(q.q)+'</p><div class="fr-bar"><i></i></div>';
+  $('frL'+k).innerHTML=labels.map(function(t,j){return '<div class="fr-lane" data-l="'+j+'"><div class="fr-fruit" id="frF'+k+'_'+j+'"><b>'+'ABCD'[j]+'</b><i>'+fr[j]+'</i><span>'+esc(t)+'</span></div></div>'}).join('');
   var fb=$('frFb'+k);fb.className='fr-fb';setMood(sd,'idle');
  });
- if(A.sayAuto)A.sayAuto(qv);
+ /* Giọng đọc: chơi đơn đọc câu hỏi; đối kháng đọc lần lượt câu của phe 1 rồi phe 2 */
+ if(A.sayAuto){
+  if(!S.vs)A.sayAuto(qvs[0]);
+  else{var a=qvs[0],b=qvs[1];A.sayAuto({q:(a.en?'Team 1: ':'Phe 1: ')+a.q+(a.en?'. Team 2: ':'. Phe 2: ')+b.q,t:'num',en:a.en&&b.en?1:0,c:a.c},'frboth')}
+ }
 }
 function setMood(sd,m){if(sd.mood==m)return;sd.mood=m;var b=$('frP'+sd.k);if(b)b.querySelector('.body').innerHTML=petSVG(sd.pet[0],m)}
 function loop(){
  cancelAnimationFrame(raf);
  var step=function(){
   if(!S||!$('frScene'))return;raf=requestAnimationFrame(step);
-  var n=S.n||0,p=S.phase=='play'&&!S.lock?Math.min(1,(Date.now()-S.t0)/DUR):0;
+  var p=S.phase=='play'&&!S.lock?Math.min(1,(Date.now()-S.t0)/DUR):0,anyN=0;
   S.sides.forEach(function(sd){
+   var n=sd.n||0;anyN=anyN||n;
    /* Con vật chạy theo vị trí người chơi, mượt; nghiêng người theo hướng chạy */
    var d=sd.tx-sd.ax;sd.ax+=d*0.22;var pe=$('frP'+sd.k);
    if(pe){pe.style.left=(6+sd.ax*88)+'%';var bd=pe.querySelector('.body');if(bd&&!pe.classList.contains('happy')&&!pe.classList.contains('sad'))bd.style.transform='rotate('+Math.max(-10,Math.min(10,d*70))+'deg)'}
    var lane=n?Math.max(0,Math.min(n-1,Math.floor(sd.ax*n))):-1;sd.lane=lane;
    var ls=$('frL'+sd.k);if(ls)[].forEach.call(ls.children,function(l,j){l.classList.toggle('on',j==lane&&S.phase=='play'&&!S.lock)});
-   if(p&&pe){var h=$('frH'+sd.k),top=4,catchY=pe.offsetTop+pe.offsetHeight*0.06;
+   /* Quả rơi từ dưới khung câu hỏi của phe (đối kháng) hoặc từ đầu sân (chơi đơn) đến giỏ trên đầu con vật */
+   if(p&&pe){var qc=S.vs?$('frQ'+sd.k):null,top=qc?qc.offsetTop+qc.offsetHeight+4:4,catchY=pe.offsetTop+pe.offsetHeight*0.06;
     for(var j=0;j<n;j++){var f=$('frF'+sd.k+'_'+j);if(f)f.style.top=Math.max(top,top+(catchY-f.offsetHeight-top)*p)+'px'}}
   });
   if(S.phase=='cal'&&S.cd){var left=3-Math.floor((Date.now()-S.cd)/1000),c=$('frCount');if(c)c.textContent=left>0?left:'';if(left<=0)go()}
-  if(S.phase!='play'||S.lock||!n)return;
-  var bar=$('frBar');if(bar){bar.firstChild.style.transform='scaleX('+(1-p).toFixed(3)+')';bar.classList.toggle('hot',p>0.7)}
+  if(S.phase!='play'||S.lock||!anyN)return;
+  [].forEach.call(document.querySelectorAll('.fr-bar'),function(bar){bar.firstChild.style.transform='scaleX('+(1-p).toFixed(3)+')';bar.classList.toggle('hot',p>0.7)});
   var sec=Math.ceil((1-p)*DUR/1000);if(sec<=5&&sec>0&&sec!==S.beat){S.beat=sec;snd('beat',sec)}
   if(p>=1)resolve();
  };
@@ -339,17 +370,18 @@ function loop(){
 /* ================= HỨNG QUẢ ================= */
 function resolve(){
  if(!S||S.lock)return;S.lock=true;
- var q=S.q,me=S,anyOk=false,anyBad=false;
+ var me=S,anyOk=false,anyBad=false,anyE=false;
  S.sides.forEach(function(sd){
-  var k=sd.k,lane=sd.lane,v=S.vals[lane],ok=A.judge(q,v),f=$('frF'+k+'_'+lane),pe=$('frP'+k),fb=$('frFb'+k),h=$('frH'+k);
-  S.vals.forEach(function(x,j){var e=$('frF'+k+'_'+j);if(!e||j==lane)return;if(A.judge(q,x))e.classList.add('right');else e.classList.add('dim')});
+  var q=sd.q,k=sd.k,lane=sd.lane,v=sd.vals[lane],ok=A.judge(q,v),f=$('frF'+k+'_'+lane),pe=$('frP'+k),fb=$('frFb'+k),h=$('frH'+k);
+  if(q.e)anyE=true;
+  sd.vals.forEach(function(x,j){var e=$('frF'+k+'_'+j);if(!e||j==lane)return;if(A.judge(q,x))e.classList.add('right');else e.classList.add('dim')});
   pe.classList.remove('happy','sad');void pe.offsetWidth;
   if(ok){
-   anyOk=true;sd.basket.push(S.fr[lane]);sd.stk++;if(sd.stk>sd.best)sd.best=sd.stk;sd.xp+=10+2*q.l;
+   anyOk=true;sd.basket.push(sd.fr[lane]);sd.stk++;if(sd.stk>sd.best)sd.best=sd.stk;sd.xp+=10+2*q.l;
    setMood(sd,'happy');pe.classList.add('happy');
    var bk=$('frB'+k);if(f&&bk){f.classList.add('inbask');var hr=h.getBoundingClientRect(),br=bk.getBoundingClientRect(),lr=f.parentNode.getBoundingClientRect();f.style.left=(br.left-lr.left+br.width/2)+'px';f.style.top=(br.top-hr.top)+'px'}
-   var fruit=S.fr[lane];setTimeout(function(){if(S!==me)return;$('frB'+k).querySelector('div').insertAdjacentHTML('beforeend','<i>'+fruit+'</i>');$('frS'+k).textContent=(S.vs?sd.p.n+': ':'')+fruit+' '+sd.basket.length+' quả'},650);
-   fb.className='fr-fb good show';fb.innerHTML='✅ Hứng đúng! '+S.fr[lane]+' vào giỏ.';
+   var fruit=sd.fr[lane];setTimeout(function(){if(S!==me)return;$('frB'+k).querySelector('div').insertAdjacentHTML('beforeend','<i>'+fruit+'</i>');$('frS'+k).textContent=(S.vs?sd.p.n+': ':'')+fruit+' '+sd.basket.length+' quả'},650);
+   fb.className='fr-fb good show';fb.innerHTML='✅ Hứng đúng! '+sd.fr[lane]+' vào giỏ.';
   }else{
    anyBad=true;sd.stk=0;setMood(sd,'sad');pe.classList.add('sad');
    if(f){f.classList.add('rot');setTimeout(function(){if(S!==me||!f.parentNode)return;var hr=h.getBoundingClientRect(),tr=h.querySelector('.fr-trash').getBoundingClientRect(),lr=f.parentNode.getBoundingClientRect();f.classList.add('toss');f.style.left=(tr.left-lr.left+tr.width/2)+'px';f.style.top=(tr.top-hr.top)+'px'},1000)}
@@ -357,9 +389,9 @@ function resolve(){
   }
  });
  if(anyOk)snd('happy');if(anyBad)setTimeout(function(){snd('crash')},anyOk?250:0);
- /* Đối kháng: đáp án đúng và lời giải hiện chung ở khung câu hỏi */
- if(S.vs){var qq=$('frQ');if(qq)qq.insertAdjacentHTML('beforeend','<small style="color:#9CFFB8;margin-top:4px">✔ Đáp án đúng: '+esc(A.ansText(q))+(q.e?' – '+esc(q.e):'')+'</small>')}
- setTimeout(function(){if(S===me&&S.phase=='play'){S.sides.forEach(function(sd){$('frP'+sd.k).classList.remove('happy','sad')});next()}},anyBad?(q.e?4200:3000):2300);
+ /* Đối kháng: đáp án đúng và lời giải hiện ở khung câu hỏi của từng phe */
+ if(S.vs)S.sides.forEach(function(sd){var q=sd.q,qq=$('frQ'+sd.k);if(qq)qq.insertAdjacentHTML('beforeend','<small style="color:#9CFFB8;margin-top:4px;display:block">✔ Đáp án đúng: '+esc(A.ansText(q))+(q.e?' – '+esc(q.e):'')+'</small>')});
+ setTimeout(function(){if(S===me&&S.phase=='play'){S.sides.forEach(function(sd){$('frP'+sd.k).classList.remove('happy','sad')});next()}},anyBad?(anyE?4200:3000):2300);
 }
 
 /* ================= KẾT THÚC ================= */

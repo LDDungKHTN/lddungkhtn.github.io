@@ -54,11 +54,15 @@ var GAMES={
  mil:{ico:'💰',name:'Ai là triệu phú',pick:['mc'],n:10,time:30,d:'10 câu từ dễ đến khó, tiền thưởng tăng dần, có quyền trợ giúp 50:50 và Đổi câu hỏi.'},
  flash:{ico:'⚡',name:'Nhanh như chớp',pick:['tf','mc'],n:10,time:10,d:'Đúng/sai và trắc nghiệm, mỗi câu 10 giây, trả lời càng nhanh điểm càng cao.'},
  num:{ico:'🔢',name:'Giải mã con số',pick:['num'],n:8,time:40,d:'Tính nhanh và nhập đáp án là một con số.'},
- squid:{ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,solo:1,d:'Chơi đơn. Nhảy qua các phiến đá chênh vênh trên vực sâu. Chọn sai là đá sụp! Qua 8–10 tầng để nhận cúp.'},
+ squid:{ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,modes:['solo','turn'],d:'Chơi đơn hoặc 2 đội theo lượt. Nhảy qua các phiến đá chênh vênh trên vực sâu. Chọn sai là đá sụp! Chơi theo đội: đội nào trả lời sai trước sẽ thua.'},
  sack:{ico:'🦘',name:'Nhảy bao bố',team:1,d:'Hai đội Xanh – Đỏ thi cùng lúc, mỗi đội 10 câu trắc nghiệm, đúng/sai. Trả lời bằng chạm hoặc bằng động tác tay qua camera.'},
- rescue:{ico:'🌊',name:'Giải cứu người bị nạn',solo:1,d:'Chơi đơn, vận động trước camera. Nước đang tràn vào phòng kín: trả lời đúng để mở van thoát nước, sai quá 3 câu là giải cứu thất bại.'},
- fruit:{ico:'🧺',name:'Hứng hoa quả',modes:['solo','vs'],d:'Chơi đơn hoặc đối kháng 2 bạn, vận động trước camera. Mỗi bạn đóng vai một con vật, bước sang trái – phải để hứng quả mang đáp án đúng đang rơi. 10 câu, mỗi quả đúng được 1 điểm.'}};
-var MODES={solo:{ico:'🎯',name:'Chơi đơn',k:1,d:'Một mình thử thách và leo bảng vàng.'},vs:{ico:'⚔️',name:'Đối kháng',k:2,d:'Hai bạn thay phiên trả lời, ai nhiều điểm hơn thắng.'},relay:{ico:'🏃',name:'Tiếp sức',k:3,d:'Ba bạn chuyền gậy từng câu, đúng liên tiếp được thưởng chuỗi.'}};
+ rescue:{ico:'🌊',name:'Giải cứu thú cưng',modes:['solo','turn'],d:'Vận động trước camera. Cún con, mèo con bị nhốt trong phòng kín đang ngập nước: trả lời đúng để mở van thoát nước, sai quá 3 câu là giải cứu thất bại. Chơi theo đội: mỗi đội một phòng, đội nào cứu được trước thắng.'},
+ fruit:{ico:'🧺',name:'Hứng hoa quả',modes:['solo','vs','turn'],d:'Chơi đơn hoặc đối kháng 2 bạn, vận động trước camera. Mỗi bạn đóng vai một con vật, bước sang trái – phải để hứng quả mang đáp án đúng đang rơi. 10 câu, mỗi quả đúng được 1 điểm.'}};
+var MODES={solo:{ico:'🎯',name:'Chơi đơn',k:1,d:'Một mình thử thách và leo bảng vàng.'},vs:{ico:'⚔️',name:'Đối kháng',k:2,d:'Hai bạn thay phiên trả lời, ai nhiều điểm hơn thắng.'},relay:{ico:'🏃',name:'Tiếp sức',k:3,d:'Ba bạn chuyền gậy từng câu, đúng liên tiếp được thưởng chuỗi.'},
+ /* Chỉ có ở các trò vận động qua camera (Giải cứu, Hứng hoa quả, Vượt cầu sinh tồn): bạn thứ 1, 3, 5… vào Đội Xanh, bạn 2, 4, 6… vào Đội Đỏ */
+ turn:{ico:'👥',name:'2 đội theo lượt',k:12,min:2,d:'Chia 2 đội Xanh – Đỏ, thành viên mỗi đội lần lượt thay nhau ra trước camera trả lời.'}};
+/* Chia đội cho chế độ "2 đội theo lượt": theo thứ tự chọn, lẻ vào Đội Xanh, chẵn vào Đội Đỏ */
+function teamsOf(list){var t=[[],[]];list.forEach(function(p,i){t[i%2].push(p)});return t}
 var LADDER=[100,200,300,500,1000,2000,4000,8000,15000,30000];
 var AV=window.AVCODES||['h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','h12'];if(!window.AVH)window.AVH=function(e){return e};
 var LVN=['Dễ','Vừa','Khó','Nâng cao'];
@@ -81,7 +85,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=64;
+var APPV=65;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -123,7 +127,7 @@ function bank(){return BANK[st.g]||[]}
 function gcfg(){return GR[st.g]}
 
 /* ================= TRẠNG THÁI ================= */
-var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),sqcam:!!load('dtk_sqcam',false),rscam:load('dtk_rscam',true)!==false,frcam:load('dtk_frcam',true)!==false,frpet:load('dtk_frpet','🐻'),frpet2:load('dtk_frpet2','🐼'),g:gkey(load('dtk_grade',0)),subj:load('dtk_subj','khtn'),mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
+var st={skface:load('dtk_skface','user')=='environment'?'environment':'user',skcam:!!load('dtk_skcam',false),milcam:!!load('dtk_milcam',false),sqcam:!!load('dtk_sqcam',false),rscam:load('dtk_rscam',true)!==false,frcam:load('dtk_frcam',true)!==false,frpet:load('dtk_frpet','🐻'),frpet2:load('dtk_frpet2','🐼'),rspet:load('dtk_rspet','dog'),g:gkey(load('dtk_grade',0)),subj:load('dtk_subj','khtn'),mode:'solo',game:'mil',sel:[],av:AV[0],scope:'0',rlv:'all',rn:15,rvp:-1};
 var S=null,tm=null;
 function K(k){return 'kh'+st.g+'_'+k}
 function roster(){var r=load(K('roster'),[]);if(window.AVNORM)r.forEach(function(p){p.e=AVNORM(p.e)});return r}
@@ -220,11 +224,11 @@ function scopeSelect(){
 function menu(){
  stopAll();setScreen('menu');header();
  var g=GAMES[st.game],r=roster();
- if(g.modes){if(g.modes.indexOf(st.mode)<0)st.mode='solo'}else if(g.solo)st.mode='solo';
- var k=MODES[st.mode].k;
+ if(g.modes){if(g.modes.indexOf(st.mode)<0)st.mode='solo'}else if(g.solo||st.mode=='turn')st.mode='solo';
+ var M=MODES[st.mode],k=M.k;
  st.sel=st.sel.filter(function(i){return i<r.length}).slice(0,k);
  if(!st.sel.length&&r.length&&k==1)st.sel=[0];
- var need=g.team?0:k,ok=g.team||st.sel.length==k;
+ var need=g.team?0:(M.min||k),ok=g.team||(M.min?st.sel.length>=M.min:st.sel.length==k);
  app.innerHTML='<div class="bar-top"><button class="btn ghost sm" data-act="home">◀ Thí sinh</button><h2>Sảnh chờ</h2></div>'
  +'<section class="panel"><h3>① Phạm vi câu hỏi</h3>'+scopeSelect()+'<p class="muted small">Chọn một bài hoặc một chương: mỗi câu 30 giây, có cả câu nâng cao.</p></section>'
  +'<section class="panel"><h3>② Trò chơi</h3><div class="games">'+Object.keys(GAMES).map(function(id){var x=GAMES[id];return '<button class="game'+(id==st.game?' on':'')+'" data-act="game" data-v="'+id+'"><span class="gi">'+x.ico+'</span><b>'+x.name+'</b><small>'+x.d+'</small></button>'}).join('')+'</div></section>'
@@ -247,14 +251,19 @@ function menu(){
   +'<h3>'+(st.mode=='vs'?'Con vật của phe 1 (bên trái)':'Chọn con vật')+'</h3><div class="chips">'+(window.DTKFRUIT?DTKFRUIT.PETS:[]).map(function(p){return '<button class="chip'+(st.frpet==p[0]?' on':'')+'" data-act="frpet" data-v="'+p[0]+'">'+(window.DTKFRUIT?DTKFRUIT.petIcon(p[0]):'')+' '+p[1]+'</button>'}).join('')+'</div>'
   +(st.mode=='vs'?'<h3>Con vật của phe 2 (bên phải)</h3><div class="chips">'+(window.DTKFRUIT?DTKFRUIT.PETS:[]).map(function(p){return '<button class="chip'+(st.frpet2==p[0]?' on':'')+'" data-act="frpet2" data-v="'+p[0]+'">'+(window.DTKFRUIT?DTKFRUIT.petIcon(p[0]):'')+' '+p[1]+'</button>'}).join('')+'</div>':'')
   +(st.frcam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">'
+   +(st.mode=='turn'?'2 đội theo lượt: một con vật, hai giỏ (Đội Xanh, Đội Đỏ). Mỗi câu một bạn ra trước camera, hai đội thay phiên nhau. Đội nào hứng đủ 10 quả trước là thắng. ':'')
    +(st.mode=='vs'?'Đối kháng: máy có 2 camera thì mỗi phe dùng một camera (có thể đặt ở hai góc lớp, chọn lại camera ngay trong trận). Máy chỉ có 1 camera thì khung hình chia đôi: phe 1 đứng bên trái, phe 2 đứng bên phải. ':'')
    +'Đứng cách camera khoảng 2 m, chừa khoảng trống hai bên để bước qua lại. Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
  +(st.game=='rescue'?'<section class="panel"><h3>Cách trả lời</h3><div class="modes two">'
   +'<button class="mode'+(st.rscam?' on':'')+'" data-act="rscam" data-v="1"><b>📷 Vận động qua camera</b><small>Giữ động tác khoảng 1 giây để chốt: A quay người sang trái · B quay người sang phải · C đưa hai tay lên cao và vỗ tay · D cúi người về phía trước. Câu đúng/sai: A là Đúng, B là Sai.</small></button>'
   +'<button class="mode'+(st.rscam?'':' on')+'" data-act="rscam" data-v="0"><b>👆 Chạm màn hình</b><small>Dùng khi máy không có camera.</small></button></div>'
+  +(st.mode=='turn'?'<p class="muted small">2 đội theo lượt: mỗi đội một phòng – <b>🐶 cún con</b> của Đội Xanh, <b>🐱 mèo con</b> của Đội Đỏ. Hai đội thay nhau trả lời, mỗi lượt một bạn ra trước camera. Đội nào mở đủ 10 van trước là thắng; phòng nào ngập hoặc sai quá 3 câu thì đội đó thua.</p>'
+   :'<h3>Thú cưng cần giải cứu</h3><div class="chips"><button class="chip'+(st.rspet!='cat'?' on':'')+'" data-act="rspet" data-v="dog">🐶 Cún con</button><button class="chip'+(st.rspet=='cat'?' on':'')+'" data-act="rspet" data-v="cat">🐱 Mèo con</button></div>')
   +(st.rscam?'<h3>Camera</h3><div class="chips"><button class="chip'+(st.skface=='user'?' on':'')+'" data-act="skface" data-v="user">🤳 Camera trước</button><button class="chip'+(st.skface=='environment'?' on':'')+'" data-act="skface" data-v="environment">📷 Camera sau</button></div><p class="muted small">Đứng cách camera khoảng 2 m, thấy rõ từ đầu đến hông. Lần đầu cần có mạng để tải bộ nhận dạng và cho phép dùng camera. Hình ảnh chỉ xử lí trên máy, không gửi đi đâu.</p>':'')+'</section>':'')
- +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.modes?g.modes.indexOf(id)<0:g.solo&&id!='solo';return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
- +'<h3>④ Chọn '+need+' thí sinh</h3><div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord">'+(n+1)+'</i>':'')+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>'
+ +(g.team?'':'<section class="panel"><h3>③ Chế độ</h3><div class="modes">'+Object.keys(MODES).map(function(id){var m=MODES[id],dis=g.modes?g.modes.indexOf(id)<0:(id=='turn'||g.solo&&id!='solo');return '<button class="mode'+(id==st.mode?' on':'')+'" data-act="mode" data-v="'+id+'"'+(dis?' disabled':'')+'><b>'+m.ico+' '+m.name+'</b><small>'+m.d+'</small></button>'}).join('')+'</div>'
+ +(M.min?'<h3>④ Chọn từ '+M.min+' đến '+k+' thí sinh</h3><p class="muted small">Bạn chọn thứ 1, 3, 5… vào <b style="color:#7FB8FF">Đội Xanh</b>, bạn thứ 2, 4, 6… vào <b style="color:#FF9F9F">Đội Đỏ</b>. Các bạn lần lượt thay nhau ra trước camera.</p>':'<h3>④ Chọn '+need+' thí sinh</h3>')
+ +'<div class="chips">'+r.map(function(p,i){var n=st.sel.indexOf(i);return '<button class="chip pick'+(n>=0?' on':'')+'" data-act="pick" data-v="'+i+'">'+(n>=0&&k>1?'<i class="ord"'+(M.min?' style="background:'+(n%2?'#E74C3C':'#3B82F6')+'"':'')+'>'+(n+1)+'</i>':'')+AVH(p.e)+' '+esc(p.n)+'</button>'}).join('')+'</div>'
+ +(M.min&&st.sel.length?(function(){var T=teamsOf(st.sel.map(function(i){return r[i]}));return '<p class="small"><b style="color:#7FB8FF">🔵 Đội Xanh:</b> '+(T[0].map(function(p){return esc(p.n)}).join(', ')||'—')+'<br><b style="color:#FF9F9F">🔴 Đội Đỏ:</b> '+(T[1].map(function(p){return esc(p.n)}).join(', ')||'—')+'</p>'})():'')
  +(r.length<need?'<p class="warn">Chế độ này cần '+need+' thí sinh. Hãy ghi danh thêm '+(need-r.length)+' bạn.</p><button class="btn ghost sm" data-act="home">Ghi danh thêm</button>':'')+'</section>')
  +'<div class="cta sticky"><button class="btn big" data-act="start"'+(ok?'':' disabled')+'>'+g.ico+' Bắt đầu '+g.name+'</button></div>';
  /* Tải sẵn bộ nhận dạng động tác ngay ở màn hình chuẩn bị, để vào trận là dùng được luôn */
@@ -548,12 +557,15 @@ function lbScreen(){
 var Q=null,qt=null;
 /* Cầu kính dựng đứng: đi từ dưới (Xuất phát) lên trên (Đích). Mỗi tầng là một hàng gạch kính mang đáp án. */
 function sqStart(){
- var r=roster();if(st.sel.length!=1)return alert('Trò này chơi một người: hãy chọn 1 thí sinh.');
+ var r=roster(),turn=st.mode=='turn';
+ if(turn?st.sel.length<2:st.sel.length!=1)return alert(turn?'Chế độ 2 đội theo lượt: hãy chọn từ 2 thí sinh trở lên.':'Trò này chơi một người: hãy chọn 1 thí sinh.');
  var P=gamePool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<4)return alert('Phạm vi này chưa đủ câu trắc nghiệm cho trò chơi. Hãy chọn phạm vi rộng hơn.');
- var n=Math.min(P.length,8+Math.floor(Math.random()*3));
+ /* 2 đội theo lượt: cầu dài 20 tầng, hai đội thay nhau nhảy, đội nào trả lời sai trước sẽ thua */
+ var n=turn?Math.min(P.length,20):Math.min(P.length,8+Math.floor(Math.random()*3));
  var cam=!!st.sqcam&&!!(window.DTKSACK&&DTKSACK.gcam);
  Q={qs:pickQs(P,n),i:0,p:r[st.sel[0]],lock:false,stk:0,best:0,xp:0,cam:cam,camWait:cam};
+ if(turn){Q.turn=true;Q.T=teamsOf(st.sel.map(function(i){return r[i]}));Q.ps={};Q.p=Q.T[0][0]}
  Q.opts=Q.qs.map(sqOpts);
  sqAsk();
 }
@@ -609,17 +621,26 @@ function sqMood(m){var s=$('#sqav span');if(s&&Q)s.innerHTML=AVH(Q.p.e,m,'full')
 function sqAsk(){
  setScreen('play');document.body.setAttribute('data-game','squid');
  var q=Q.qs[Q.i];Q.o=Q.opts[Q.i];Q.lock=false;Q.t0=Date.now();Q.armed=false;Q.calm=0;Q.hv=null;
+ /* 2 đội: tầng lẻ của Đội Xanh, tầng chẵn của Đội Đỏ; trong đội các bạn lần lượt thay nhau. Đổi người thì máy ghi nhớ lại tư thế */
+ if(Q.turn){var tm=Q.team=Q.i%2,mem=Q.T[tm],np=mem[Math.floor(Q.i/2)%mem.length],changed=Q.i>0&&np!==Q.p;Q.p=np;Q.swapUntil=Date.now()+2500;
+  if(Q.cam&&changed&&Q.bd&&Q.bd.B){Q.bd.reset();Q.camWait=true;var me0=Q;setTimeout(function(){if(Q===me0)sqCamReady()},15000)}}
  /* Loa đọc đúng chữ trên các phiến đá (2–4 phiến, thứ tự khác với đề gốc) */
  var qv=q.t=='mc'?Object.assign({},q,{o:Q.o.map(function(x){return x.t})}):q;
  var keep=Q.cam?document.getElementById('sqcam'):null;
  /* Sàn chơi tràn màn hình ở trên, câu hỏi nằm ở dưới */
- app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn">'+AVH(Q.p.e)+' '+esc(Q.p.n)+'</span></div>'
- +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"><div class="qmeta"><span class="pill">'+esc(q.c)+'</span>'+sayB(qv)+stars(q.l)+'<span class="sq-hint">'+(Q.cam?'Giữ động tác 1 giây để nhảy lên phiến đá: ↩️ quay trái · ↪️ quay phải · 👏 vỗ tay · 🙇 cúi người':'Chạm phiến đá có đáp án đúng để nhảy lên')+'</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
+ var tlab=Q.turn?(Q.team?'🔴 Đội Đỏ':'🔵 Đội Xanh'):'';
+ app.innerHTML='<div class="hud"><button class="btn ghost sm" data-act="quit" aria-label="Thoát">✕</button><span class="gname">🌉 Vượt cầu sinh tồn'+(Q.turn?' · 2 đội':'')+'</span><span class="qn">Tầng '+(Q.i+1)+'/'+Q.qs.length+'</span><span class="turn"'+(Q.turn?' style="border-color:'+(Q.team?'#FF9F9F':'#7FB8FF')+'"':'')+'>'+(Q.turn?tlab+': ':'')+AVH(Q.p.e)+' '+esc(Q.p.n)+'</span></div>'
+ +'<div class="sq-wrap">'+sqScene()+'<div class="sq-side"><div class="qcard'+qClass(q)+'"'+(Q.turn?' style="border-color:'+(Q.team?'#FF9F9F':'#7FB8FF')+'"':'')+'><div class="qmeta">'+(Q.turn?'<span class="pill" style="background:'+(Q.team?'#C0392B':'#2563EB')+'">Lượt '+tlab+'</span>':'')+'<span class="pill">'+esc(q.c)+'</span>'+sayB(qv)+stars(q.l)+'<span class="sq-hint">'+(Q.cam?'Giữ động tác 1 giây để nhảy lên phiến đá: ↩️ quay trái · ↪️ quay phải · 👏 vỗ tay · 🙇 cúi người':'Chạm phiến đá có đáp án đúng để nhảy lên')+'</span></div>'+ring()+'<p class="qtext">'+esc(q.q)+'</p></div>'
  +'<div id="fb" class="fb" role="status"></div></div></div>';
  document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
  fitPlay();sqSize();sqFitText();sqShift(Q.i,false);sqAvTo(sqStand(),false);
  requestAnimationFrame(function(){requestAnimationFrame(function(){if(Q)sqShift(Q.i+1,true)})});
  if(Q.cam)sqCamMount(keep);
+ /* 2 đội: báo đổi lượt; đồng hồ chờ 2,5 giây (và chờ máy nhận ra bạn mới nếu dùng camera) */
+ if(Q.turn){var w=$('#sqwait'),msg='🔄 Lượt của '+tlab+': '+AVH(Q.p.e)+' <b>'+esc(Q.p.n)+'</b>';
+  if(w){w.querySelector('b').innerHTML=msg;var sm=w.querySelector('small');if(sm)sm.textContent='Đứng thẳng, nhìn vào màn hình để máy nhận ra em. Đồng hồ chỉ chạy khi máy đã nhận ra em.'}
+  else $('.sq-wrap').insertAdjacentHTML('beforeend','<div class="sk-waitcam" id="sqswap"><div><b>'+msg+'</b><small>Vào vị trí, chuẩn bị nhảy!</small></div></div>');
+  var me1=Q;setTimeout(function(){var e=$('#sqswap');if(e)e.remove()},2500)}
  sayAuto(qv);
  clearInterval(qt);setRing(30,30);qt=setInterval(sqTick,100);
 }
@@ -641,7 +662,7 @@ function sqGesture(g,now){
  var gs=$('#sqges');if(gs)gs.textContent=g?MGNAME[g]:gcIdle(Q&&Q.bd);
  if(!Q)return;
  if(Q.camWait&&Q.bd&&Q.bd.B)sqCamReady();
- if(Q.lock||Q.camWait||!$('#sqv')){Q.hv=null;return}
+ if(Q.lock||Q.camWait||Q.swapUntil&&Date.now()<Q.swapUntil||!$('#sqv')){Q.hv=null;return}
  /* Sau mỗi tầng phải về tư thế đứng thẳng rồi mới tính động tác mới */
  if(!Q.armed){if(!g){if(!Q.calm)Q.calm=now;if(now-Q.calm>300)Q.armed=true}else Q.calm=0;return}
  var j=g?['L','R','C','D'].indexOf(g):-1,row=sqRowEl(Q.i+1),tiles=row?[].slice.call(row.querySelectorAll('.stone')):[];
@@ -654,7 +675,7 @@ function sqGesture(g,now){
 }
 function sqTick(){
  if(!Q||Q.lock||!$('#sqv')){clearInterval(qt);return}
- if(Q.camWait){Q.t0=Date.now();return}
+ if(Q.camWait||Q.swapUntil&&Date.now()<Q.swapUntil){Q.t0=Date.now();return}
  var left=Math.max(0,30-(Date.now()-Q.t0)/1000);setRing(left,30);
  if(left>0&&left<=5)snd('beat',left);
  if(left<=0)sqPick(-1);
@@ -669,6 +690,7 @@ function sqPick(i){
   if(Q!==me)return;
   if(o&&o.ok){
    tiles[i].classList.add('done');snd('step');sqMood('happy');Q.stk++;if(Q.stk>Q.best)Q.best=Q.stk;Q.xp+=10+2*q.l;
+   if(Q.turn){var ps=Q.ps[Q.p.n]=Q.ps[Q.p.n]||{xp:0,ok:0};ps.xp+=10+2*q.l;ps.ok++}
    var fb=$('#fb');fb.className='fb good';fb.innerHTML='✅ Vững chân! Tiếp tục leo lên.';
    setTimeout(function(){
     if(Q!==me)return;Q.i++;
@@ -680,6 +702,7 @@ function sqPick(i){
    tiles.forEach(function(b,j){if(Q.o[j].ok)b.classList.add('reveal')});
    sqMood('sad');if(av)av.classList.add('fall');snd('crash');
    var fb2=$('#fb');fb2.className='fb bad';fb2.innerHTML=(i<0?'⏰ Hết giờ! ':'')+'🪨 Đá sụp, rơi xuống vực! Đáp án đúng: <b>'+esc(right)+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':'');
+   if(Q.turn)fb2.innerHTML=(i<0?'⏰ Hết giờ! ':'')+'🪨 '+(Q.team?'🔴 Đội Đỏ':'🔵 Đội Xanh')+' rơi xuống vực! Đáp án đúng: <b>'+esc(right)+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':'');
    setTimeout(function(){if(Q===me)sqLose()},q.e?3600:2600);
   }
  },i>=0?560:0);
@@ -687,6 +710,16 @@ function sqPick(i){
 window.addEventListener('resize',function(){if(Q&&$('#sqv')){document.documentElement.style.setProperty('--vh',window.innerHeight+'px');sqSize();sqFitText();sqShift(Q.i+(Q.lock?0:1),false);var a=$('#sqav');if(a&&!a.classList.contains('fall'))sqAvTo(sqStand(),false)}});
 function sqEnd(win){
  setScreen('result');
+ /* 2 đội: đội vừa trả lời sai thua (win=false); cả cầu không ai sai thì hoà */
+ if(Q.turn){
+  var lose=win?-1:Q.team,wt=lose<0?-1:1-lose,all=Q.T[0].concat(Q.T[1]);
+  var rs=all.map(function(p){var s=Q.ps[p.n]||{xp:0,ok:0},t=Q.T[0].indexOf(p)>=0?0:1;return award(p.n,{xp:s.xp+(t==wt?40:0),streak:s.ok,badges:t==wt||wt<0?['bridge']:[]})});
+  var tb=function(t){return '<div style="flex:1;min-width:150px"><b style="color:'+(t?'#FF9F9F':'#7FB8FF')+'">'+(t?'🔴 Đội Đỏ':'🔵 Đội Xanh')+(t==wt?' 🏆':t==lose?' 🪨':'')+'</b><div class="res-avs">'+Q.T[t].map(function(p){return AVH(p.e,t==lose?'sad':'win','full')}).join('')+'</div><div class="small">'+Q.T[t].map(function(p){return esc(p.n)}).join(', ')+'</div></div>'};
+  app.innerHTML=(wt>=0?confetti(30):'')+'<section class="hero center result'+(wt>=0?' win':'')+'"><h1 class="title sm">'+(wt<0?'🤝 Cả hai đội cùng về đích – HOÀ!':'🏆 '+(wt?'ĐỘI ĐỎ':'ĐỘI XANH')+' THẮNG!')+'</h1>'
+   +'<p>'+(wt<0?'Không đội nào trả lời sai suốt '+Q.qs.length+' tầng cầu.':(lose?'Đội Đỏ':'Đội Xanh')+' trả lời sai trước ở tầng '+(Q.i+1)+'.')+'</p><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'+tb(0)+tb(1)+'</div></section>'
+   +'<div class="rewards">'+all.map(function(p,k){return rewardHTML(p.n,p.e,rs[k])}).join('')+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
+  snd('win');celebrate(rs);Q=null;return;
+ }
  var res=award(Q.p.n,{xp:Q.xp+(win?50:0),streak:Q.best,badges:win?['bridge']:[]});
  app.innerHTML=(win?confetti(30):'')+'<section class="hero center result'+(win?' win':'')+'"><div class="res-avs">'+AVH(Q.p.e,win?'win':'sad','full')+'</div>'+(win?'<div class="wintxt">WIN</div><p>'+AVH(Q.p.e)+' '+esc(Q.p.n)+' đã vượt qua '+Q.qs.length+' bước và về đích!</p>':'<h1 class="title sm">Bạn đã rơi xuống vực!</h1><p>Vượt qua '+Q.i+'/'+Q.qs.length+' bước. Thử lại nhé!</p>')+'</section>'
  +'<div class="rewards">'+rewardHTML(Q.p.n,Q.p.e,res)+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
@@ -708,6 +741,7 @@ document.addEventListener('click',function(e){
  case 'subj':st.subj=v;save('dtk_subj',v);snd('tap');gradeScreen();break;
  case 'frcam':st.frcam=v=='1';save('dtk_frcam',st.frcam);menu();break;
  case 'frpet':st.frpet=v;save('dtk_frpet',v);menu();break;
+ case 'rspet':st.rspet=v;save('dtk_rspet',v);menu();break;
  case 'frpet2':st.frpet2=v;save('dtk_frpet2',v);menu();break;
  case 'rscam':st.rscam=v=='1';save('dtk_rscam',st.rscam);menu();break;
  case 'grade':if(document.body.classList.contains('playing')&&!confirm('Thoát ván chơi để đổi lớp?'))return;S=null;Q=null;gradeScreen();break;
@@ -761,7 +795,7 @@ document.addEventListener('keydown',function(e){
 /* Giao tiếp với trò Nhảy bao bố (sack.js) */
 window.DTKAPI={st:st,GR:GR,AV:AV,LADDER:LADDER,roster:roster,setRoster:setRoster,scopeSelect:scopeSelect,scopeInfo:scopeInfo,bank:bank,award:award,rewardHTML:rewardHTML,celebrate:celebrate,snd:snd,numVal:numVal,fmt:fmt,ring:ring,setRing:setRing,qClass:qClass,home:home,gradeScreen:gradeScreen,header:header,stopAll:stopAll,loadGrade:loadGrade,
  setG:function(g){g=gkey(g);if(g){st.g=g;st.subj=GR[g].subj;save('dtk_grade',st.g);header()}},glab:glab,
- skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars,sayB:sayB,sayAuto:sayAuto,fresh:fresh};
+ skCam:function(){return st.skcam},skFace:function(){return st.skface},setSkFace:function(f){st.skface=f=='environment'?'environment':'user';save('dtk_skface',st.skface)},dbg:function(){return{S:S,Q:Q,BANK:BANK,ask:ask,answer:answer,prep:prep}},pool:gamePool,scopeName:scopeName,esc:esc,shuf:shuf,prep:prep,judge:judge,ansText:ansText,menu:menu,setScreen:setScreen,confetti:confetti,LVN:LVN,stars:stars,sayB:sayB,sayAuto:sayAuto,fresh:fresh,teamsOf:teamsOf};
 
 /* ================= KHỞI ĐỘNG ================= */
 header();netGate();

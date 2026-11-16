@@ -140,6 +140,9 @@ var CSS=''
 +'.fr-qh{position:absolute;left:6px;right:6px;top:6px;margin:0;padding:5px 9px 6px;z-index:5}'
 +'.fr-qh p{font-size:clamp(17px,2.4vw,30px);margin:2px 0 4px;line-height:1.22}.fr-qh small{font-size:clamp(12px,1.2vw,15px)}'
 +'.h1 .fr-qh{border-color:#FFB3B3}'
+/* 2 đội theo lượt: hai giỏ màu đội ở hai góc trên, giỏ của đội đang có lượt sáng lên */
++'.fr-tb0{border-color:#7FB8FF}.fr-tb1{border-color:#FF9F9F}.fr-basket.cur{box-shadow:0 0 0 3px #FFE27A,0 0 20px rgba(255,226,122,.9)}'
++'.fr-turn .fr-basket{min-width:120px}.fr-turn .fr-basket b{font-size:14px}.fr-pill.cur{background:rgba(255,226,122,.35);border-color:#FFE27A}'
 +'.fr-vs .fr-basket{top:auto;bottom:8px;z-index:3}.fr-vs .fr-cam{bottom:66px}'
 +'@media(prefers-reduced-motion:reduce){.fr-pet.happy .body,.fr-pet.sad .body,.fr-fruit.rot::after{animation:none}}';
 function css(){var o=$('frCss');if(o)o.remove();var s=document.createElement('style');s.id='frCss';s.textContent=CSS;document.head.appendChild(s)}
@@ -147,12 +150,14 @@ function css(){var o=$('frCss');if(o)o.remove();var s=document.createElement('st
 /* ================= BẮT ĐẦU ================= */
 function start(){
  stop();css();
- var r=A.roster(),st=A.st,vs=st.mode=='vs',need=vs?2:1;
- if(st.sel.length!=need)return alert(vs?'Chế độ đối kháng: hãy chọn 2 thí sinh.':'Hãy chọn 1 thí sinh.');
+ var r=A.roster(),st=A.st,vs=st.mode=='vs',turn=st.mode=='turn',need=vs?2:1;
+ if(turn?st.sel.length<2:st.sel.length!=need)return alert(turn?'Chế độ 2 đội theo lượt: hãy chọn từ 2 thí sinh trở lên.':vs?'Chế độ đối kháng: hãy chọn 2 thí sinh.':'Hãy chọn 1 thí sinh.');
  var P=A.pool().filter(function(q){return q.t=='mc'||q.t=='tf'});
  if(P.length<N)return alert('Phạm vi này chưa đủ '+N+' câu trắc nghiệm, đúng/sai. Hãy chọn phạm vi rộng hơn.');
  var byL=function(a,b){return a.l-b.l},qs,qs2=null;
- if(!vs)qs=A.fresh(P).slice(0,N).sort(byL).map(A.prep);
+ /* 2 đội theo lượt: chơi đến khi một đội đủ 10 quả – lấy sẵn nhiều câu (tối đa 60), hết thì quay lại từ đầu */
+ if(turn)qs=A.fresh(P).slice(0,60).map(A.prep);
+ else if(!vs)qs=A.fresh(P).slice(0,N).sort(byL).map(A.prep);
  else{
   /* Đối kháng: mỗi phe một bộ câu hỏi KHÁC NHAU nhưng từng cặp câu cùng cấp độ (và cùng dạng nếu được), để không nhìn bài nhau.
      Bỏ câu "nghe – chọn từ" vì hai phe nghe hai từ khác nhau cùng lúc sẽ lẫn. */
@@ -170,8 +175,13 @@ function start(){
  var cam=st.frcam!==false&&!!(window.DTKSACK&&DTKSACK.gcam);
  var p1=petOf(st.frpet),p2=petOf(st.frpet2,PETS[1]);if(vs&&p2[0]==p1[0])p2=PETS[(PETS.indexOf(p1)+1)%PETS.length];
  var mk=function(k,pet){return{k:k,p:r[st.sel[k]],pet:pet,tx:.5,ax:.5,basket:[],xp:0,stk:0,best:0,seen:0,flip:false,mood:'idle'}};
- S={qs:qs,i:-1,vs:vs,sides:vs?[mk(0,p1),mk(1,p2)]:[mk(0,p1)],cam:cam,phase:'cal',lock:true};
+ S={qs:qs,i:-1,vs:vs,turn:turn,sides:vs?[mk(0,p1),mk(1,p2)]:[mk(0,p1)],cam:cam,phase:'cal',lock:true};
  S.sides[0].qs=qs;if(vs)S.sides[1].qs=qs2;
+ if(turn){
+  /* Hai đội: thành viên lần lượt thay nhau; mỗi đội một giỏ, đủ 10 quả trước là thắng */
+  S.T=A.teamsOf(st.sel.map(function(i){return r[i]}));S.tb=[[],[]];S.ps={};
+  S.sides[0].p={n:'Đội Xanh',e:S.T[0][0].e};
+ }
  A.setScreen('play');document.body.setAttribute('data-game','fruit');setVh();
  /* Bố trí mỗi sân: giỏ ở góc trên, camera ở góc dưới phía ngoài, thùng rác ở góc dưới đối diện camera */
  var half=function(sd){var k=sd.k,out=vs?(k?'r':'l'):'r',bsk=vs?out:'l',trash=out=='l'?'r':'l';
@@ -180,19 +190,24 @@ function start(){
    +(vs?'<div class="fr-q fr-qh" id="frQ'+k+'"><small style="color:'+(k?'#FFB3B3':'#B9D8FF')+';font-weight:800">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</small><p>Chuẩn bị!</p><div class="fr-bar"><i></i></div></div>':'')
    +'<div class="fr-lanes" id="frL'+k+'"></div>'
    +'<div class="fr-pet" id="frP'+k+'"><div class="body">'+petSVG(sd.pet[0],'idle')+'</div><span class="shadow"></span></div>'
-   +'<div class="fr-basket '+bsk+'" id="frB'+k+'"><b>🧺 Giỏ '+(vs?esc(sd.p.n):'hoa quả')+'</b><div></div></div><div class="fr-trash '+trash+'" aria-hidden="true">🗑️</div>'
+   +(turn?'<div class="fr-basket l fr-tb0" id="frT0"><b>🔵 Giỏ Đội Xanh</b><div></div></div><div class="fr-basket r fr-tb1" id="frT1"><b>🔴 Giỏ Đội Đỏ</b><div></div></div>'
+    :'<div class="fr-basket '+bsk+'" id="frB'+k+'"><b>🧺 Giỏ '+(vs?esc(sd.p.n):'hoa quả')+'</b><div></div></div>')
+   +'<div class="fr-trash '+(turn?'l':trash)+'" aria-hidden="true">🗑️</div>'
    +(cam?'<div class="gc-box fr-cam '+out+'" id="frC'+k+'"><video playsinline muted autoplay></video><canvas></canvas><div class="gc-msg"></div>'+(vs?'<select id="frSel'+k+'" aria-label="Chọn camera cho '+(k?'phe 2':'phe 1')+'" hidden></select><button class="fr-flip" data-act="frflip" data-v="'+k+'" aria-label="Đảo chiều trái phải" title="Đảo chiều trái – phải">⇆</button>':'')+'</div>':'')
    +'<div class="fr-fb" id="frFb'+k+'" role="status"></div></div>'};
- var pills=S.sides.map(function(sd){return '<span class="fr-pill p'+sd.k+'" id="frS'+sd.k+'">'+(vs?esc(sd.p.n)+': ':'')+'🍎 0 quả</span>'}).join('');
- var who=S.sides.map(function(sd){return AVH(sd.p.e)+' '+esc(sd.p.n)+' – '+sd.pet[1].toLowerCase()}).join(' ⚔️ ');
- document.getElementById('app').innerHTML='<div class="fr'+(vs?' fr-vs':'')+'">'
-  +'<div class="fr-hud"><button class="btn ghost sm" data-act="frquit" aria-label="Thoát">✕</button><span class="gname">🧺 Hứng hoa quả'+(vs?' · Đối kháng':'')+'</span>'
-  +'<span class="fr-pill" id="frNo">Câu 0/'+N+'</span>'+pills
+ var pills=turn?'<span class="fr-pill p0" id="frS0">🔵 Đội Xanh: 0/'+N+'</span><span class="fr-pill p1" id="frS1">🔴 Đội Đỏ: 0/'+N+'</span>'
+  :S.sides.map(function(sd){return '<span class="fr-pill p'+sd.k+'" id="frS'+sd.k+'">'+(vs?esc(sd.p.n)+': ':'')+'🍎 0 quả</span>'}).join('');
+ var who=turn?'🔵 Đội Xanh: '+S.T[0].map(function(p){return esc(p.n)}).join(', ')+' ⚔️ 🔴 Đội Đỏ: '+S.T[1].map(function(p){return esc(p.n)}).join(', ')
+  :S.sides.map(function(sd){return AVH(sd.p.e)+' '+esc(sd.p.n)+' – '+sd.pet[1].toLowerCase()}).join(' ⚔️ ');
+ document.getElementById('app').innerHTML='<div class="fr'+(vs?' fr-vs':'')+(turn?' fr-turn':'')+'">'
+  +'<div class="fr-hud"><button class="btn ghost sm" data-act="frquit" aria-label="Thoát">✕</button><span class="gname">🧺 Hứng hoa quả'+(vs?' · Đối kháng':turn?' · 2 đội':'')+'</span>'
+  +'<span class="fr-pill" id="frNo">Câu 0'+(turn?'':'/'+N)+'</span>'+pills
   +'<button class="btn ghost sm" data-act="snd" aria-label="Bật hoặc tắt âm thanh">'+(window.SND&&!SND.isOn()?'🔇':'🔊')+'</button></div>'
   +'<div class="fr-scene" id="frScene"><div class="fr-canopy"></div>'
   +(vs?'':'<div class="fr-q" id="frQ"><small>'+who+'</small><p>Chuẩn bị hứng hoa quả!</p><div class="fr-bar" id="frBar"><i></i></div></div>')
   +'<div class="fr-field">'+S.sides.map(half).join('')+'</div>'
   +'<div class="fr-cal" id="frCal"><div><h3 style="margin:0">🧺 Sẵn sàng hứng hoa quả!</h3>'
+  +(turn?'<p>'+who+'</p><small>Mỗi câu một bạn ra trước camera, hai đội thay phiên nhau. Đội nào hứng đủ 10 quả trước là thắng.</small>':'')
   +(cam?'<p id="frCalMsg">📷 Đang mở camera…</p><small>'+(vs?'Mỗi phe đứng trước camera của phe mình (hoặc phe 1 bên trái, phe 2 bên phải nếu dùng chung 1 camera), cách khoảng 2 m. ':'Đứng cách camera khoảng 2 m. ')+'Bước sang trái, sang phải để con vật chạy theo. Đứng dưới quả mang đáp án đúng khi quả rơi xuống (15 giây).</small>'
    :'<p>'+(vs?'Phe 1: phím A / D · Phe 2: phím ← / →. Hoặc chạm, kéo trên sân của mình.':'Chạm hoặc kéo trên sân, hoặc dùng phím ← →.')+'</p><small>Đứng dưới quả mang đáp án đúng khi quả rơi xuống (15 giây).</small>')
   +'<big id="frCount"></big><button class="btn" data-act="frgo">▶ Bắt đầu</button></div></div>'
@@ -321,20 +336,30 @@ function go(){if(!S||S.phase!='cal')return;var c=$('frCal');if(c)c.remove();S.ph
 /* ================= CÂU HỎI ================= */
 function next(){
  if(!S)return;S.i++;
- if(S.i>=S.qs.length)return end();
+ if(!S.turn&&S.i>=S.qs.length)return end();
  S.lock=false;S.t0=Date.now();S.beat=0;
- $('frNo').textContent='Câu '+(S.i+1)+'/'+N;
+ $('frNo').textContent='Câu '+(S.i+1)+(S.turn?'':'/'+N);
+ /* 2 đội theo lượt: câu lẻ của Đội Xanh, câu chẵn của Đội Đỏ; trong mỗi đội các bạn lần lượt thay nhau */
+ if(S.turn){var tm=S.team=S.i%2,mem=S.T[tm];S.who=mem[Math.floor(S.i/2)%mem.length];
+  [0,1].forEach(function(t){var b=$('frT'+t);if(b)b.classList.toggle('cur',t==tm);var pl=$('frS'+t);if(pl)pl.classList.toggle('cur',t==tm)})}
  var qvs=[];
  /* Mỗi phe một câu hỏi riêng (chơi đơn: chỉ một phe) */
  S.sides.forEach(function(sd){
-  var k=sd.k,q=sd.q=sd.qs[S.i],labels=q.t=='tf'?['Đúng','Sai']:q.o.slice(),n=sd.n=labels.length,fr=sd.fr=shuf(FRUITS).slice(0,n);
+  var k=sd.k,q=sd.q=sd.qs[S.i%sd.qs.length],labels=q.t=='tf'?['Đúng','Sai']:q.o.slice(),n=sd.n=labels.length,fr=sd.fr=shuf(FRUITS).slice(0,n);
   sd.vals=q.t=='tf'?['1','0']:labels.map(function(x,j){return String(j)});
   var qv=Object.assign({},q,{o:labels,nol:1});qvs.push(qv);
-  var head='<small>'+(S.vs?'<b style="color:'+(k?'#FFB3B3':'#B9D8FF')+'">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</b> · ':'')+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+(A.sayB?' '+A.sayB(qv,'fr'+k):'')+'</small>';
+  var head='<small>'+(S.turn?'<b style="color:'+(S.team?'#FFB3B3':'#B9D8FF')+'">Lượt '+(S.team?'🔴 Đội Đỏ':'🔵 Đội Xanh')+': '+AVH(S.who.e)+' '+esc(S.who.n)+'</b> · ':'')+(S.vs?'<b style="color:'+(k?'#FFB3B3':'#B9D8FF')+'">'+(k?'PHE 2':'PHE 1')+' · '+esc(sd.p.n)+'</b> · ':'')+esc(q.c)+' – '+A.LVN[q.l-1]+(q.t=='tf'?' · Đúng hay sai?':'')+(A.sayB?' '+A.sayB(qv,'fr'+k):'')+'</small>';
   var card=$(S.vs?'frQ'+k:'frQ');card.innerHTML=head+'<p>'+esc(q.q)+'</p><div class="fr-bar"><i></i></div>';
   $('frL'+k).innerHTML=labels.map(function(t,j){return '<div class="fr-lane" data-l="'+j+'"><div class="fr-fruit" id="frF'+k+'_'+j+'"><b>'+'ABCD'[j]+'</b><i>'+fr[j]+'</i><span>'+esc(t)+'</span></div></div>'}).join('');
   var fb=$('frFb'+k);fb.className='fr-fb';setMood(sd,'idle');
  });
+ /* 2 đội: báo đổi lượt 2,5 giây để bạn tiếp theo vào trước camera, rồi quả mới bắt đầu rơi */
+ if(S.turn){
+  S.lock=true;var me=S,fb0=$('frFb0');fb0.className='fr-fb show '+(S.team?'bad':'good');
+  fb0.innerHTML='🔄 Lượt của '+(S.team?'🔴 Đội Đỏ':'🔵 Đội Xanh')+'<br>'+AVH(S.who.e)+' <b>'+esc(S.who.n)+'</b> vào vị trí!';snd('tap');
+  setTimeout(function(){if(S!==me||S.phase!='play')return;fb0.className='fr-fb';S.lock=false;S.t0=Date.now();if(A.sayAuto)A.sayAuto(qvs[0])},2500);
+  return;
+ }
  /* Giọng đọc: chơi đơn đọc câu hỏi; đối kháng đọc lần lượt câu của phe 1 rồi phe 2 */
  if(A.sayAuto){
   if(!S.vs)A.sayAuto(qvs[0]);
@@ -376,14 +401,19 @@ function resolve(){
   if(q.e)anyE=true;
   sd.vals.forEach(function(x,j){var e=$('frF'+k+'_'+j);if(!e||j==lane)return;if(A.judge(q,x))e.classList.add('right');else e.classList.add('dim')});
   pe.classList.remove('happy','sad');void pe.offsetWidth;
+  /* 2 đội: ghi điểm cho bạn vừa chơi và đưa quả vào giỏ của đội đang có lượt */
+  var me2=S.turn?(S.ps[S.who.n]=S.ps[S.who.n]||{p:S.who,xp:0,stk:0,best:0}):null;
   if(ok){
    anyOk=true;sd.basket.push(sd.fr[lane]);sd.stk++;if(sd.stk>sd.best)sd.best=sd.stk;sd.xp+=10+2*q.l;
+   if(me2){me2.xp+=10+2*q.l;me2.stk++;if(me2.stk>me2.best)me2.best=me2.stk;S.tb[S.team].push(sd.fr[lane])}
    setMood(sd,'happy');pe.classList.add('happy');
-   var bk=$('frB'+k);if(f&&bk){f.classList.add('inbask');var hr=h.getBoundingClientRect(),br=bk.getBoundingClientRect(),lr=f.parentNode.getBoundingClientRect();f.style.left=(br.left-lr.left+br.width/2)+'px';f.style.top=(br.top-hr.top)+'px'}
-   var fruit=sd.fr[lane];setTimeout(function(){if(S!==me)return;$('frB'+k).querySelector('div').insertAdjacentHTML('beforeend','<i>'+fruit+'</i>');$('frS'+k).textContent=(S.vs?sd.p.n+': ':'')+fruit+' '+sd.basket.length+' quả'},650);
+   var bk=$(S.turn?'frT'+S.team:'frB'+k);if(f&&bk){f.classList.add('inbask');var hr=h.getBoundingClientRect(),br=bk.getBoundingClientRect(),lr=f.parentNode.getBoundingClientRect();f.style.left=(br.left-lr.left+br.width/2)+'px';f.style.top=(br.top-hr.top)+'px'}
+   var fruit=sd.fr[lane],tm=S.team;setTimeout(function(){if(S!==me)return;
+    if(S.turn){$('frT'+tm).querySelector('div').insertAdjacentHTML('beforeend','<i>'+fruit+'</i>');$('frS'+tm).textContent=(tm?'🔴 Đội Đỏ: ':'🔵 Đội Xanh: ')+S.tb[tm].length+'/'+N}
+    else{$('frB'+k).querySelector('div').insertAdjacentHTML('beforeend','<i>'+fruit+'</i>');$('frS'+k).textContent=(S.vs?sd.p.n+': ':'')+fruit+' '+sd.basket.length+' quả'}},650);
    fb.className='fr-fb good show';fb.innerHTML='✅ Hứng đúng! '+sd.fr[lane]+' vào giỏ.';
   }else{
-   anyBad=true;sd.stk=0;setMood(sd,'sad');pe.classList.add('sad');
+   anyBad=true;sd.stk=0;if(me2)me2.stk=0;setMood(sd,'sad');pe.classList.add('sad');
    if(f){f.classList.add('rot');setTimeout(function(){if(S!==me||!f.parentNode)return;var hr=h.getBoundingClientRect(),tr=h.querySelector('.fr-trash').getBoundingClientRect(),lr=f.parentNode.getBoundingClientRect();f.classList.add('toss');f.style.left=(tr.left-lr.left+tr.width/2)+'px';f.style.top=(tr.top-hr.top)+'px'},1000)}
    fb.className='fr-fb bad show';fb.innerHTML='🤢 Quả hỏng rồi, vứt đi thôi!'+(S.vs?'':' Đáp án đúng: <b>'+esc(A.ansText(q))+'</b>'+(q.e?'<small>'+esc(q.e)+'</small>':''));
   }
@@ -391,13 +421,16 @@ function resolve(){
  if(anyOk)snd('happy');if(anyBad)setTimeout(function(){snd('crash')},anyOk?250:0);
  /* Đối kháng: đáp án đúng và lời giải hiện ở khung câu hỏi của từng phe */
  if(S.vs)S.sides.forEach(function(sd){var q=sd.q,qq=$('frQ'+sd.k);if(qq)qq.insertAdjacentHTML('beforeend','<small style="color:#9CFFB8;margin-top:4px;display:block">✔ Đáp án đúng: '+esc(A.ansText(q))+(q.e?' – '+esc(q.e):'')+'</small>')});
- setTimeout(function(){if(S===me&&S.phase=='play'){S.sides.forEach(function(sd){$('frP'+sd.k).classList.remove('happy','sad')});next()}},anyBad?(anyE?4200:3000):2300);
+ /* 2 đội: đội nào đủ 10 quả trước thì thắng */
+ var done=S.turn&&S.tb[S.team].length>=N;
+ setTimeout(function(){if(S===me&&S.phase=='play'){S.sides.forEach(function(sd){$('frP'+sd.k).classList.remove('happy','sad')});if(done)end();else next()}},anyBad?(anyE?4200:3000):done?1600:2300);
 }
 
 /* ================= KẾT THÚC ================= */
 function end(){
  if(!S)return;var me=S;S.phase='end';
  if(window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();camStop();cancelAnimationFrame(raf);
+ if(S.turn)return endTeams();
  var res=S.sides.map(function(sd){var n=sd.basket.length;return A.award(sd.p.n,{xp:sd.xp+(n==N?50:0),streak:sd.best,badges:n>=8?['fruit']:[]})});
  A.setScreen('result');
  var big=function(sd,cls){var n=sd.basket.length;return '<div style="flex:1;min-width:150px"><div style="width:110px;height:150px;margin:0 auto">'+petSVG(sd.pet[0],cls)+'</div><b>'+AVH(sd.p.e)+' '+esc(sd.p.n)+'</b><div style="font-size:clamp(22px,4.5vw,34px);line-height:1.2;margin:4px 0">'+(sd.basket.join('')||'🍂')+'</div><p style="margin:0">Hứng được <b>'+n+'/'+N+'</b> quả</p></div>'};
@@ -414,6 +447,17 @@ function end(){
   +'<div class="rewards">'+S.sides.map(function(sd,i){return A.rewardHTML(sd.p.n,sd.p.e,res[i])}).join('')+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
  snd(party||!S.vs&&S.sides[0].basket.length>=5?'win':'sad');
  A.celebrate(res);S=null;
+}
+/* Kết thúc chế độ 2 đội: đội đủ 10 quả thắng; mọi thành viên được cộng điểm theo số câu mình hứng đúng */
+function endTeams(){
+ var w=S.tb[0].length>=N?0:S.tb[1].length>=N?1:(S.tb[0].length==S.tb[1].length?-1:S.tb[0].length>S.tb[1].length?0:1),pet=S.sides[0].pet[0];
+ var all=S.T[0].concat(S.T[1]),res=all.map(function(p){var s=S.ps[p.n]||{xp:0,best:0},t=S.T[0].indexOf(p)>=0?0:1;return A.award(p.n,{xp:s.xp+(t==w?30:0),streak:s.best,badges:t==w&&S.tb[t].length>=8?['fruit']:[]})});
+ var team=function(t){return '<div style="flex:1;min-width:160px"><div style="width:100px;height:136px;margin:0 auto">'+petSVG(pet,t==w?'happy':w<0?'idle':'sad')+'</div><b style="color:'+(t?'#FF9F9F':'#7FB8FF')+'">'+(t?'🔴 Đội Đỏ':'🔵 Đội Xanh')+'</b><div class="small">'+S.T[t].map(function(p){return AVH(p.e)+' '+esc(p.n)}).join(', ')+'</div><div style="font-size:clamp(20px,4vw,30px);line-height:1.2;margin:4px 0">'+(S.tb[t].join('')||'🍂')+'</div><p style="margin:0"><b>'+S.tb[t].length+'/'+N+'</b> quả</p></div>'};
+ A.setScreen('result');
+ document.getElementById('app').innerHTML=(w>=0?A.confetti(30):'')+'<section class="hero center result'+(w>=0?' win':'')+'"><h1 class="title sm">'+(w<0?'🤝 HAI ĐỘI HOÀ NHAU!':'🏆 '+(w?'ĐỘI ĐỎ':'ĐỘI XANH')+' THẮNG!')+'</h1>'
+  +'<p>'+(w>=0?'Hứng đủ '+N+' quả trước sau '+(S.i+1)+' câu.':'')+'</p><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'+team(0)+team(1)+'</div></section>'
+  +'<div class="rewards">'+all.map(function(p,i){return A.rewardHTML(p.n,p.e,res[i])}).join('')+'</div><div class="cta"><button class="btn big" data-act="start">↻ Chơi lại</button><button class="btn ghost" data-act="menu">Đổi trò chơi</button></div>';
+ snd(w>=0?'win':'happy');A.celebrate(res);S=null;
 }
 function stop(){cancelAnimationFrame(raf);camStop();if(S&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();S=null}
 function click(a,v){

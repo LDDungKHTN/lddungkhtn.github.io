@@ -30,8 +30,11 @@ GR.en6={n:6,subj:'en',files:['cauhoi-en6.js'],tag:'Global Success 6 · 12 Units 
  bai:['My New School','My House','My Friends','My Neighbourhood','Natural Wonders of Viet Nam','Our Tet Holiday','Television','Sports and Games','Cities of the World','Our Houses in the Future','Our Greener World','Robots'],
  bn:['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12'],
  ch:[['Theme 1. Our Communities',1,3],['Theme 2. Our Heritage',4,6],['Theme 3. Our World',7,9],['Theme 4. Visions of the Future',10,12]]};
-GR.en7={n:7,subj:'en',soon:1,files:[],tag:'Global Success 7',bai:[],ch:[]};
-GR.en8={n:8,subj:'en',soon:1,files:[],tag:'Global Success 8',bai:[],ch:[]};
+GR.en7={n:7,subj:'en',files:['cauhoi-en7.js'],tag:'Global Success 7 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',
+ bai:['Hobbies','Healthy Living','Community Service','Music and Arts','Food and Drink','A Visit to a School','Traffic','Films','Festivals around the World','Energy Sources','Travelling in the Future','English-speaking Countries'],
+ bn:['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12'],
+ ch:[['Units 1 – 3',1,3],['Units 4 – 6',4,6],['Units 7 – 9',7,9],['Units 10 – 12',10,12]]};
+GR.en8={n:8,subj:'en',files:['cauhoi-en8.js'],tag:'Global Success 8 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',bai:['Leisure Time','Life in the Countryside','Teenagers','Ethnic Groups of Viet Nam','Our Customs and Traditions','Lifestyles','Environmental Protection','Shopping','Natural Disasters','Communication in the Future','Science and Technology','Life on Other Planets'],bn:['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12'],ch:[['Units 1 – 3',1,3],['Units 4 – 6',4,6],['Units 7 – 9',7,9],['Units 10 – 12',10,12]]};
 GR.en9={n:9,subj:'en',files:['cauhoi-en9.js'],tag:'Global Success 9 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',
  bai:['Local Community','City Life','Healthy Living for Teens','Remembering the Past','Our Experiences','Vietnamese Lifestyle: Then and Now','Natural Wonders of the World','Tourism','World Englishes','Planet Earth','Electronic Devices','Career Choices'],
  bn:['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12'],
@@ -103,7 +106,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=69;
+var APPV=70;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');

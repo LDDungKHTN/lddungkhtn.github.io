@@ -24,7 +24,13 @@ var GR={
 var SUBJ=[
  {id:'khtn',ico:'🔬',name:'Khoa học tự nhiên',short:'KHTN',keys:[6,7,8,9]},
  {id:'ls',ico:'🌏',name:'Lịch sử và Địa lí',short:'Sử – Địa',keys:['ls6','ls7','ls8','ls9']},
- {id:'en',ico:'🔤',name:'Tiếng Anh',short:'Tiếng Anh',keys:['en6','en7','en8','en9']}];
+ {id:'en',ico:'🔤',name:'Tiếng Anh',short:'Tiếng Anh',keys:['en6','en7','en8','en9']},
+ {id:'nv',ico:'📖',name:'Ngữ văn (Tiếng Việt)',short:'Ngữ văn',keys:['nv6','nv7','nv8','nv9']}];
+/* Ngữ văn: chỉ phần Thực hành tiếng Việt (ngữ pháp, từ ngữ, dấu câu, biện pháp tu từ) – Kết nối tri thức */
+GR.nv6={n:6,subj:'nv',files:['cauhoi-nv6.js'],tag:'Thực hành tiếng Việt: cấu tạo từ, cụm từ, trạng ngữ, dấu câu, từ mượn, biện pháp tu từ',
+ bai:['Tôi và các bạn','Gõ cửa trái tim','Yêu thương và chia sẻ','Quê hương yêu dấu','Những nẻo đường xứ sở','Chuyện kể về những người anh hùng','Thế giới cổ tích','Khác biệt và gần gũi','Trái Đất – ngôi nhà chung'],
+ ch:[['Học kì I (Tập một)',1,5],['Học kì II (Tập hai)',6,9]]};
+[7,8,9].forEach(function(n){GR['nv'+n]={n:n,subj:'nv',soon:1,files:[],tag:'Thực hành tiếng Việt',bai:[],ch:[]}});
 /* Tiếng Anh (Global Success): câu hỏi được đọc bằng giọng tiếng Anh của trình duyệt (speak.js) */
 GR.en6={n:6,subj:'en',files:['cauhoi-en6.js'],tag:'Global Success 6 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',
  bai:['My New School','My House','My Friends','My Neighbourhood','Natural Wonders of Viet Nam','Our Tet Holiday','Television','Sports and Games','Cities of the World','Our Houses in the Future','Our Greener World','Robots'],
@@ -106,7 +112,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=70;
+var APPV=71;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');

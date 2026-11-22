@@ -234,7 +234,7 @@ function pillUpd(sd,hit){
 /* ================= CAMERA =================
    Chơi đơn / 2 đội: bộ camera một người của sack.js.
    Đối kháng: máy có từ 2 camera → mỗi phe một camera; chỉ có 1 camera → chia đôi khung hình (phe 1 bên trái, phe 2 bên phải). */
-var CAM={on:false,src:[],raf:0,last:0,devs:[]};
+var CAM={on:false,src:[],raf:0,last:0,devs:[],lastMx:null,lastT:[0,0]};
 function posOf(lm){if(!lm||!lm[11]||!lm[12])return null;var v=function(p){return p.visibility==null||p.visibility>0.4};if(!v(lm[11])||!v(lm[12]))return null;return (lm[11].x+lm[12].x)/2}
 function msgCal(t){var m=$('spCalMsg');if(m)m.textContent=t}
 function camStart(){
@@ -245,7 +245,7 @@ function camStart(){
   });return;
  }
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){S.cam=false;msgCal('Trình duyệt không hỗ trợ camera – dùng phím hoặc chạm để lái tàu.');return}
- var L=DTKSACK.gcam.lib;CAM.on=true;CAM.src=[];
+ var L=DTKSACK.gcam.lib;CAM.on=true;CAM.src=[];CAM.lastMx=null;CAM.lastT=[0,0];
  L.getStream(null).then(function(st0){
   if(S!==me||!CAM.on){st0.getTracks().forEach(function(t){t.stop()});return}
   var id0=(st0.getVideoTracks()[0].getSettings()||{}).deviceId;
@@ -258,7 +258,7 @@ function camStart(){
    return L.sharedPL().then(function(pl){CAM.src[0].pl=pl;if(other)return useDev(1,other.deviceId)});
   });
  }).then(function(){
-  if(S!==me||!CAM.on)return;msgCal(CAM.src[0]&&CAM.src[0].shared?'🧍 Camera chung: phe 1 đứng bên trái, phe 2 đứng bên phải khung hình…':'🧍 Mỗi phe bước vào khung hình camera của mình…');
+  if(S!==me||!CAM.on)return;msgCal(CAM.src[0]&&CAM.src[0].shared?'🧍 Camera chung: phe 1 đứng trong vùng XANH bên trái, phe 2 trong vùng ĐỎ bên phải, chừa khoảng trống ở giữa. Chỉ cần bước trong vùng của mình…':'🧍 Mỗi phe bước vào khung hình camera của mình…');
   cancelAnimationFrame(CAM.raf);CAM.raf=requestAnimationFrame(camLoop);
  }).catch(function(e){
   if(S!==me)return;S.cam=false;msgCal(e&&e.name=='NotAllowedError'?'Chưa được phép dùng camera – dùng phím hoặc chạm để lái tàu.':'Không mở được camera (lần đầu cần mạng) – dùng phím hoặc chạm để lái tàu.');
@@ -299,9 +299,12 @@ function camLoop(){
   var res;try{res=s.pl.detectForVideo(v,now)}catch(e){return}
   var poses=res&&res.landmarks||[];
   if(s.shared){
-   [0,1].forEach(function(k){var best=null,bw=0;poses.forEach(function(p){var cx=posOf(p);if(cx==null)return;var mx=user?1-cx:cx;if((k==0?mx<0.5:mx>=0.5)){var w=Math.abs(p[11].x-p[12].x);if(w>bw){bw=w;best=p}}});
-    var c=$('spC'+k);if(c)L.drawTo(c.querySelector('canvas'),v,best,k?'#FF6F6F':'#4C9AFF');
-    var x=best?posOf(best):null;if(x!=null){var mx=user?1-x:x;seen[k]=1;onPos(k,k==0?mx/0.5:(mx-0.5)/0.5,now,true)}});
+   /* Camera chung: mỗi phe một vùng chơi, giữa có khoảng trống; máy nhớ vị trí lần trước để không nhầm người */
+   var lm0=CAM.lastMx||(CAM.lastMx=[null,null]);[0,1].forEach(function(k){if(lm0[k]!=null&&now-(CAM.lastT[k]||0)>2500)lm0[k]=null});
+   var as=L.split.assign(poses,user,lm0);
+   [0,1].forEach(function(k){var a=as[k],c=$('spC'+k),cv=c&&c.querySelector('canvas');
+    if(cv){L.drawTo(cv,v,a?a.p:null,k?'#FF6F6F':'#4C9AFF');L.split.overlay(cv,k,user)}
+    if(a){lm0[k]=a.mx;CAM.lastT[k]=now;seen[k]=1;onPos(k,L.split.pos(k,a.mx),now,true)}});
   }else{
    var k=s.sides[0],best=null,bw=0;poses.forEach(function(p){var w=Math.abs(p[11].x-p[12].x);if(w>bw){bw=w;best=p}});
    L.drawTo(b.querySelector('canvas'),v,best,k?'#FF6F6F':'#4C9AFF');
@@ -315,7 +318,7 @@ function camStop(){CAM.on=false;cancelAnimationFrame(CAM.raf);CAM.src.forEach(fu
 function onPos(k,x,now,mapped){
  if(!S)return;var sd=S.sides[k];if(!sd)return;
  if(x==null){sd.seen=0;return}
- var mx=mapped?x:(DTKSACK.gcam.face()=='user'?1-x:x),pos=mapped?Math.max(0,Math.min(1,(mx-0.1)/0.8)):Math.max(0,Math.min(1,(mx-0.18)/0.64));
+ var mx=mapped?x:(DTKSACK.gcam.face()=='user'?1-x:x),pos=mapped?Math.max(0,Math.min(1,mx)):Math.max(0,Math.min(1,(mx-0.18)/0.64));
  if(sd.flip)pos=1-pos;sd.tx=pos;
  if(S.phase=='cal'){
   if(!sd.seen)sd.seen=now;

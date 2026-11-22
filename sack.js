@@ -323,6 +323,38 @@ function drawTo(c,v,lm,col){
  [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24]].forEach(function(s){if(!vis(lm[s[0]])||!vis(lm[s[1]]))return;var a=P(s[0]),b=P(s[1]);x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()});
  [15,16].forEach(function(i){if(!vis(lm[i]))return;var a=P(i);x.fillStyle='#FFD23F';x.beginPath();x.arc(a[0],a[1],c.width/50,0,7);x.fill()});
 }
+/* ===== Dùng chung 1 camera cho 2 phe (Hứng hoa quả, Bảo vệ Trái Đất) =====
+   Khung hình (đã quy về như soi gương) chia 2 vùng chơi có khoảng trống ở giữa:
+   phe 1 bước trong vùng 4%–42%, phe 2 trong vùng 58%–96%. Mỗi phe chỉ cần bước trong vùng của mình là đủ đi hết sân,
+   nên hai bạn luôn đứng cách nhau. Máy nhớ vị trí lần trước của từng phe để không nhầm người khi có bạn lấn vào giữa. */
+var SPLIT={z:[[0.04,0.42],[0.58,0.96]]};
+function splitMx(p,user){if(!p[11]||!p[12])return null;var v=function(q){return q.visibility==null||q.visibility>0.4};if(!v(p[11])||!v(p[12]))return null;var cx=(p[11].x+p[12].x)/2;return user?1-cx:cx}
+/* poses: danh sách người máy thấy; last: [mx phe 1, mx phe 2] lần trước (null nếu chưa có). Trả về [{p,mx}|null, {p,mx}|null] */
+function splitAssign(poses,user,last){
+ var c=[];poses.forEach(function(p){var mx=splitMx(p,user);if(mx!=null)c.push({p:p,mx:mx,w:Math.abs(p[11].x-p[12].x)})});
+ var out=[null,null];if(!c.length)return out;
+ /* Mỗi bên chỉ giữ 2 người rõ nhất (gần camera nhất) để tránh người đứng xa phía sau */
+ c.sort(function(a,b){return b.w-a.w});c=c.slice(0,2);
+ var d=function(k,x){return last&&last[k]!=null?Math.abs(x.mx-last[k]):Math.abs(x.mx-(k?0.77:0.23))};
+ if(c.length==2){
+  /* Ghép 2 người với 2 phe sao cho tổng quãng dịch chuyển nhỏ nhất (không ai “nhảy” sang phe kia) */
+  var A0=d(0,c[0])+d(1,c[1]),A1=d(0,c[1])+d(1,c[0]);
+  if(A0<=A1){out[0]=c[0];out[1]=c[1]}else{out[0]=c[1];out[1]=c[0]}
+  /* Nhưng người bên trái màn hình luôn là phe 1 nếu hai người đã đứng rõ hai bên vùng trống */
+  if(out[0].mx>0.56&&out[1].mx<0.44){var t=out[0];out[0]=out[1];out[1]=t}
+ }else{var x=c[0],k=d(0,x)<=d(1,x)?0:1;if(!(last&&last[k]!=null))k=x.mx<0.5?0:1;out[k]=x}
+ return out;
+}
+/* Vị trí 0–1 trên sân của phe k từ mx */
+function splitPos(k,mx){var z=SPLIT.z[k];return Math.max(0,Math.min(1,(mx-z[0])/(z[1]-z[0])))}
+/* Vẽ vùng chơi lên ô camera của phe k: vùng của mình sáng, vùng giữa và vùng phe kia tối lại */
+function splitOverlay(cv,k,user){
+ if(!cv||!cv.width)return;var x=cv.getContext('2d'),W=cv.width,H=cv.height;
+ var rect=function(a,b,fill){var x0=user?1-b:a,x1=user?1-a:b;x.fillStyle=fill;x.fillRect(x0*W,0,(x1-x0)*W,H)};
+ var z=SPLIT.z[k],o=SPLIT.z[1-k],col=k?'rgba(255,111,111,':'rgba(76,154,255,';
+ rect(0,1,'rgba(0,0,0,0)');rect(z[0],z[1],col+'0.16)');rect(o[0],o[1],'rgba(0,0,0,0.55)');rect(SPLIT.z[0][1],SPLIT.z[1][0],'rgba(0,0,0,0.7)');
+ [z[0],z[1]].forEach(function(e){var px=(user?1-e:e)*W;x.strokeStyle=col+'0.95)';x.lineWidth=Math.max(3,W/160);x.setLineDash([W/40,W/60]);x.beginPath();x.moveTo(px,0);x.lineTo(px,H);x.stroke()});x.setLineDash([]);
+}
 /* Giữ cùng một động tác đủ HOLD ms thì chốt đáp án. Sau mỗi câu phải hạ tay xuống trước khi trả lời câu mới. */
 function onGesture(k,g,now){
  var t=S&&S[k],gs=$('ges_'+k),bd=BODY[k];if(gs)gs.textContent=g?GNAME[g]:(!bd.B?'🧍 Đứng thẳng, nhìn màn hình… '+Math.round(bd.prog()*100)+'%':'');
@@ -385,5 +417,5 @@ function gcamStart(box,onG,cf,opt){
 function gcamStop(){if(!G1)return;cancelAnimationFrame(G1.raf);if(G1.stream)G1.stream.getTracks().forEach(function(t){t.stop()});G1=null}
 window.DTKSACK={gcam:{start:gcamStart,stop:gcamStop,on:function(){return !!G1},gestVal:gestVal,face:camFace,body:makeBody,names:GNAME,
   /* Dùng cho trò Hứng hoa quả đối kháng (nhiều camera): mở camera theo id, bộ nhận dạng dùng chung (2 người) hoặc riêng (1 người), vẽ khung xương */
-  lib:{getStream:getStream,sharedPL:sharedPL,makePL:makePL,drawTo:drawTo}},face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
+  lib:{getStream:getStream,sharedPL:sharedPL,makePL:makePL,drawTo:drawTo,split:{assign:splitAssign,pos:splitPos,overlay:splitOverlay,Z:SPLIT.z}}},face:face,start:start,preload:preload,stop:stop,click:click,S:function(){return S},pick:pick,classify:classify,gestVal:gestVal,onGesture:onGesture};
 })();

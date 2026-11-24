@@ -25,7 +25,14 @@ var SUBJ=[
  {id:'khtn',ico:'🔬',name:'Khoa học tự nhiên',short:'KHTN',keys:[6,7,8,9]},
  {id:'ls',ico:'🌏',name:'Lịch sử và Địa lí',short:'Sử – Địa',keys:['ls6','ls7','ls8','ls9']},
  {id:'en',ico:'🔤',name:'Tiếng Anh',short:'Tiếng Anh',keys:['en6','en7','en8','en9']},
- {id:'nv',ico:'📖',name:'Ngữ văn (Tiếng Việt)',short:'Ngữ văn',keys:['nv6','nv7','nv8','nv9']}];
+ {id:'nv',ico:'📖',name:'Ngữ văn (Tiếng Việt)',short:'Ngữ văn',keys:['nv6','nv7','nv8','nv9']},
+ {id:'tn',ico:'🧭',name:'Hoạt động trải nghiệm, hướng nghiệp',short:'HĐTN',keys:['tn6','tn7','tn8','tn9']}];
+/* Hoạt động trải nghiệm, hướng nghiệp (Kết nối tri thức): mỗi chủ đề là một “bài” */
+GR.tn7={n:7,subj:'tn',files:['cauhoi-tn7.js'],tag:'Nhà trường · Bản thân · Gia đình · Cộng đồng · Thiên nhiên · Nghề nghiệp',
+ bai:['Em với nhà trường','Khám phá bản thân','Trách nhiệm với bản thân','Rèn luyện bản thân','Em với gia đình','Em với cộng đồng','Em với thiên nhiên và môi trường','Khám phá thế giới nghề nghiệp','Hiểu bản thân – chọn đúng nghề'],
+ bn:['Chủ đề 1','Chủ đề 2','Chủ đề 3','Chủ đề 4','Chủ đề 5','Chủ đề 6','Chủ đề 7','Chủ đề 8','Chủ đề 9'],
+ ch:[['Chủ đề 1 – 4: Bản thân và nhà trường',1,4],['Chủ đề 5 – 7: Gia đình, cộng đồng, môi trường',5,7],['Chủ đề 8 – 9: Hướng nghiệp',8,9]]};
+[6,8,9].forEach(function(n){GR['tn'+n]={n:n,subj:'tn',soon:1,files:[],tag:'Hoạt động trải nghiệm, hướng nghiệp',bai:[],ch:[]}});
 /* Ngữ văn: chỉ phần Thực hành tiếng Việt (ngữ pháp, từ ngữ, dấu câu, biện pháp tu từ) – Kết nối tri thức */
 GR.nv6={n:6,subj:'nv',files:['cauhoi-nv6.js'],tag:'Thực hành tiếng Việt: cấu tạo từ, cụm từ, trạng ngữ, dấu câu, từ mượn, biện pháp tu từ',
  bai:['Tôi và các bạn','Gõ cửa trái tim','Yêu thương và chia sẻ','Quê hương yêu dấu','Những nẻo đường xứ sở','Chuyện kể về những người anh hùng','Thế giới cổ tích','Khác biệt và gần gũi','Trái Đất – ngôi nhà chung'],
@@ -113,7 +120,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=74;
+var APPV=75;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
@@ -198,7 +205,7 @@ function gradeScreen(){
  stopAll();setScreen('grade');header();
  var sj=SUBJ.filter(function(x){return x.id==st.subj})[0]||SUBJ[0];
  var card=function(g){var c=GR[g],n=BANK[g]&&!LOADING[g]?BANK[g].length:0;
-  return '<button class="door g'+c.n+(st.g===g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+c.n+'</span><span class="dl"><b>Lớp '+c.n+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':' bài'):c.bai.length+(c.subj=='en'?' Unit':' bài'))+'</em></span></button>'};
+  return '<button class="door g'+c.n+(st.g===g?' on':'')+'" data-act="pickg" data-v="'+g+'"><span class="num">'+c.n+'</span><span class="dl"><b>Lớp '+c.n+'</b><small>'+c.tag+'</small><em>'+(c.soon&&!n?'🛠 Đang soạn câu hỏi':n?n+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':c.subj=='tn'?' chủ đề':' bài'):c.bai.length+(c.subj=='en'?' Unit':c.subj=='tn'?' chủ đề':' bài'))+'</em></span></button>'};
  app.innerHTML='<section class="hero center"><div class="eyebrow">Gameshow ôn tập cho học sinh THCS</div><h1 class="title">ĐẤU TRƯỜNG<span>TRI THỨC</span></h1><p>Bám sát sách <b>Kết nối tri thức</b>. Chọn môn học và lớp của bạn để bước lên sân khấu!</p></section>'
  +'<div class="subjs" role="tablist" aria-label="Chọn môn học">'+SUBJ.map(function(x){return '<button class="subj'+(x===sj?' on':'')+'" role="tab" aria-selected="'+(x===sj)+'" data-act="subj" data-v="'+x.id+'"><span>'+x.ico+'</span>'+x.name+'</button>'}).join('')+'</div>'
  +'<div class="doors">'+sj.keys.map(card).join('')+'</div>'
@@ -218,7 +225,7 @@ function openGrade(g){
 function home(){
  stopAll();setScreen('home');header();
  var r=roster(),c=gcfg();
- app.innerHTML='<section class="hero"><div class="eyebrow g'+c.n+'">'+subjOf(st.g).name+' · Lớp '+c.n+' · '+bank().length+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':' bài')+'</div><h1 class="title">ĐẤU TRƯỜNG<span>'+subjOf(st.g).short.toUpperCase()+' '+c.n+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
+ app.innerHTML='<section class="hero"><div class="eyebrow g'+c.n+'">'+subjOf(st.g).name+' · Lớp '+c.n+' · '+bank().length+' câu hỏi · '+c.bai.length+(c.subj=='en'?' Unit':c.subj=='tn'?' chủ đề':' bài')+'</div><h1 class="title">ĐẤU TRƯỜNG<span>'+subjOf(st.g).short.toUpperCase()+' '+c.n+'</span></h1><p>Trả lời câu hỏi như trên sân khấu truyền hình: chơi đơn, đối kháng, tiếp sức hoặc chia hai đội cả lớp.</p></section>'
  +'<section class="panel"><h2>🎤 Ghi danh thí sinh</h2>'
  +'<div class="row"><input id="nm" maxlength="16" placeholder="Tên của bạn" aria-label="Tên của bạn" autocomplete="off"><button class="btn" data-act="reg">Ghi danh</button></div>'
  +'<div class="avs" role="group" aria-label="Chọn biểu tượng">'+AV.map(function(e){return '<button class="av'+(e==st.av?' on':'')+'" data-act="av" data-v="'+e+'" aria-label="Chọn '+(window.AVNAME?AVNAME(e):e)+'">'+AVH(e)+'</button>'}).join('')+'</div>'

@@ -32,7 +32,7 @@ GR.tn7={n:7,subj:'tn',files:['cauhoi-tn7.js'],tag:'Nhà trường · Bản thân
  bai:['Em với nhà trường','Khám phá bản thân','Trách nhiệm với bản thân','Rèn luyện bản thân','Em với gia đình','Em với cộng đồng','Em với thiên nhiên và môi trường','Khám phá thế giới nghề nghiệp','Hiểu bản thân – chọn đúng nghề'],
  bn:['Chủ đề 1','Chủ đề 2','Chủ đề 3','Chủ đề 4','Chủ đề 5','Chủ đề 6','Chủ đề 7','Chủ đề 8','Chủ đề 9'],
  ch:[['Chủ đề 1 – 4: Bản thân và nhà trường',1,4],['Chủ đề 5 – 7: Gia đình, cộng đồng, môi trường',5,7],['Chủ đề 8 – 9: Hướng nghiệp',8,9]]};
-[6,8,9].forEach(function(n){GR['tn'+n]={n:n,subj:'tn',soon:1,files:[],tag:'Hoạt động trải nghiệm, hướng nghiệp',bai:[],ch:[]}});
+[6,8,9].forEach(function(n){GR['tn'+n]={n:n,subj:'tn',files:['cauhoi-tn'+n+'.js'],tag:GR.tn7.tag,bai:GR.tn7.bai.slice(),bn:GR.tn7.bn.slice(),ch:GR.tn7.ch.map(function(c){return c.slice()})}});
 /* Ngữ văn: chỉ phần Thực hành tiếng Việt (ngữ pháp, từ ngữ, dấu câu, biện pháp tu từ) – Kết nối tri thức */
 GR.nv6={n:6,subj:'nv',files:['cauhoi-nv6.js'],tag:'Thực hành tiếng Việt: cấu tạo từ, cụm từ, trạng ngữ, dấu câu, từ mượn, biện pháp tu từ',
  bai:['Tôi và các bạn','Gõ cửa trái tim','Yêu thương và chia sẻ','Quê hương yêu dấu','Những nẻo đường xứ sở','Chuyện kể về những người anh hùng','Thế giới cổ tích','Khác biệt và gần gũi','Trái Đất – ngôi nhà chung'],
@@ -120,7 +120,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=75;
+var APPV=76;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');

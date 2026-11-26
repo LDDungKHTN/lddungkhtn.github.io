@@ -37,7 +37,15 @@ GR.tn7={n:7,subj:'tn',files:['cauhoi-tn7.js'],tag:'Nhà trường · Bản thân
 GR.nv6={n:6,subj:'nv',files:['cauhoi-nv6.js'],tag:'Thực hành tiếng Việt: cấu tạo từ, cụm từ, trạng ngữ, dấu câu, từ mượn, biện pháp tu từ',
  bai:['Tôi và các bạn','Gõ cửa trái tim','Yêu thương và chia sẻ','Quê hương yêu dấu','Những nẻo đường xứ sở','Chuyện kể về những người anh hùng','Thế giới cổ tích','Khác biệt và gần gũi','Trái Đất – ngôi nhà chung'],
  ch:[['Học kì I (Tập một)',1,5],['Học kì II (Tập hai)',6,9]]};
-[7,8,9].forEach(function(n){GR['nv'+n]={n:n,subj:'nv',soon:1,files:[],tag:'Thực hành tiếng Việt',bai:[],ch:[]}});
+GR.nv7={n:7,subj:'nv',files:['cauhoi-nv7.js'],tag:'Thực hành tiếng Việt: mở rộng câu, số từ, phó từ, ngữ cảnh, thành ngữ, liên kết, thuật ngữ, biện pháp tu từ',
+ bai:['Bầu trời tuổi thơ','Khúc nhạc tâm hồn','Cội nguồn yêu thương','Giai điệu đất nước','Màu sắc trăm miền','Bài học cuộc sống','Thế giới viễn tưởng','Trải nghiệm để trưởng thành','Hoà điệu với tự nhiên'],
+ ch:[['Học kì I (Tập một)',1,5],['Học kì II (Tập hai)',6,9]]};
+GR.nv8={n:8,subj:'nv',files:['cauhoi-nv8.js'],tag:'Thực hành tiếng Việt: biệt ngữ, từ tượng hình, đảo ngữ, đoạn văn, trợ từ, thán từ, thành phần biệt lập, kiểu câu',
+ bai:['Câu chuyện của lịch sử','Vẻ đẹp cổ điển','Lời sông núi','Tiếng cười trào phúng trong thơ','Những câu chuyện hài','Chân dung cuộc sống','Tin yêu và ước vọng','Nhà văn và trang viết','Hôm nay và ngày mai'],
+ ch:[['Học kì I (Tập một)',1,5],['Học kì II (Tập hai)',6,9]]};
+GR.nv9={n:9,subj:'nv',files:['cauhoi-nv9.js'],tag:'Thực hành tiếng Việt: điển tích, chơi chữ, chữ Nôm, cách dẫn, câu rút gọn, câu ghép, từ vựng, cấu trúc câu',
+ bai:['Thế giới kì ảo','Những cung bậc tâm trạng','Hồn nước nằm trong tiếng mẹ cha','Khám phá vẻ đẹp văn chương','Đối diện với nỗi đau','Giải mã những bí mật','Hồn thơ muôn điệu','Tiếng nói của lương tri','Đi và suy ngẫm'],
+ ch:[['Học kì I (Tập một)',1,5],['Học kì II (Tập hai)',6,9]]};
 /* Tiếng Anh (Global Success): câu hỏi được đọc bằng giọng tiếng Anh của trình duyệt (speak.js) */
 GR.en6={n:6,subj:'en',files:['cauhoi-en6.js'],tag:'Global Success 6 · 12 Units · Từ vựng, ngữ pháp, phát âm, nghe từ – có giọng đọc tiếng Anh',
  bai:['My New School','My House','My Friends','My Neighbourhood','Natural Wonders of Viet Nam','Our Tet Holiday','Television','Sports and Games','Cities of the World','Our Houses in the Future','Our Greener World','Robots'],
@@ -120,7 +128,7 @@ function stars(l){return '<span class="stars" aria-label="'+LVN[l-1]+'">'+'★�
 function setScreen(n){if(window.SND&&SND.bedOff)SND.bedOff();if(window.DTKSAY&&n!='play'&&n!='sack')DTKSAY.stop();if(n!='play'&&window.DTKSACK&&DTKSACK.gcam)DTKSACK.gcam.stop();document.body.setAttribute('data-scr',n);document.body.removeAttribute('data-game');document.body.classList.remove('tight','tighter');document.body.classList.toggle('playing',n=='play'||n=='sack');window.scrollTo(0,0)}
 
 /* ================= CHỈ CHƠI KHI CÓ INTERNET ================= */
-var APPV=76;
+var APPV=77;
 function netGate(){
  var off=navigator.onLine===false,o=document.getElementById('offline');
  if(off&&!o){o=document.createElement('div');o.id='offline';o.className='offline';o.setAttribute('role','alertdialog');
